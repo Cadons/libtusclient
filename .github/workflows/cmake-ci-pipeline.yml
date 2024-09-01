@@ -86,7 +86,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --preset conan-${{ matrix.build_type }} --config ${{ matrix.build_type }}
+      run: cmake --build --preset conan-${{ matrix.build_type }} 
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
