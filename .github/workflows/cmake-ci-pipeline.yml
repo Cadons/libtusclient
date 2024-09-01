@@ -90,10 +90,16 @@ jobs:
       - name: Build Library
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient
-      - name: Build Tests
+      - name: Build Tests Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: >
-          ls ${{ github.workspace }}/build/Release;
-          cp ${{ github.workspace }}/build/libtusclient.dll ${{ github.workspace }}/build;
+          cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient_test
+      
+
+      - name: Build Tests Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: >
+          cp ${{ github.workspace }}/build/${{matrix.test_folder}}/* ${{ github.workspace }}/build/test;
           cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient_test
       
 
