@@ -31,14 +31,18 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
             conan_home: C:\Users\runner\.conan2
+            conan_profile: C:\Users\runner\.conan2\profiles\default
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             conan_home: /home/runner/.conan2
+            conan_profile: /home/runner/.conan2/profiles/default
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
             conan_home: /home/runner/.conan2
+            conan_profile: /home/runner/.conan2/profiles/default
+
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -76,7 +80,7 @@ jobs:
          
       - name: Conan profile setup
         run: |
-          sed -i 's/^build_type=.*/build_type=${{ matrix.test_folder }}/g' ${{matrix.conan_home}}/profiles/default;
+          sed -i 's/^build_type=.*/build_type=${{ matrix.test_folder }}/g' ${{matrix.conan_profile}};
 
       - name: Install dependencies
 
