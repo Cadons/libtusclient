@@ -21,12 +21,12 @@ class libtusclientRecipe(ConanFile):
     default_options = {"shared": False, "fPIC": True}
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "tests/*", "config.h"
 
     def get_version(self):
         git = Git(self)
-        tag=git.run("describe --exact-match --tags")
-        branch=git.run("describe --all")
+        tag=git.run("tag")
+        branch=git.run("branch --show-current")
         if tag:
             return tag
         return branch+"-"+ self.version
@@ -46,8 +46,10 @@ class libtusclientRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
-        tc.variables["CONAN_NAME"] = self.name
-        tc.variables["CONAN_VERSION"] = self.get_version()
+        tc.cache_variables["CONAN_NAME"] = self.name
+        tc.cache_variables["CONAN_VERSION"] = self.get_version()
+        tc.cache_variables["CONAN_PACKAGE_LICENCE"] = self.license
+        
 
         tc.generate()
 
