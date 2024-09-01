@@ -65,7 +65,7 @@ jobs:
         run: |
           pip install conan
           conan --version
-      - name: Create Conan profiles Ubuntu
+      - name: Create Conan profiles
         continue-on-error: true
         run: |
           conan profile new default --detect
