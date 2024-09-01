@@ -7,7 +7,11 @@ set(OUTPUT_BASE_DIR ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
 configure_file(config.h.in config.h)
 
-add_library(libtusclient SHARED src/libtusclient.cpp)
+file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE HEADERS include/*.h)
+
+add_library(libtusclient SHARED ${SOURCES} ${HEADERS})
+
 
 target_include_directories(libtusclient 
     PUBLIC 
