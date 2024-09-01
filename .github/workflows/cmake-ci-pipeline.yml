@@ -31,7 +31,7 @@ jobs:
             c_compiler: cl
             cpp_compiler: cl
             conan_home: C:\Users\runner\.conan2
-            conan_profile: C:\Users\runner\.conan2\profiles\default
+            conan_profile: C:\Users\runneradmin\.conan2\profiles\default
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
