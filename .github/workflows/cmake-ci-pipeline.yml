@@ -65,9 +65,11 @@ jobs:
         run: |
           pip install conan
           conan --version
-          if [ ! -f "$HOME/.conan/profiles/default" ]; then
-            conan profile detect
-          fi
+      - name: Create Conan profiles Ubuntu
+        continue-on-error: true
+        run: |
+          conan profile new default --detect
+         
       - name: Conan profile setup
         run: |
           sed 's/build_type=.*/build_type=${{ matrix.build_type }}/g' default > default
