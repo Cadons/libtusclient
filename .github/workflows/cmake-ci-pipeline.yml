@@ -91,8 +91,15 @@ jobs:
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build --preset conan-${{ matrix.build_type }}
 
-      - name: Test Project
+      - name: Test Project Ubuntu
         uses: threeal/ctest-action@v1.1.0
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           build-config: ${{ matrix.build_type }}
           test-dir: ${{ github.workspace }}/build/${{ matrix.test_folder }}
+      - name: Test Project Windows
+        uses: threeal/ctest-action@v1.1.0
+        if: ${{ matrix.os == 'windows-latest' }}
+        with:
+          build-config: ${{ matrix.build_type }}
+          test-dir: ${{ github.workspace }}/build
