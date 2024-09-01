@@ -70,8 +70,8 @@ jobs:
       # Cache the .conan directory to speed up subsequent builds
       uses: actions/cache@v2
       with:
-        path: ${{ steps.strings.outputs.build-output-dir }}/.conan2
-        key: ${{ runner.os }}-conan-${{ hashFiles('**/.conan2') }}
+        path: ~/.conan2
+        key: ${{ runner.os }}-conan
 
     - name: Configure CMake Windows
       if: ${{ matrix.os == 'windows-latest' }}
