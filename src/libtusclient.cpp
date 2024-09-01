@@ -2,17 +2,8 @@
 #include "libtusclient.h"
 #include "config.h"
 #include <string>
-#ifdef WINDOWS
-    #include <windows.h>
-    #ifdef LIBTUSCLIENT_EXPORTS
-        #define LIBTUSCLIENT_API __declspec(dllexport)
-    #else
-        #define LIBTUSCLIENT_API __declspec(dllimport)
-    #endif
-#else
-    #define LIBTUSCLIENT_API
-#endif
-LIBTUSCLIENT_API void  libtusclient(){
+
+void libtusclient(){
     
 
     #ifdef NDEBUG
@@ -122,7 +113,7 @@ LIBTUSCLIENT_API void  libtusclient(){
     #endif
 }
 
-LIBTUSCLIENT_API void  libtusclient_print_vector(const std::vector<std::string> &strings) {
+void libtusclient_print_vector(const std::vector<std::string> &strings) {
     for(std::vector<std::string>::const_iterator it = strings.begin(); it != strings.end(); ++it) {
         std::cout << "libtusclient/0.1 " << *it << std::endl;
         std::string version =VERSION;
