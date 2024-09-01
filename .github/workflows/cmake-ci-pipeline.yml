@@ -1,11 +1,11 @@
 # This starter workflow is for a CMake project running on multiple platforms. There is a different starter workflow if you just want a single platform.
 # See: https://github.com/actions/starter-workflows/blob/main/ci/cmake-single-platform.yml
-name: CMake on multiple platforms
+name: libtusclient CI
 
 on: push
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -20,8 +20,8 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         os: [ubuntu-latest, windows-latest]
-        build_type: [release]
-        test_folder: [Release]
+        build_type: [release, debug]
+        test_folder: [Release, Debug]
         c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
@@ -115,3 +115,17 @@ jobs:
         with:
           build-config: ${{ matrix.build_type }}
           test-dir: ${{ github.workspace }}/build
+      - name: Cache Library Artifact Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: libtusclient
+          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.a
+      - name: Cache Library Artifact Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: libtusclient
+          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.dll
+
+        
