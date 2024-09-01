@@ -75,19 +75,18 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{matrix.conan_home}}
-        key: ${{ runner.os }}-conan-{{hashFiles('**/conanfile.py')}}
+        key: ${{ runner.os }}-conan-${{hashFiles('**/conanfile.py')}}
         restore-keys: |
           ${{ runner.os }}-conan-
 
 
-    - name: Configure CMake
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: >
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        cmake --preset conan-${{ matrix.build_type }}
-        else:
-        cmake --preset conan-default
+    - name: Configure CMake (Ubuntu)
+      run: cmake --preset conan-${{ matrix.build_type }}
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+    
+    - name: Configure CMake (Windows)
+      run: cmake --preset conan-default
+      if: ${{ matrix.os == 'windows-latest' }}
     
   
 
