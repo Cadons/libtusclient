@@ -61,7 +61,6 @@ jobs:
         conan install . --build=missing 
     - name: Conan profile setup
       run: |
-        conan profile new default --detect
         conan profile update settings.compiler.libcxx=libstdc++11 default
         conan profile update settings.compiler.cppstd=17 default
         conan profile update settings.build_type=${{ matrix.build_type }} default
