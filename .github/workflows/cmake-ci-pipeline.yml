@@ -68,7 +68,7 @@ jobs:
       - name: Create Conan profiles
         continue-on-error: true
         run: |
-          conan profile new default --detect
+          conan profile detect
          
       - name: Conan profile setup
         run: |
