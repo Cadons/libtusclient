@@ -27,12 +27,15 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
+            conan_home: C:\Users\runner\.conan2
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+            conan_home: /home/runner/.conan2
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
+            conan_home: /home/runner/.conan2
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -67,20 +70,16 @@ jobs:
 
 
 
-    - name: Cache .conan Linux
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: Cache .conan
+
       # Cache the .conan directory to speed up subsequent builds
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
-        path: /home/runner/.conan2
-        key: ${{ runner.os }}-conan
-    - name: Cache .conan Windows
-      if: ${{ matrix.os == 'windows-latest' }}
-      # Cache the .conan directory to speed up subsequent builds
-      uses: actions/cache@v2
-      with:
-        path: C:\Users\runneradmin\.conan2
-        key: ${{ runner.os }}-conan
+        path: ${{matrix.conan_home}}
+        key: ${{ runner.os }}-conan-{{hashFiles('**/conanfile.py')}}
+        restore-keys: |
+          ${{ runner.os }}-conan-
+
 
     - name: Configure CMake Windows
       if: ${{ matrix.os == 'windows-latest' }}
