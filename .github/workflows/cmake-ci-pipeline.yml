@@ -76,8 +76,7 @@ jobs:
          
       - name: Conan profile setup
         run: |
-          cat ${{matrix.conan_home}}/profiles/default;
-          sed 's/^build_type=.*/build_type=${{ matrix.build_type }}/' ${{matrix.conan_home}}/profiles/default     
+          sed 's/^build_type=.*/build_type=${{ matrix.test_folder }}/g' ${{matrix.conan_home}}/profiles/default     
 
       - name: Install dependencies
 
