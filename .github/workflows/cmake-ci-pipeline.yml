@@ -96,3 +96,4 @@ jobs:
       uses: threeal/ctest-action@v1.1.0
       with:
         build-config: ${{ matrix.build_type }}
+        test-dir: ${{ github.workspace }}/build/${{ matrix.build_type }}
