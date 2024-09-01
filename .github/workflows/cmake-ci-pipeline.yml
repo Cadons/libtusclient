@@ -20,7 +20,7 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         os: [ubuntu-latest, windows-latest]
-        build_type: [Release]
+        build_type: [release]
         c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
@@ -86,7 +86,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --preset conan-${{ matrix.build_type.lowerCaseValue }}
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --preset conan-${{ matrix.build_type }}
 
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
