@@ -81,8 +81,6 @@ jobs:
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        ;
-        cmake --generate-preset conan-${{ matrix.build_type }}
 
 
 
