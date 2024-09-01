@@ -20,8 +20,8 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       matrix:
         os: [ubuntu-latest, windows-latest]
-        build_type: [release]
-        build_type_folder: [Release]
+        build_type: [debug]
+        build_type_folder: [Debug]
         c_compiler: [gcc, clang, cl]
         include:
           - os: windows-latest
