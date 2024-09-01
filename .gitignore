@@ -33,6 +33,7 @@
 
 .vscode/
 .vs/
+.vsconan/
 .idea/
 *.sln
 *.vcxproj

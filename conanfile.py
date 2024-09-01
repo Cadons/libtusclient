@@ -1,5 +1,6 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain, CMake, cmake_layout, CMakeDeps
+from conan.tools.scm import Git
 
 
 class libtusclientRecipe(ConanFile):
@@ -8,11 +9,11 @@ class libtusclientRecipe(ConanFile):
     package_type = "library"
 
     # Optional metadata
-    license = "<Put the package license here>"
-    author = "<Put your name here> <And your email here>"
+    license = "MIT"
+    author = "Cadons"
     url = "<Package recipe repository url here, for issues about the package>"
-    description = "<Description of libtusclient package here>"
-    topics = ("<Put some tag here>", "<here>", "<and here>")
+    description = "https://github.com/Cadons/libtusclient"
+    topics = ("tus protocol", "tus client", "tus upload", "tus resumable upload", "tus.io")
 
     # Binary configuration
     settings = "os", "compiler", "build_type", "arch"
@@ -22,6 +23,14 @@ class libtusclientRecipe(ConanFile):
     # Sources are located in the same place as this recipe, copy them to the recipe
     exports_sources = "CMakeLists.txt", "src/*", "include/*"
 
+    def get_version(self):
+        git = Git(self)
+        tag=git.run("describe --exact-match --tags")
+        branch=git.run("describe --all")
+        if tag:
+            return tag
+        return branch+"-"+ self.version
+    
     def config_options(self):
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
@@ -37,6 +46,9 @@ class libtusclientRecipe(ConanFile):
         deps = CMakeDeps(self)
         deps.generate()
         tc = CMakeToolchain(self)
+        tc.variables["CONAN_NAME"] = self.name
+        tc.variables["CONAN_VERSION"] = self.get_version()
+
         tc.generate()
 
     def build(self):
@@ -50,4 +62,8 @@ class libtusclientRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["libtusclient"]
+    
+    def requirements(self):
+        self.requires("libcurl/8.9.1")
+        self.requires("gtest/1.15.0")
 
