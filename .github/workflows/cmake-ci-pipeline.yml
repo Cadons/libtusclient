@@ -92,7 +92,8 @@ jobs:
         run: cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient
       - name: Build Tests
         run: >
-          cp libtusclient.dll ${{ github.workspace }}/build
+          ls ${{ github.workspace }}/build;
+          cp ${{ github.workspace }}/build/libtusclient.dll ${{ github.workspace }}/build;
           cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient_test
       
 
