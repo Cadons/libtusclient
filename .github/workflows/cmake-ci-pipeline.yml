@@ -66,7 +66,8 @@ jobs:
     - name: Install dependencies
 
       run: |
-        conan install . --build=missing 
+        conan install . --build=missing ;
+        ls;
 
 
 
@@ -87,6 +88,7 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: >
         cd build;
+        cd generators;
         cmake --preset conan-${{ matrix.build_type }}
     - name: Configure CMake Linux
       if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -95,6 +97,7 @@ jobs:
       run: >
         cd build;
         cd ${{matrix.build_type_folder}};
+        cd generators;
         cmake --preset conan-${{ matrix.build_type }} 
 
 
