@@ -81,7 +81,7 @@ jobs:
         cd build;
         cd ${{matrix.build_type_folder}};
         cmake -S ${{ runner.workspace }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type_folder }}
         -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
