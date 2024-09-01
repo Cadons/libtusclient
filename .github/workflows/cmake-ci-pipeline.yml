@@ -55,23 +55,31 @@ jobs:
       run: |
         pip install conan
         conan --version
-        conan config home 
         conan profile detect
     - name: Conan profile setup
       run: |
           sed 's/build_type=.*/build_type=${{ matrix.build_type }}/g' default > default
-          
+
     - name: Install dependencies
+
       run: |
         conan install . --build=missing 
 
 
 
-    - name: Cache .conan
+    - name: Cache .conan Linux
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       # Cache the .conan directory to speed up subsequent builds
       uses: actions/cache@v2
       with:
-        path: ~/.conan2
+        path: /home/runner/.conan2
+        key: ${{ runner.os }}-conan
+    - name: Cache .conan Windows
+      if: ${{ matrix.os == 'windows-latest' }}
+      # Cache the .conan directory to speed up subsequent builds
+      uses: actions/cache@v2
+      with:
+        path: C:\Users\runneradmin\.conan2
         key: ${{ runner.os }}-conan
 
     - name: Configure CMake Windows
