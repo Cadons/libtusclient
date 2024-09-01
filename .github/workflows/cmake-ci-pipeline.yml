@@ -87,9 +87,13 @@ jobs:
         run: cmake --preset conan-default
         if: ${{ matrix.os == 'windows-latest' }}
 
-      - name: Build
+      - name: Build Ubuntu
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build --preset conan-${{ matrix.build_type }}
+      - name: Build Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: cmake --build --preset conan-default
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
