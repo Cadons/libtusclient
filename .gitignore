@@ -30,3 +30,25 @@
 *.exe
 *.out
 *.app
+
+.vscode/
+.vs/
+.idea/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+CMakeScripts/
+CMakeSettings.json
+CMakeUserPresets.json
+
+# Build directory
+build/
+out/
+
+*.lock
+graph-info.json
