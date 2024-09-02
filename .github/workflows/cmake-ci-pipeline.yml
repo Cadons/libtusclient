@@ -85,8 +85,7 @@ jobs:
       - name: Conan profile setup Windows
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          (Get-Content $env:matrix_conan_profile) -replace '^build_type=.*', "build_type=$env:matrix_test_folder" | Set-Content $env:matrix_conan_profile
-
+          (Get-Content ${{matrix.conan_profile}}) -replace '^build_type=.*', "build_type=${{ matrix.test_folder }}" | Set-Content ${{matrix.conan_profile}}
       - name: Install dependencies
 
         run: |
