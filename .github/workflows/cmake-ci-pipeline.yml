@@ -30,7 +30,7 @@ jobs:
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
-            conan_home: C:\Users\runner\.conan2
+            conan_home: C:\Users\runneradmin\.conan2
             conan_profile: C:\Users\runneradmin\.conan2\profiles\default
           - os: ubuntu-latest
             c_compiler: gcc
@@ -132,7 +132,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: libtusclient
-          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.a
+          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.so
       - name: Cache Library Artifact Windows
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v2
