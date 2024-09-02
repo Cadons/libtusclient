@@ -78,14 +78,18 @@ jobs:
         run: |
           conan profile detect
          
-      - name: Conan profile setup
+      - name: Conan profile setup Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sed -i 's/^build_type=.*/build_type=${{ matrix.test_folder }}/g' ${{matrix.conan_profile}};
-
+      - name: Conan profile setup Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          (Get-Content ${{matrix.conan_profile}}) -replace '^build_type=.*', "build_type=${{ matrix.test_folder }}" | Set-Content ${{matrix.conan_profile}}
       - name: Install dependencies
 
         run: |
-          conan install . --build=missing ;
+          conan install . --build=missing --profile=default ;
 
       - name: Configure CMake (Ubuntu)
         run: cmake --preset conan-${{ matrix.build_type }}
@@ -128,12 +132,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: libtusclient
-          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.a
+          path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.so
       - name: Cache Library Artifact Windows
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v2
         with:
           name: libtusclient
           path: ${{ github.workspace }}/build/${{ matrix.test_folder }}/libtusclient.dll
-
-        
