@@ -4,11 +4,10 @@
 #include <string>
 
 
-#ifdef _WIN32
-  #define LIBTUSCLIENT_EXPORT __declspec(dllexport)
+#ifdef WINDOWS
+  #include <windows.h>
+  #define LIBTUSAPI_EXPORT __declspec(dllexport)
 #else
-  #define LIBTUSCLIENT_EXPORT
+  #define LIBTUSAPI_EXPORT
 #endif
 
-LIBTUSCLIENT_EXPORT void libtusclient();
-LIBTUSCLIENT_EXPORT void libtusclient_print_vector(const std::vector<std::string> &strings);
