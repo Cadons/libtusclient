@@ -5,7 +5,7 @@ name: libtusclient CI
 on:
   push:
     branches-ignore:
-      - master
+      - main
 
 jobs:
   build_and_test:
