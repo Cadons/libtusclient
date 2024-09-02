@@ -5,7 +5,7 @@ name: libtusclient CI Master
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build_and_test:
