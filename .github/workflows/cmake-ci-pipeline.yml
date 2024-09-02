@@ -78,9 +78,14 @@ jobs:
         run: |
           conan profile detect
          
-      - name: Conan profile setup
+      - name: Conan profile setup Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sed -i 's/^build_type=.*/build_type=${{ matrix.test_folder }}/g' ${{matrix.conan_profile}};
+      - name: Conan profile setup Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          (Get-Content $env:matrix_conan_profile) -replace '^build_type=.*', "build_type=$env:matrix_test_folder" | Set-Content $env:matrix_conan_profile
 
       - name: Install dependencies
 
