@@ -4,13 +4,14 @@
 #include <string>
 #include "IHttpClient.h"
 #include "libtusclient.h"
+#include <curl/curl.h>
+#include "Request.h"
 #include<functional>
 namespace TUS
 {
     namespace Http
     {
-        class Request;
-    
+
         /**
          * @brief Represents a HTTP client
          */

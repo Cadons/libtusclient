@@ -1,6 +1,5 @@
 #include "http/HttpClient.h"
 #include "http/Request.h"
-#include <curl/curl.h>
 #include <thread>
 
 using namespace TUS::Http;
@@ -12,7 +11,7 @@ HttpClient::HttpClient()
 HttpClient::~HttpClient()
 {
 }
-string HttpClient::convertHttoMethodToString(HttpMethod method)
+string HttpClient::convertHttpMethodToString(HttpMethod method)
 {
     switch (method)
     {
@@ -32,7 +31,7 @@ string HttpClient::convertHttoMethodToString(HttpMethod method)
 }
 void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method ,Request request)
 {
-    string methodStr=convertHttoMethodToString(method);
+    string methodStr=convertHttpMethodToString(method);
    
     curl_easy_setopt(curl, CURLOPT_URL, request.getUrl().c_str());
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, methodStr.c_str());
