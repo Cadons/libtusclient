@@ -30,7 +30,7 @@ namespace TUS
         private:
             
             void setupCURLRequest(CURL *curl,HttpMethod method, Request request);
-            static string convertHttoMethodToString(HttpMethod method);
+            static string convertHttpMethodToString(HttpMethod method);
             using onDataReceivedCallback = std::function<size_t>(char *ptr, size_t size, size_t nmemb,
                       void *userdata);
             onDataReceivedCallback m_onDataReceivedCallback;
