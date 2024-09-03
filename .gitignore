@@ -53,3 +53,5 @@ out/
 
 *.lock
 graph-info.json
+conanbuildinfo.txt
+conaninfo.txt
