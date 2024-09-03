@@ -52,6 +52,6 @@ build/
 out/
 
 *.lock
-graph-info.json
+graph_info.json
 conanbuildinfo.txt
 conaninfo.txt
