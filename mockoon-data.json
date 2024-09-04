@@ -14,7 +14,7 @@
       "responses": [
         {
           "uuid": "3e1b6c2c-9f76-44a7-951c-4476dd92fa4a",
-          "body": "",
+          "body": "{\"test\":\"options passed\"}",
           "latency": 0,
           "statusCode": 204,
           "label": "No Content",
@@ -134,7 +134,7 @@
       "responses": [
         {
           "uuid": "c8c37e68-0c7c-4ed5-a0d8-8c1f7d9e78a4",
-          "body": "",
+          "body": "{\"test\":\"head passed\"}",
           "latency": 0,
           "statusCode": 200,
           "label": "Success",
@@ -196,7 +196,7 @@
       "responses": [
         {
           "uuid": "fd789356-0312-4133-b8a0-bf66e923ed44",
-          "body": "",
+          "body": "{\"test\":\"patch passed\"}",
           "latency": 0,
           "statusCode": 204,
           "label": "No Content",

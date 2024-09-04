@@ -88,11 +88,11 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
-    TestParams{"http://localhost:3000/files", "", HttpMethod::GET, "{\"test\":\"get passed\"}"},
+     TestParams{"http://localhost:3000/files", "", HttpMethod::GET, "{\"test\":\"get passed\"}"},
     TestParams{"http://localhost:3000/files", "{\"data\":[1,2,3,4,5]}", HttpMethod::POST, "{\"test\":\"post passed\"}"},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::PUT, ""},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::PATCH, ""},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::DELETE, ""}
+    TestParams{"http://localhost:3000/files", "", HttpMethod::PUT, "{\"test\":\"put passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::PATCH, "{\"test\":\"patch passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::DELETE, "{\"test\":\"delete passed\"}"}
 ), [](const testing::TestParamInfo<HttpClientParameterizedTest::ParamType>& info) {
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });

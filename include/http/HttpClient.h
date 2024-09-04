@@ -17,9 +17,8 @@ namespace TUS
          */
         class LIBTUSAPI_EXPORT HttpClient : public IHttpClient
         {
-          
-        public:
 
+        public:
             HttpClient();
             ~HttpClient();
 
@@ -35,6 +34,7 @@ namespace TUS
 
         private:
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
+            void sendRequest(HttpMethod method, Request request);
         };
     }
 }
