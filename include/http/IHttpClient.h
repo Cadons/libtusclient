@@ -16,6 +16,8 @@ namespace TUS{
         virtual void put(Request request) = 0;
         virtual void patch(Request request) = 0;
         virtual void del(Request request) = 0;
+        virtual void head(Request request) = 0;
+        virtual void options(Request request) = 0;
     };
     }
 

@@ -1,5 +1,5 @@
 #include "http/Request.h"
-
+#include <iostream>
 using namespace TUS::Http;
 
 Request::Request()
@@ -7,6 +7,10 @@ Request::Request()
     this->url = "";
     this->body = "";
     this->method = HttpMethod::GET;
+    this->headers = map<string, string>();
+    this->headers["Content-Type"] = "application/json";
+    setOnSuccessCallback(defaultSuccessCallback());
+    setOnErrorCallback(defaultErrorCallback());
 }
 
 Request::Request(string url)
@@ -14,6 +18,10 @@ Request::Request(string url)
     this->url = url;
     this->body = "";
     this->method = HttpMethod::GET;
+    this->headers = map<string, string>();
+    this->headers["Content-Type"] = "application/json";
+    setOnSuccessCallback(defaultSuccessCallback());
+    setOnErrorCallback(defaultErrorCallback());
 }
 
 Request::Request(string url, string body)
@@ -21,6 +29,10 @@ Request::Request(string url, string body)
     this->url = url;
     this->body = body;
     this->method = HttpMethod::POST;
+    this->headers = map<string, string>();
+    this->headers["Content-Type"] = "application/json";
+    setOnSuccessCallback(defaultSuccessCallback());
+    setOnErrorCallback(defaultErrorCallback());
 }
 
 Request::Request(string url, string body, HttpMethod method)
@@ -28,6 +40,10 @@ Request::Request(string url, string body, HttpMethod method)
     this->url = url;
     this->body = body;
     this->method = method;
+    this->headers = map<string, string>();
+    this->headers["Content-Type"] = "application/json";
+    setOnSuccessCallback(defaultSuccessCallback());
+    setOnErrorCallback(defaultErrorCallback());
 }
 
 Request::Request(string url, string body, HttpMethod method, map<string, string> headers)
@@ -36,6 +52,47 @@ Request::Request(string url, string body, HttpMethod method, map<string, string>
     this->body = body;
     this->method = method;
     this->headers = headers;
+    if (this->headers.find("Content-Type") == this->headers.end())
+    {
+        this->headers["Content-Type"] = "application/json";
+    }
+    setOnSuccessCallback(defaultSuccessCallback());
+    setOnErrorCallback(defaultErrorCallback());
+}
+
+Request::Request(string url, string body, HttpMethod method, map<string, string> headers, SuccessCallback onSuccessCallback, ErrorCallback onErrorCallback)
+{
+    this->url = url;
+    this->body = body;
+    this->method = method;
+    this->headers = headers;
+    if (this->headers.find("Content-Type") == this->headers.end())
+    {
+        this->headers["Content-Type"] = "application/json";
+    }
+    setOnSuccessCallback(onSuccessCallback);
+    setOnErrorCallback(onErrorCallback);
+}
+
+Request::Request(const Request &request)
+{
+    this->url = request.url;
+    this->body = request.body;
+    this->method = request.method;
+    this->headers = request.headers;
+    setOnSuccessCallback(request.getOnSuccessCallback());
+    setOnErrorCallback(request.getOnErrorCallback());
+}
+
+Request &Request::operator=(const Request &request)
+{
+    this->url = request.url;
+    this->body = request.body;
+    this->method = request.method;
+    this->headers = request.headers;
+    setOnSuccessCallback(request.getOnSuccessCallback());
+    setOnErrorCallback(request.getOnErrorCallback());
+    return *this;
 }
 
 void Request::addHeader(string key, string value)
@@ -66,4 +123,40 @@ HttpMethod Request::getMethod() const
 map<string, string> Request::getHeaders() const
 {
     return this->headers;
+}
+
+void Request::setOnSuccessCallback(SuccessCallback onSuccessCallback)
+{
+    this->m_onSuccessCallback = onSuccessCallback;
+}
+
+void Request::setOnErrorCallback(ErrorCallback onErrorCallback)
+{
+    this->m_onErrorCallback = onErrorCallback;
+}
+
+Request::SuccessCallback Request::getOnSuccessCallback() const
+{
+    return this->m_onSuccessCallback;
+}
+
+Request::ErrorCallback Request::getOnErrorCallback() const
+{
+    return this->m_onErrorCallback;
+}
+
+Request::SuccessCallback Request::defaultSuccessCallback()
+{
+    return [](string header, string data)
+    {
+        std::cout << "not implemented" << std::endl;
+    };
+}
+
+Request::ErrorCallback Request::defaultErrorCallback()
+{
+    return [](string header, string data)
+    {
+        std::cout << "not implemented" << std::endl;
+    };
 }

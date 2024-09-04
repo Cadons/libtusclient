@@ -1,180 +1,345 @@
 {
-    "uuid": "e6f6d610-5473-11ec-bf63-0242ac130002",
-    "lastMigration": 29,
-    "name": "Mockoon TUS Server",
-    "endpointPrefix": "",
-    "latency": 0,
-    "port": 3000,
-    "routes": [
-      {
-        "uuid": "d1b7b4e2-9d65-4fcb-b403-088b07db05f1",
-        "documentation": "OPTIONS request for /files",
-        "method": "options",
-        "endpoint": "files",
-        "responses": [
-          {
-            "uuid": "3e1b6c2c-9f76-44a7-951c-4476dd92fa4a",
-            "body": "",
-            "latency": 0,
-            "statusCode": 204,
-            "label": "No Content",
-            "headers": [
-              { "key": "Access-Control-Allow-Origin", "value": "*" },
-              { "key": "Access-Control-Allow-Methods", "value": "OPTIONS, POST, PATCH, HEAD" },
-              { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition" },
-              { "key": "Access-Control-Expose-Headers", "value": "Location, Upload-Offset" },
-              { "key": "Tus-Resumable", "value": "1.0.0" },
-              { "key": "Content-Length", "value": "0" }
-            ],
-            "sendFileAsBody": false,
-            "rules": [],
-            "rulesOperator": "OR",
-            "disableTemplating": false,
-            "fallbackTo404": false,
-            "default": true,
-            "databucketID": "",
-            "bodyType": "INLINE",
-            "crudKey": ""
-          }
-        ],
-        "enabled": true,
-        "responseMode": null,
-        "type": "http"
-      },
-      {
-        "uuid": "87f46b9f-0ab7-453b-bcb5-0053dbf40b42",
-        "documentation": "POST request for /files",
-        "method": "post",
-        "endpoint": "files",
-        "responses": [
-          {
-            "uuid": "8c58b9b0-9a31-4d32-8c29-7953745e3ed5",
-            "body": "",
-            "latency": 0,
-            "statusCode": 201,
-            "label": "Created",
-            "headers": [
-              { "key": "Access-Control-Allow-Origin", "value": "*" },
-              { "key": "Access-Control-Allow-Methods", "value": "OPTIONS, POST, PATCH, HEAD" },
-              { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition" },
-              { "key": "Access-Control-Expose-Headers", "value": "Location, Upload-Offset" },
-              { "key": "Tus-Resumable", "value": "1.0.0" },
-              { "key": "Location", "value": "http://localhost:3000/files/{fileId}" },
-              { "key": "Content-Length", "value": "0" }
-            ],
-            "sendFileAsBody": false,
-            "rules": [],
-            "rulesOperator": "OR",
-            "disableTemplating": false,
-            "fallbackTo404": false,
-            "default": true,
-            "databucketID": "",
-            "bodyType": "INLINE",
-            "crudKey": ""
-          }
-        ],
-        "enabled": true,
-        "responseMode": null,
-        "type": "http"
-      },
-      {
-        "uuid": "b2f6d3a5-d55a-4e1d-b1e7-e917a68022e5",
-        "documentation": "HEAD request for /files/{fileId}",
-        "method": "head",
-        "endpoint": "files/:fileId",
-        "responses": [
-          {
-            "uuid": "c8c37e68-0c7c-4ed5-a0d8-8c1f7d9e78a4",
-            "body": "",
-            "latency": 0,
-            "statusCode": 200,
-            "label": "Success",
-            "headers": [
-              { "key": "Access-Control-Allow-Origin", "value": "*" },
-              { "key": "Access-Control-Allow-Methods", "value": "OPTIONS, POST, PATCH, HEAD" },
-              { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition" },
-              { "key": "Access-Control-Expose-Headers", "value": "Location, Upload-Offset" },
-              { "key": "Tus-Resumable", "value": "1.0.0" },
-              { "key": "Upload-Length", "value": "102400" },
-              { "key": "Upload-Offset", "value": "0" },
-              { "key": "Content-Length", "value": "0" }
-            ],
-            "sendFileAsBody": false,
-            "rules": [],
-            "rulesOperator": "OR",
-            "disableTemplating": false,
-            "fallbackTo404": false,
-            "default": true,
-            "databucketID": "",
-            "bodyType": "INLINE",
-            "crudKey": ""
-          }
-        ],
-        "enabled": true,
-        "responseMode": null,
-        "type": "http"
-      },
-      {
-        "uuid": "f1e275ff-9055-4c1f-8f6a-8395b3ecb4f7",
-        "documentation": "PATCH request for /files/{fileId}",
-        "method": "patch",
-        "endpoint": "files/:fileId",
-        "responses": [
-          {
-            "uuid": "fd789356-0312-4133-b8a0-bf66e923ed44",
-            "body": "",
-            "latency": 0,
-            "statusCode": 204,
-            "label": "No Content",
-            "headers": [
-              { "key": "Access-Control-Allow-Origin", "value": "*" },
-              { "key": "Access-Control-Allow-Methods", "value": "OPTIONS, POST, PATCH, HEAD" },
-              { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition" },
-              { "key": "Access-Control-Expose-Headers", "value": "Location, Upload-Offset" },
-              { "key": "Tus-Resumable", "value": "1.0.0" },
-              { "key": "Upload-Offset", "value": "51200" },
-              { "key": "Content-Length", "value": "0" }
-            ],
-            "sendFileAsBody": false,
-            "rules": [],
-            "rulesOperator": "OR",
-            "disableTemplating": false,
-            "fallbackTo404": false,
-            "default": true,
-            "databucketID": "",
-            "bodyType": "INLINE",
-            "crudKey": ""
-          }
-        ],
-        "enabled": true,
-        "responseMode": null,
-        "type": "http"
-      }
-    ],
-    "proxyMode": false,
-    "proxyHost": "",
-    "cors": true,
-    "headers": [{ "key": "Content-Type", "value": "application/json" }],
-    "proxyReqHeaders": [{ "key": "", "value": "" }],
-    "proxyResHeaders": [{ "key": "", "value": "" }],
-    "proxyRemovePrefix": false,
-    "hostname": "",
-    "tlsOptions": {
-      "enabled": false,
-      "type": "CERT",
-      "pfxPath": "",
-      "certPath": "",
-      "keyPath": "",
-      "caPath": "",
-      "passphrase": ""
+  "uuid": "e6f6d610-5473-11ec-bf63-0242ac130002",
+  "lastMigration": 32,
+  "name": "Mockoon TUS Server",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "routes": [
+    {
+      "uuid": "d1b7b4e2-9d65-4fcb-b403-088b07db05f1",
+      "documentation": "OPTIONS request for /files",
+      "method": "options",
+      "endpoint": "files",
+      "responses": [
+        {
+          "uuid": "3e1b6c2c-9f76-44a7-951c-4476dd92fa4a",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "No Content",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS, POST, PATCH, HEAD"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition"
+            },
+            {
+              "key": "Access-Control-Expose-Headers",
+              "value": "Location, Upload-Offset"
+            },
+            {
+              "key": "Tus-Resumable",
+              "value": "1.0.0"
+            },
+            {
+              "key": "Content-Length",
+              "value": "0"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
     },
-    "data": [],
-    "folders": [],
-    "rootChildren": [
-      { "type": "route", "uuid": "d1b7b4e2-9d65-4fcb-b403-088b07db05f1" },
-      { "type": "route", "uuid": "87f46b9f-0ab7-453b-bcb5-0053dbf40b42" },
-      { "type": "route", "uuid": "b2f6d3a5-d55a-4e1d-b1e7-e917a68022e5" },
-      { "type": "route", "uuid": "f1e275ff-9055-4c1f-8f6a-8395b3ecb4f7" }
-    ]
-  }
-  
+    {
+      "uuid": "87f46b9f-0ab7-453b-bcb5-0053dbf40b42",
+      "documentation": "POST request for /files",
+      "method": "post",
+      "endpoint": "files",
+      "responses": [
+        {
+          "uuid": "8c58b9b0-9a31-4d32-8c29-7953745e3ed5",
+          "body": "{\"test\":\"post passed\"}",
+          "latency": 0,
+          "statusCode": 201,
+          "label": "Created",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS, POST, PATCH, HEAD"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition"
+            },
+            {
+              "key": "Access-Control-Expose-Headers",
+              "value": "Location, Upload-Offset"
+            },
+            {
+              "key": "Tus-Resumable",
+              "value": "1.0.0"
+            },
+            {
+              "key": "Location",
+              "value": "http://localhost:3000/files/{fileId}"
+            },
+            {
+              "key": "Content-Length",
+              "value": "0"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "body",
+              "modifier": "",
+              "value": "{\"data\":[1,2,3,4,5]}",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "b2f6d3a5-d55a-4e1d-b1e7-e917a68022e5",
+      "documentation": "HEAD request for /files/{fileId}",
+      "method": "head",
+      "endpoint": "files/:fileId",
+      "responses": [
+        {
+          "uuid": "c8c37e68-0c7c-4ed5-a0d8-8c1f7d9e78a4",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Success",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS, POST, PATCH, HEAD"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition"
+            },
+            {
+              "key": "Access-Control-Expose-Headers",
+              "value": "Location, Upload-Offset"
+            },
+            {
+              "key": "Tus-Resumable",
+              "value": "1.0.0"
+            },
+            {
+              "key": "Upload-Length",
+              "value": "102400"
+            },
+            {
+              "key": "Upload-Offset",
+              "value": "0"
+            },
+            {
+              "key": "Content-Length",
+              "value": "0"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "f1e275ff-9055-4c1f-8f6a-8395b3ecb4f7",
+      "documentation": "PATCH request for /files/{fileId}",
+      "method": "patch",
+      "endpoint": "files/:fileId",
+      "responses": [
+        {
+          "uuid": "fd789356-0312-4133-b8a0-bf66e923ed44",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "No Content",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS, POST, PATCH, HEAD"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition"
+            },
+            {
+              "key": "Access-Control-Expose-Headers",
+              "value": "Location, Upload-Offset"
+            },
+            {
+              "key": "Tus-Resumable",
+              "value": "1.0.0"
+            },
+            {
+              "key": "Upload-Offset",
+              "value": "51200"
+            },
+            {
+              "key": "Content-Length",
+              "value": "0"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "7f29a90c-46b8-4e7e-9883-b0f9e4e74a22",
+      "documentation": "OPTIONS request for /files",
+      "method": "get",
+      "endpoint": "files",
+      "responses": [
+        {
+          "uuid": "26ca054b-1631-4be0-996c-f8b40478db0b",
+          "body": "{\"test\":\"get passed\"}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "No Content",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Status",
+              "value": "ok"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyRemovePrefix": false,
+  "hostname": "",
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "data": [],
+  "folders": [],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "d1b7b4e2-9d65-4fcb-b403-088b07db05f1"
+    },
+    {
+      "type": "route",
+      "uuid": "87f46b9f-0ab7-453b-bcb5-0053dbf40b42"
+    },
+    {
+      "type": "route",
+      "uuid": "b2f6d3a5-d55a-4e1d-b1e7-e917a68022e5"
+    },
+    {
+      "type": "route",
+      "uuid": "f1e275ff-9055-4c1f-8f6a-8395b3ecb4f7"
+    },
+    {
+      "type": "route",
+      "uuid": "7f29a90c-46b8-4e7e-9883-b0f9e4e74a22"
+    }
+  ],
+  "callbacks": []
+}

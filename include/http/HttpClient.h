@@ -6,7 +6,7 @@
 #include "libtusclient.h"
 #include <curl/curl.h>
 #include "Request.h"
-#include<functional>
+#include <functional>
 namespace TUS
 {
     namespace Http
@@ -15,9 +15,11 @@ namespace TUS
         /**
          * @brief Represents a HTTP client
          */
-        class LIBTUSAPI_EXPORT HttpClient: public IHttpClient
+        class LIBTUSAPI_EXPORT HttpClient : public IHttpClient
         {
+          
         public:
+
             HttpClient();
             ~HttpClient();
 
@@ -26,16 +28,13 @@ namespace TUS
             void put(Request request) override;
             void patch(Request request) override;
             void del(Request request) override;
+            void head(Request request) override;
+            void options(Request request) override;
 
             static string convertHttpMethodToString(HttpMethod method);
 
         private:
-            
-            void setupCURLRequest(CURL *curl,HttpMethod method, Request request);
-            using onDataReceivedCallback = std::function<size_t>(char *ptr, size_t size, size_t nmemb,
-                      void *userdata);
-            onDataReceivedCallback m_onDataReceivedCallback;
-        
+            void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
         };
     }
 }
