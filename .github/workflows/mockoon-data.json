@@ -1,70 +1,194 @@
 {
-    "name": "Mockoon TUS Server",
-    "port": 3000,
-    "routes": [
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Mockoon TUS Server",
+        "version": "1.0.0"
+    },
+    "servers": [
         {
-            "method": "OPTIONS",
-            "path": "/files",
-            "response": {
-                "status": 204,
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS, POST, HEAD, PATCH",
-                    "Access-Control-Allow-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Access-Control-Expose-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Tus-Resumable": "1.0.0",
-                    "Content-Length": "0"
+            "url": "http://localhost:3000"
+        }
+    ],
+    "paths": {
+        "/files": {
+            "options": {
+                "responses": {
+                    "204": {
+                        "description": "Successful response",
+                        "headers": {
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Tus-Resumable": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "headers": {
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Tus-Resumable": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Location": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
-        {
-            "method": "POST",
-            "path": "/files",
-            "response": {
-                "status": 201,
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS, POST, HEAD, PATCH",
-                    "Access-Control-Allow-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Access-Control-Expose-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Tus-Resumable": "1.0.0",
-                    "Location": "/files/123456",
-                    "Content-Length": "0"
+        "/files/{fileId}": {
+            "head": {
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "headers": {
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Tus-Resumable": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Upload-Length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Upload-Offset": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        },
-        {
-            "method": "HEAD",
-            "path": "/files/:fileId",
-            "response": {
-                "status": 200,
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS, POST, HEAD, PATCH",
-                    "Access-Control-Allow-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Access-Control-Expose-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Tus-Resumable": "1.0.0",
-                    "Upload-Length": "1024",
-                    "Upload-Offset": "512",
-                    "Content-Length": "0"
-                }
-            }
-        },
-        {
-            "method": "PATCH",
-            "path": "/files/:fileId",
-            "response": {
-                "status": 204,
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "OPTIONS, POST, HEAD, PATCH",
-                    "Access-Control-Allow-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Access-Control-Expose-Headers": "Tus-Resumable, Upload-Length, Upload-Offset, Upload-Metadata",
-                    "Tus-Resumable": "1.0.0",
-                    "Upload-Offset": "1024",
-                    "Content-Length": "0"
+            },
+            "patch": {
+                "responses": {
+                    "204": {
+                        "description": "Successful response",
+                        "headers": {
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Access-Control-Expose-Headers": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Tus-Resumable": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Upload-Offset": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-    ]
+    }
 }
