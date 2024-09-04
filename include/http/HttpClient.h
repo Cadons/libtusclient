@@ -27,11 +27,11 @@ namespace TUS
             void patch(Request request) override;
             void del(Request request) override;
 
+            static string convertHttpMethodToString(HttpMethod method);
 
         private:
             
             void setupCURLRequest(CURL *curl,HttpMethod method, Request request);
-            static string convertHttpMethodToString(HttpMethod method);
             using onDataReceivedCallback = std::function<size_t>(char *ptr, size_t size, size_t nmemb,
                       void *userdata);
             onDataReceivedCallback m_onDataReceivedCallback;
