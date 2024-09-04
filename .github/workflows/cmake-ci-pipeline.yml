@@ -107,6 +107,16 @@ jobs:
         run: >
           cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient_test
       
+      
+      - name: Run Mockoon CLI
+        uses: mockoon/cli-action@v2
+        with:
+              # Mockoon CLI version, default to 'latest'
+              version: "latest"
+              # Mockoon local data file or URL
+              data-file: "./mockoon-data.json"
+              # port, default to 3000
+              port: 3000
 
       - name: Build Tests Windows
         if: ${{ matrix.os == 'windows-latest' }}
