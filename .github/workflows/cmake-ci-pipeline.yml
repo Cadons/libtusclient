@@ -6,26 +6,34 @@ on:
       - main
 
 jobs:
-  # Mockoon job to run in parallel
+  # Mockoon job to run in parallel and remain active
   start_mockoon:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Run Mockoon CLI
-        uses: mockoon/cli-action@v2
-        with:
-          version: "latest"
-          data-file: "./mockoon-data.json"
-          port: 3000
-          
+      - name: Run Mockoon CLI in the background
+        run: |
+          nohup mockoon-cli start --data ./mockoon-data.json --port 3000 &
 
-  # Build and test job depends on Mockoon being ready
-  build_and_test:
-    runs-on: ${{ matrix.os }}
-    
-    # This job depends on the start_mockoon job to ensure that Mockoon is running
+  # Dummy job to wait for Mockoon to be ready
+  wait_for_mockoon:
     needs: start_mockoon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Mockoon to be ready
+        run: |
+          for i in {1..30}; do
+            nc -zv localhost 3000 && echo "Mockoon is ready!" && exit 0;
+            echo "Waiting for Mockoon... ($i)";
+            sleep 5;
+          done;
+          echo "Mockoon failed to start!" && exit 1
+
+  # Matrix-based build and test job depends on Mockoon being ready
+  build_and_test:
+    needs: wait_for_mockoon
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -133,3 +141,4 @@ jobs:
         with:
           build-config: ${{ matrix.build_type }}
           test-dir: ${{ github.workspace }}/build
+
