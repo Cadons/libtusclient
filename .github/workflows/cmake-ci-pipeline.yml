@@ -19,9 +19,6 @@ jobs:
           data-file: "./mockoon-data.json"
           port: 3000
           
-      # Keep the Mockoon service running during the workflow.
-      - name: Keep Mockoon running
-        run: sleep infinity
 
   # Build and test job depends on Mockoon being ready
   build_and_test:
