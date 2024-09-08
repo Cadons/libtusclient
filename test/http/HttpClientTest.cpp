@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 #include <functional>
 #include <thread>
+namespace TUS::Test::Http {
+
 using namespace TUS::Http;
 
 TEST(HttpClientTest, ConvertHttpMethodToString)
@@ -96,3 +98,5 @@ INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::V
 ), [](const testing::TestParamInfo<HttpClientParameterizedTest::ParamType>& info) {
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });
+
+} // namespace TUS::Test::Http

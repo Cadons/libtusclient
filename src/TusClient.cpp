@@ -1,10 +1,10 @@
 #include "TusClient.h"
 
 #include <iostream>
-
+#include "http/HttpClient.h"
 using namespace TUS;
 
-TusClient::TusClient(std::string url, std::string filePath): m_url(url), m_filePath(filePath), m_status(TusStatus::READY)
+TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_httpClient(std::make_unique<Http::HttpClient>())
 {
    // m_httpClient = std::make_unique<Http::IHttpClient>();
 }
