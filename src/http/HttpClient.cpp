@@ -22,19 +22,19 @@ std::string HttpClient::convertHttpMethodToString(HttpMethod method)
 {
     switch (method)
     {
-    case HttpMethod::GET:
+    case HttpMethod::_GET:
         return "GET";
-    case HttpMethod::POST:
+    case HttpMethod::_POST:
         return "POST";
-    case HttpMethod::PUT:
+    case HttpMethod::_PUT:
         return "PUT";
-    case HttpMethod::PATCH:
+    case HttpMethod::_PATCH:
         return "PATCH";
-    case HttpMethod::DELETE:
+    case HttpMethod::_DELETE:
         return "DELETE";
-    case HttpMethod::HEAD:
+    case HttpMethod::_HEAD:
         return "HEAD";
-    case HttpMethod::OPTIONS:
+    case HttpMethod::_OPTIONS:
         return "OPTIONS";
     default:
         return "GET";
@@ -70,7 +70,7 @@ void HttpClient::sendRequest(HttpMethod method, Request request)
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-            if (method == HttpMethod::POST || method == HttpMethod::PUT || method == HttpMethod::PATCH)
+            if (method == HttpMethod::_POST || method == HttpMethod::_PUT || method == HttpMethod::_PATCH)
             {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
             }
@@ -97,63 +97,63 @@ void HttpClient::sendRequest(HttpMethod method, Request request)
 
 void HttpClient::get(Request request)
 {
-    if (request.getMethod() != HttpMethod::GET)
+    if (request.getMethod() != HttpMethod::_GET)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::GET, request);
+    sendRequest(HttpMethod::_GET, request);
 }
 
 void HttpClient::post(Request request)
 {
-    if (request.getMethod() != HttpMethod::POST)
+    if (request.getMethod() != HttpMethod::_POST)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::POST, request);
+    sendRequest(HttpMethod::_POST, request);
 }
 
 void HttpClient::put(Request request)
 {
-    if (request.getMethod() != HttpMethod::PUT)
+    if (request.getMethod() != HttpMethod::_PUT)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::PUT, request);
+    sendRequest(HttpMethod::_PUT, request);
 }
 
 void HttpClient::patch(Request request)
 {
-    if (request.getMethod() != HttpMethod::PATCH)
+    if (request.getMethod() != HttpMethod::_PATCH)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::PATCH, request);
+    sendRequest(HttpMethod::_PATCH, request);
 }
 
 void HttpClient::del(Request request)
 {
-    if (request.getMethod() != HttpMethod::DELETE)
+    if (request.getMethod() != HttpMethod::_DELETE)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::DELETE, request);
+    sendRequest(HttpMethod::_DELETE, request);
 }
 
 void HttpClient::head(Request request)
 {
-    if (request.getMethod() != HttpMethod::HEAD)
+    if (request.getMethod() != HttpMethod::_HEAD)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::HEAD, request);
+    sendRequest(HttpMethod::_HEAD, request);
 }
 
 void HttpClient::options(Request request)
 {
-    if (request.getMethod() != HttpMethod::OPTIONS)
+    if (request.getMethod() != HttpMethod::_OPTIONS)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::OPTIONS, request);
+    sendRequest(HttpMethod::_OPTIONS, request);
 }

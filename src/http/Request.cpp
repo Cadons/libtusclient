@@ -6,7 +6,7 @@ Request::Request()
 {
     this->url = "";
     this->body = "";
-    this->method = HttpMethod::GET;
+    this->method = HttpMethod::_GET;
     this->headers = map<string, string>();
     this->headers["Content-Type"] = "application/json";
     setOnSuccessCallback(defaultSuccessCallback());
@@ -17,7 +17,7 @@ Request::Request(string url)
 {
     this->url = url;
     this->body = "";
-    this->method = HttpMethod::GET;
+    this->method = HttpMethod::_GET;
     this->headers = map<string, string>();
     this->headers["Content-Type"] = "application/json";
     setOnSuccessCallback(defaultSuccessCallback());
@@ -28,7 +28,7 @@ Request::Request(string url, string body)
 {
     this->url = url;
     this->body = body;
-    this->method = HttpMethod::POST;
+    this->method = HttpMethod::_POST;
     this->headers = map<string, string>();
     this->headers["Content-Type"] = "application/json";
     setOnSuccessCallback(defaultSuccessCallback());

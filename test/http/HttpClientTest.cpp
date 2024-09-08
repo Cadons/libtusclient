@@ -9,11 +9,11 @@ TEST(HttpClientTest, ConvertHttpMethodToString)
 {
 
     HttpClient httpClient;
-    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::GET), "GET");
-    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::POST), "POST");
-    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::PUT), "PUT");
-    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::PATCH), "PATCH");
-    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::DELETE), "DELETE");
+    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::_GET), "GET");
+    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::_POST), "POST");
+    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::_PUT), "PUT");
+    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::_PATCH), "PATCH");
+    EXPECT_EQ(httpClient.convertHttpMethodToString(HttpMethod::_DELETE), "DELETE");
 }
 
 struct TestParams
@@ -60,25 +60,25 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
 
     switch (testCase.method)
     {
-        case HttpMethod::GET:
+        case HttpMethod::_GET:
             m_httpClient->get(request);
             break;
-        case HttpMethod::POST:
+        case HttpMethod::_POST:
             m_httpClient->post(request);
             break;
-        case HttpMethod::PUT:
+        case HttpMethod::_PUT:
             m_httpClient->put(request);
             break;
-        case HttpMethod::PATCH:
+        case HttpMethod::_PATCH:
             m_httpClient->patch(request);
             break;
-        case HttpMethod::DELETE:
+        case HttpMethod::_DELETE:
             m_httpClient->del(request);
             break;
-        case HttpMethod::HEAD:
+        case HttpMethod::_HEAD:
             m_httpClient->head(request);
             break;
-        case HttpMethod::OPTIONS:
+        case HttpMethod::_OPTIONS:
             m_httpClient->options(request);
             break;
     }
@@ -88,11 +88,11 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
-     TestParams{"http://localhost:3000/files", "", HttpMethod::GET, "{\"test\":\"get passed\"}"},
-    TestParams{"http://localhost:3000/files", "{\"data\":[1,2,3,4,5]}", HttpMethod::POST, "{\"test\":\"post passed\"}"},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::PUT, "{\"test\":\"put passed\"}"},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::PATCH, "{\"test\":\"patch passed\"}"},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::DELETE, "{\"test\":\"delete passed\"}"}
+     TestParams{"http://localhost:3000/files", "", HttpMethod::_GET, "{\"test\":\"get passed\"}"},
+    TestParams{"http://localhost:3000/files", "{\"data\":[1,2,3,4,5]}", HttpMethod::_POST, "{\"test\":\"post passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_PUT, "{\"test\":\"put passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_PATCH, "{\"test\":\"patch passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_DELETE, "{\"test\":\"delete passed\"}"}
 ), [](const testing::TestParamInfo<HttpClientParameterizedTest::ParamType>& info) {
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });

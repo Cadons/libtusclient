@@ -12,13 +12,13 @@ namespace TUS
     {
         enum class LIBTUSAPI_EXPORT HttpMethod
         {
-            GET,
-            POST,
-            PUT,
-            PATCH,
-            DELETE,
-            HEAD,
-            OPTIONS
+            _GET,
+            _POST,
+            _PUT,
+            _PATCH,
+            _DELETE,
+            _HEAD,
+            _OPTIONS
         };
         /**
          * @brief Represents a HTTP request
