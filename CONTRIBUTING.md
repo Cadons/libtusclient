@@ -27,10 +27,13 @@ Before you start contributing, make sure you have the following prerequisites:
 8. Open a pull request to the main repository.
 
 ## Code Style
-We follow the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) for our codebase. Please ensure your code adheres to this style guide before submitting your changes.
 
-### Camel Case Rule
-When naming fields, please use camel case format. For example, `m_nameOfTheField`.
+Our codebase follows the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html). Please make sure your code complies with this guide before submitting any changes.
+
+**Exceptions to the Google Style Guide**:
+- **Function names**: We use **camelCase** instead of the standard lower_case_with_underscores.
+- **Class member variables**: Class fields should follow the format `m_nameOfTheField`, with a preceding `m_` to indicate member variables.
+
 
 ### Doxygen Documentation Format
 Please use the Doxygen documentation format for documenting your code. Refer to the [Doxygen documentation](https://www.doxygen.nl/manual/docblocks.html) for more information.
