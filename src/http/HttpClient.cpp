@@ -1,12 +1,18 @@
-#include "http/HttpClient.h"
-#include "http/Request.h"
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+
 #include <thread>
 #include <iostream>
 
-using namespace TUS::Http;
+#include "http/HttpClient.h"
+#include "http/Request.h"
+
+using TUS::Http::HttpClient;
 
 HttpClient::HttpClient()
-
 {
 }
 
@@ -15,13 +21,12 @@ HttpClient::~HttpClient()
 }
 size_t write_data(void *ptr, size_t size, size_t nmemb, std::string *data)
 {
-    data->append((char *)ptr, size * nmemb);
+    data->append(reinterpret_cast<char *>(ptr), size * nmemb);
     return size * nmemb;
 }
 std::string HttpClient::convertHttpMethodToString(HttpMethod method)
 {
-    switch (method)
-    {
+    switch (method) {
     case HttpMethod::_GET:
         return "GET";
     case HttpMethod::_POST:
@@ -41,7 +46,8 @@ std::string HttpClient::convertHttpMethodToString(HttpMethod method)
     }
 }
 
-void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method, Request request)
+void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
+                                  Request request)
 {
     string methodStr = convertHttpMethodToString(method);
 
@@ -50,28 +56,28 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method, Request request
     struct curl_slist *headers = NULL;
     for (auto const &header : request.getHeaders())
     {
-        headers = curl_slist_append(headers, (header.first + ": " + header.second).c_str());
+        headers = curl_slist_append(headers, (header.first + ": " +
+                                              header.second)
+                                                 .c_str());
     }
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 }
 
 void HttpClient::sendRequest(HttpMethod method, Request request)
 {
-    std::thread([this, method, request]()
-                {
+    std::thread([this, method, request]() {
         CURL *curl;
         CURLcode res;
         std::string buffer;
         std::string responseHeader;
         curl = curl_easy_init();
-        if (curl)
-        {
+        if (curl) {
             setupCURLRequest(curl, method, request);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-            if (method == HttpMethod::_POST || method == HttpMethod::_PUT || method == HttpMethod::_PATCH)
-            {
+            if (method == HttpMethod::_POST|| method == HttpMethod::_PUT|| 
+            method == HttpMethod::_PATCH) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
             }
             CURLcode response = curl_easy_perform(curl);
@@ -80,8 +86,7 @@ void HttpClient::sendRequest(HttpMethod method, Request request)
                 std::cout << "Error: " << curl_easy_strerror(response) << std::endl;
                 request.getOnErrorCallback()(responseHeader, buffer);
                 throw std::runtime_error("Error: " + std::string(curl_easy_strerror(response)));
-            }
-            else{
+            }else {
                 request.getOnSuccessCallback()(responseHeader, buffer);
             }
         

@@ -1,8 +1,14 @@
-#include "TusClient.h"
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 
 #include <iostream>
+#include "TusClient.h"
 #include "http/HttpClient.h"
-using namespace TUS;
+using TUS::TusStatus;
+using TUS::TusClient;
 
 TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_httpClient(std::make_unique<Http::HttpClient>())
 {

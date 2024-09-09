@@ -1,11 +1,19 @@
-#ifndef TUSCLIENT_H
-#define TUSCLIENT_H
+#ifndef INCLUDE_TUSCLIENT_H_
+#define INCLUDE_TUSCLIENT_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+
 #include "libtusclient.h"
 #include <string>
 #include "TusStatus.h"
 #include "http/IHttpClient.h"
 #include <memory>
-using namespace std;
+using std::string;
+using std::unique_ptr;
+
 /**
  * @brief The TusClient class represents a client for uploading files using the TUS protocol.
  * 
@@ -89,4 +97,4 @@ namespace TUS{
 
 }
 
-#endif // TUSCLIENT_H
+#endif // INCLUDE_TUSCLIENT_H_

@@ -1,9 +1,15 @@
-#ifndef IHTTPCLIENT_H
-#define IHTTPCLIENT_H
+#ifndef INCLUDE_HTTP_IHTTPCLIENT_H_
+#define INCLUDE_HTTP_IHTTPCLIENT_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 #include "libtusclient.h"
 #include <string>
 #include <list>
-using namespace std;
+using std::string;
+using std::list;
 namespace TUS{
     namespace Http{
     class Request;
@@ -18,9 +24,10 @@ namespace TUS{
         virtual void del(Request request) = 0;
         virtual void head(Request request) = 0;
         virtual void options(Request request) = 0;
+        virtual ~IHttpClient() {}
     };
     }
 
 }
 
-#endif // IHTTPCLIENT_H
+#endif // INCLUDE_HTTP_IHTTPCLIENT_H_

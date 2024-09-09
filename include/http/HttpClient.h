@@ -1,12 +1,18 @@
-#ifndef HTTPCLIENT_H
-#define HTTPCLIENT_H
-
+#ifndef INCLUDE_HTTP_HTTPCLIENT_H_
+#define INCLUDE_HTTP_HTTPCLIENT_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 #include <string>
-#include "IHttpClient.h"
-#include "libtusclient.h"
-#include <curl/curl.h>
-#include "Request.h"
 #include <functional>
+#include <curl/curl.h>
+
+#include "libtusclient.h"
+#include "IHttpClient.h"
+
+#include "Request.h"
 namespace TUS
 {
     namespace Http
@@ -38,4 +44,4 @@ namespace TUS
         };
     }
 }
-#endif // HTTPCLIENT_H
+#endif // INCLUDE_HTTP_HTTPCLIENT_H_

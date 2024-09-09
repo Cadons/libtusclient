@@ -1,11 +1,19 @@
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+#include <thread>
+#include <functional>
+#include <gtest/gtest.h>
+
 #include "http/HttpClient.h"
 #include "http/Request.h"
-#include <gtest/gtest.h>
-#include <functional>
-#include <thread>
 namespace TUS::Test::Http {
 
-using namespace TUS::Http;
+using TUS::Http::HttpClient;
+using TUS::Http::HttpMethod;
+using TUS::Http::Request;
 
 TEST(HttpClientTest, ConvertHttpMethodToString)
 {

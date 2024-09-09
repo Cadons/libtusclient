@@ -1,6 +1,10 @@
-#ifndef LIBTUSCLIENT
-#define LIBTUSCLIENT
-
+#ifndef INCLUDE_LIBTUSCLIENT_H_
+#define INCLUDE_LIBTUSCLIENT_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 
 #ifdef WIN32
   #include <windows.h>
@@ -10,4 +14,4 @@
 #endif
 
 
-#endif // !LIBTUSCLIENT
+#endif // INCLUDE_LIBTUSCLIENT_H_

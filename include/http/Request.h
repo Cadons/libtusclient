@@ -1,10 +1,18 @@
-#ifndef REQUEST_H
-#define REQUEST_H
+#ifndef INCLUDE_HTTP_REQUEST_H_
+#define INCLUDE_HTTP_REQUEST_H_
+
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 #include <string>
 #include <map>
 #include "libtusclient.h"
 #include <functional>
-using namespace std;
+using std::string;
+using std::map;
+using std::function;
 
 namespace TUS
 {
@@ -72,4 +80,4 @@ namespace TUS
     }
 }
 
-#endif // REQUEST_H
+#endif  // INCLUDE_HTTP_REQUEST_H_
