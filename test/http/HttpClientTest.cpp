@@ -107,4 +107,13 @@ INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::V
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });
 
+TEST_F(HttpClientParameterizedTest, AbortRequest)
+{
+    Request request("http://localhost.com:3000/files", "", HttpMethod::_GET);
+    
+    int requestID = m_httpClient->get(request);
+    m_httpClient->abortRequest(requestID);
+    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
+}
+
 } // namespace TUS::Test::Http

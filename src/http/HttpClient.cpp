@@ -26,7 +26,8 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, std::string *data)
 }
 std::string HttpClient::convertHttpMethodToString(HttpMethod method)
 {
-    switch (method) {
+    switch (method)
+    {
     case HttpMethod::_GET:
         return "GET";
     case HttpMethod::_POST:
@@ -63,16 +64,25 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 }
 
-void HttpClient::sendRequest(HttpMethod method, Request request)
+int HttpClient::sendRequest(HttpMethod method, Request request)
 {
-    std::thread([this, method, request]() {
+    int &id = ++m_requestID;
+    std::map<int, CURL *> &requests = m_requests;
+    std::thread([this, method, request, id, &requests]()
+                {
+                    
         CURL *curl;
         CURLcode res;
         std::string buffer;
         std::string responseHeader;
+
         curl = curl_easy_init();
         if (curl) {
+
             setupCURLRequest(curl, method, request);
+             
+            requests.insert(std::pair<int, CURL *>(id, curl));
+
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
@@ -80,6 +90,7 @@ void HttpClient::sendRequest(HttpMethod method, Request request)
             method == HttpMethod::_PATCH) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
             }
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3L);
             CURLcode response = curl_easy_perform(curl);
             if(response != CURLE_OK)
             {
@@ -98,67 +109,82 @@ void HttpClient::sendRequest(HttpMethod method, Request request)
             std::cout << "Error initializing curl" << std::endl;
         } })
         .detach();
+
+    return id;
 }
 
-void HttpClient::get(Request request)
+int HttpClient::get(Request request)
 {
     if (request.getMethod() != HttpMethod::_GET)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_GET, request);
+    return sendRequest(HttpMethod::_GET, request);
 }
 
-void HttpClient::post(Request request)
+int HttpClient::post(Request request)
 {
     if (request.getMethod() != HttpMethod::_POST)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_POST, request);
+    return sendRequest(HttpMethod::_POST, request);
 }
 
-void HttpClient::put(Request request)
+int HttpClient::put(Request request)
 {
     if (request.getMethod() != HttpMethod::_PUT)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_PUT, request);
+    return sendRequest(HttpMethod::_PUT, request);
 }
 
-void HttpClient::patch(Request request)
+int HttpClient::patch(Request request)
 {
     if (request.getMethod() != HttpMethod::_PATCH)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_PATCH, request);
+    return sendRequest(HttpMethod::_PATCH, request);
 }
 
-void HttpClient::del(Request request)
+int HttpClient::del(Request request)
 {
     if (request.getMethod() != HttpMethod::_DELETE)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_DELETE, request);
+    return sendRequest(HttpMethod::_DELETE, request);
 }
 
-void HttpClient::head(Request request)
+int HttpClient::head(Request request)
 {
     if (request.getMethod() != HttpMethod::_HEAD)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_HEAD, request);
+    return sendRequest(HttpMethod::_HEAD, request);
 }
 
-void HttpClient::options(Request request)
+int HttpClient::options(Request request)
 {
     if (request.getMethod() != HttpMethod::_OPTIONS)
     {
         throw std::runtime_error("Method not allowed");
     }
-    sendRequest(HttpMethod::_OPTIONS, request);
+    return sendRequest(HttpMethod::_OPTIONS, request);
+}
+
+void HttpClient::abortRequest(int requestID)
+{
+    std::map<int, CURL *> &requests = m_requests;
+    CURL *curl = requests[requestID];
+    if (curl)
+    {
+        curl_easy_cleanup(curl);
+        requests.erase(requestID);
+
+        std::cout << "Request " << requestID << " aborted" << std::endl;
+    }
 }

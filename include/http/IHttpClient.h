@@ -17,13 +17,14 @@ namespace TUS{
     class LIBTUSAPI_EXPORT IHttpClient
     {
     public:
-        virtual void get(Request request) = 0;
-        virtual void post(Request request) = 0;
-        virtual void put(Request request) = 0;
-        virtual void patch(Request request) = 0;
-        virtual void del(Request request) = 0;
-        virtual void head(Request request) = 0;
-        virtual void options(Request request) = 0;
+        virtual int get(Request request) = 0;
+        virtual int post(Request request) = 0;
+        virtual int put(Request request) = 0;
+        virtual int patch(Request request) = 0;
+        virtual int del(Request request) = 0;
+        virtual int head(Request request) = 0;
+        virtual int options(Request request) = 0;
+        virtual void abortRequest(int requestID) = 0;
         virtual ~IHttpClient() {}
     };
     }

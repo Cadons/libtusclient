@@ -5,14 +5,30 @@
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
+#include <string>
+#include <memory>
+#include <filesystem>
 
 #include "libtusclient.h"
-#include <string>
 #include "TusStatus.h"
 #include "http/IHttpClient.h"
-#include <memory>
 using std::string;
 using std::unique_ptr;
+using std::filesystem::path;
+
+//temporary directory for the chunks for each os 
+#ifdef WIN32
+    #define TEMP_DIR R"(C:\Users\AppData\Local\Temp\TUS\)"
+#elif __linux__
+    #define TEMP_DIR "/tmp/TUS/"
+
+#elif __APPLE__
+    #define TEMP_DIR getenv("TMPDIR")
+#elif __ANDROID__
+    #define TEMP_DIR "/data/local/tmp/TUS/"
+#else
+    #define TEMP_DIR "/tmp/TUS/"
+#endif
 
 /**
  * @brief The TusClient class represents a client for uploading files using the TUS protocol.
@@ -36,7 +52,7 @@ namespace TUS{
         virtual TusStatus status() = 0;
         virtual void retry() = 0;
         // Getters
-        virtual string getFilePath() const = 0;
+        virtual path getFilePath() const = 0;
         virtual string getUrl() const = 0;
     };
     /**
@@ -46,12 +62,32 @@ namespace TUS{
     {
     private:
         string m_url; 
-        string m_filePath;
+        path m_filePath;
         TusStatus m_status;
+        path m_tempDir;
+        
         std::unique_ptr<Http::IHttpClient> m_httpClient;
-
+        
         const int CHUNK_SIZE = 1024;
+        const string CHUNK_FILE_NAME_PREFIX = "chunk_";
+        const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
+
+        /**
+         * @brief Divides the file into chunks.
+         * 
+         * @param path The path of the file to divide.
+         * @return The number of chunks the file was divided into.
+         */
+
+        int divideFileInChunks(path filePath);
+
+        /**
+         * @brief Removes the chunk files, this when a chunk is uploaded successfully.
+         * 
+         * @param path The path of the file to remove the chunks from.
+         */
+        bool removeChunkFiles(path filePath);
         
         
     public:
@@ -90,7 +126,7 @@ namespace TUS{
          */
         void retry() override;
 
-        string getFilePath() const override;
+        path getFilePath() const override;
         string getUrl() const override;
 
     };
