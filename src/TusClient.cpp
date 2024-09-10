@@ -44,20 +44,22 @@ void TusClient::upload()
 
 void TusClient::cancel()
 {
-    //delete the file from the server
-    std::cout << "Cancelling upload of file " << m_filePath << std::endl;
+    while (m_httpClient->abortRequest())
+    {
+       std::cout<<"Request aborted"<<std::endl;
+    }
+    
 }
 
 void TusClient::resume()
 {
-    //resume the upload
-    std::cout << "Resuming upload of file " << m_filePath << std::endl;
+   m_httpClient->resumeRequest();
 }
 
 void TusClient::stop()
 {
-    //stop the upload, but it can be resumed
-    std::cout << "Stopping upload of file " << m_filePath << std::endl;
+    m_httpClient->pauseRequest();
+   
 }
 
 int TusClient::progress()

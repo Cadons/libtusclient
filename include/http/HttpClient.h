@@ -6,7 +6,7 @@
  * See the LICENSE file in the project root for more information.
  */
 #include <string>
-#include <map>
+#include <queue>
 #include <functional>
 #include <curl/curl.h>
 
@@ -28,23 +28,24 @@ namespace TUS
         public:
             HttpClient();
             ~HttpClient();
-
-            int get(Request request) override;
-            int post(Request request) override;
-            int put(Request request) override;
-            int patch(Request request) override;
-            int del(Request request) override;
-            int head(Request request) override;
-            int options(Request request) override;
-            void abortRequest(int requestID) override;
+            static std::queue<CURL*>m_requests;
+            IHttpClient* get(Request request) override;
+            IHttpClient* post(Request request) override;
+            IHttpClient* put(Request request) override;
+            IHttpClient* patch(Request request) override;
+            IHttpClient* del(Request request) override;
+            IHttpClient* head(Request request) override;
+            IHttpClient* options(Request request) override;
+            
+            bool abortRequest() override;
+            bool pauseRequest() override;
+            bool resumeRequest() override;
 
             static string convertHttpMethodToString(HttpMethod method);
 
         private:
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
-            int sendRequest(HttpMethod method, Request request);
-            int m_requestID = 0;
-            std::map<int, CURL *> m_requests;
+            IHttpClient* sendRequest(HttpMethod method, Request request);
         };
     }
 }

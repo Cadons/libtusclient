@@ -11,6 +11,11 @@
 #include "http/Request.h"
 
 using TUS::Http::HttpClient;
+using TUS::Http::Request;
+using TUS::Http::HttpMethod;
+using TUS::Http::IHttpClient;
+
+std::queue<CURL *> HttpClient::m_requests;
 
 HttpClient::HttpClient()
 {
@@ -64,11 +69,9 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 }
 
-int HttpClient::sendRequest(HttpMethod method, Request request)
+IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
 {
-    int &id = ++m_requestID;
-    std::map<int, CURL *> &requests = m_requests;
-    std::thread([this, method, request, id, &requests]()
+    std::thread([this, method, request]()
                 {
                     
         CURL *curl;
@@ -78,11 +81,8 @@ int HttpClient::sendRequest(HttpMethod method, Request request)
 
         curl = curl_easy_init();
         if (curl) {
-
             setupCURLRequest(curl, method, request);
-             
-            requests.insert(std::pair<int, CURL *>(id, curl));
-
+            HttpClient::m_requests.push(curl);
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
             curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
@@ -90,7 +90,6 @@ int HttpClient::sendRequest(HttpMethod method, Request request)
             method == HttpMethod::_PATCH) {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
             }
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3L);
             CURLcode response = curl_easy_perform(curl);
             if(response != CURLE_OK)
             {
@@ -109,11 +108,10 @@ int HttpClient::sendRequest(HttpMethod method, Request request)
             std::cout << "Error initializing curl" << std::endl;
         } })
         .detach();
-
-    return id;
+return this;
 }
 
-int HttpClient::get(Request request)
+IHttpClient* HttpClient::get(Request request)
 {
     if (request.getMethod() != HttpMethod::_GET)
     {
@@ -122,7 +120,7 @@ int HttpClient::get(Request request)
     return sendRequest(HttpMethod::_GET, request);
 }
 
-int HttpClient::post(Request request)
+IHttpClient* HttpClient::post(Request request)
 {
     if (request.getMethod() != HttpMethod::_POST)
     {
@@ -131,7 +129,7 @@ int HttpClient::post(Request request)
     return sendRequest(HttpMethod::_POST, request);
 }
 
-int HttpClient::put(Request request)
+IHttpClient* HttpClient::put(Request request)
 {
     if (request.getMethod() != HttpMethod::_PUT)
     {
@@ -140,7 +138,7 @@ int HttpClient::put(Request request)
     return sendRequest(HttpMethod::_PUT, request);
 }
 
-int HttpClient::patch(Request request)
+IHttpClient* HttpClient::patch(Request request)
 {
     if (request.getMethod() != HttpMethod::_PATCH)
     {
@@ -149,7 +147,7 @@ int HttpClient::patch(Request request)
     return sendRequest(HttpMethod::_PATCH, request);
 }
 
-int HttpClient::del(Request request)
+IHttpClient* HttpClient::del(Request request)
 {
     if (request.getMethod() != HttpMethod::_DELETE)
     {
@@ -158,7 +156,7 @@ int HttpClient::del(Request request)
     return sendRequest(HttpMethod::_DELETE, request);
 }
 
-int HttpClient::head(Request request)
+IHttpClient* HttpClient::head(Request request)
 {
     if (request.getMethod() != HttpMethod::_HEAD)
     {
@@ -167,7 +165,7 @@ int HttpClient::head(Request request)
     return sendRequest(HttpMethod::_HEAD, request);
 }
 
-int HttpClient::options(Request request)
+IHttpClient* HttpClient::options(Request request)
 {
     if (request.getMethod() != HttpMethod::_OPTIONS)
     {
@@ -176,15 +174,43 @@ int HttpClient::options(Request request)
     return sendRequest(HttpMethod::_OPTIONS, request);
 }
 
-void HttpClient::abortRequest(int requestID)
+bool HttpClient::abortRequest()
 {
-    std::map<int, CURL *> &requests = m_requests;
-    CURL *curl = requests[requestID];
-    if (curl)
+    if(m_requests.empty())
     {
-        curl_easy_cleanup(curl);
-        requests.erase(requestID);
-
-        std::cout << "Request " << requestID << " aborted" << std::endl;
+        return false;
     }
+    CURL* curl = m_requests.front();
+    
+    curl_easy_cleanup(curl);
+    m_requests.pop();
+    return !m_requests.empty();
+}
+
+bool HttpClient::pauseRequest()
+{
+    if(m_requests.empty())
+    {
+        return false;
+    }
+    CURL* curl = m_requests.front();
+    if(curl_easy_pause(curl, CURLPAUSE_ALL) == CURLE_OK)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool HttpClient::resumeRequest()
+{
+    if(m_requests.empty())
+    {
+        return false;
+    }
+    CURL* curl = m_requests.front();
+    if(curl_easy_pause(curl, CURLPAUSE_CONT) == CURLE_OK)
+    {
+        return true;
+    }
+    return false;
 }
