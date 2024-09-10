@@ -102,6 +102,7 @@ IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
         
             std::cout << "Response code: " << response << std::endl;
             curl_easy_cleanup(curl);
+            m_requests.pop();
         }
         else
         {

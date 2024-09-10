@@ -46,6 +46,7 @@ namespace TUS
         private:
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
             IHttpClient* sendRequest(HttpMethod method, Request request);
+            
         };
     }
 }

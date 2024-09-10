@@ -27,15 +27,23 @@ void TusClient::upload()
 {
     //chunk the file
     m_chunkNumber = divideFileInChunks(m_filePath);
+    if(m_chunkNumber == -1)
+    {
+        std::cerr << "Error: Unable to divide file in chunks" << std::endl;
+        return;
+    }
 
     //post to the server the file
     m_httpClient->post(Http::Request(m_url, m_filePath));
 
 
     //patch chunks of the file to the server while chunk is not the last one
-    for (int i = 0; i < m_chunkNumber; i++)
+    while (m_chunkNumber>0)
     {
+        /* code */
     }
+    
+
 
     //stop that updaload if the last chunk is uploaded
     stop();
@@ -64,7 +72,7 @@ void TusClient::stop()
 
 int TusClient::progress()
 {
-    return 0;
+    return m_uploadedChunks*100/m_chunkNumber;
 }
 
 TusStatus TusClient::status()

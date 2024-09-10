@@ -72,6 +72,7 @@ namespace TUS{
         const string CHUNK_FILE_NAME_PREFIX = "chunk_";
         const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
+        int m_uploadedChunks=0;
 
         /**
          * @brief Divides the file into chunks.
