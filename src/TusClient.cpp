@@ -72,7 +72,7 @@ void TusClient::stop()
 
 int TusClient::progress()
 {
-    return m_uploadedChunks*100/m_chunkNumber;
+    return m_uploadedChunks*
 }
 
 TusStatus TusClient::status()

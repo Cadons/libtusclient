@@ -37,6 +37,10 @@ namespace TUS
             using SuccessCallback = std::function<void(std::string header, std::string data)>;
             using ErrorCallback = std::function<void(std::string header, std::string data)>;
             Request();
+            /**
+             * @brief Copy constructor
+             */
+            Request(Request&& request);
             Request(std::string url);
             Request(std::string url, std::string body);
             Request(std::string url, std::string body, HttpMethod method);

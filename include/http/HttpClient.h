@@ -19,6 +19,7 @@ namespace TUS
     namespace Http
     {
 
+        class RequestTask;
         /**
          * @brief Represents a HTTP client
          */
@@ -28,15 +29,18 @@ namespace TUS
         public:
             HttpClient();
             ~HttpClient();
-            static std::queue<CURL*>m_requests;
-            IHttpClient* get(Request request) override;
-            IHttpClient* post(Request request) override;
-            IHttpClient* put(Request request) override;
-            IHttpClient* patch(Request request) override;
-            IHttpClient* del(Request request) override;
-            IHttpClient* head(Request request) override;
-            IHttpClient* options(Request request) override;
-            
+            IHttpClient *get(Request request) override;
+            IHttpClient *post(Request request) override;
+            IHttpClient *put(Request request) override;
+            IHttpClient *patch(Request request) override;
+            IHttpClient *del(Request request) override;
+            IHttpClient *head(Request request) override;
+            IHttpClient *options(Request request) override;
+            /**
+             * @brief Execute the requests in the queue
+             * it start a new thread that will execute the requests, if the thread is already running it will do nothing
+             */
+            void execute();
             bool abortRequest() override;
             bool pauseRequest() override;
             bool resumeRequest() override;
@@ -45,8 +49,9 @@ namespace TUS
 
         private:
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
-            IHttpClient* sendRequest(HttpMethod method, Request request);
-            
+            IHttpClient *sendRequest(HttpMethod method, Request request);
+            std::queue<RequestTask> m_requestsQueue;
+            bool m_isRunning = false;
         };
     }
 }

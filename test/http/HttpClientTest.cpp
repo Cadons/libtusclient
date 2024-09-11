@@ -92,7 +92,7 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
             m_httpClient->options(request);
             break;
     }
-
+    m_httpClient->execute();
     std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
     EXPECT_EQ(finalResult, testCase.expectedData);
 }

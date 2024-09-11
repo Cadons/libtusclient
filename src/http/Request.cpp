@@ -22,6 +22,11 @@ Request::Request()
     setOnErrorCallback(defaultErrorCallback());
 }
 
+Request::Request(Request &&request): url(request.url), body(request.body), method(request.method), headers(request.headers), m_onSuccessCallback(request.m_onSuccessCallback), m_onErrorCallback(request.m_onErrorCallback)
+{
+
+}
+
 Request::Request(string url)
 {
     this->url = url;

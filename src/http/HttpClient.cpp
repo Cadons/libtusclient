@@ -9,13 +9,12 @@
 
 #include "http/HttpClient.h"
 #include "http/Request.h"
+#include "http/RequestTask.h"
 
 using TUS::Http::HttpClient;
-using TUS::Http::Request;
 using TUS::Http::HttpMethod;
 using TUS::Http::IHttpClient;
-
-std::queue<CURL *> HttpClient::m_requests;
+using TUS::Http::Request;
 
 HttpClient::HttpClient()
 {
@@ -69,50 +68,33 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 }
 
-IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
+IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
 {
-    std::thread([this, method, request]()
-                {
-                    
-        CURL *curl;
-        CURLcode res;
-        std::string buffer;
-        std::string responseHeader;
 
-        curl = curl_easy_init();
-        if (curl) {
-            setupCURLRequest(curl, method, request);
-            HttpClient::m_requests.push(curl);
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-            if (method == HttpMethod::_POST|| method == HttpMethod::_PUT|| 
-            method == HttpMethod::_PATCH) {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
-            }
-            CURLcode response = curl_easy_perform(curl);
-            if(response != CURLE_OK)
-            {
-                std::cout << "Error: " << curl_easy_strerror(response) << std::endl;
-                request.getOnErrorCallback()(responseHeader, buffer);
-                throw std::runtime_error("Error: " + std::string(curl_easy_strerror(response)));
-            }else {
-                request.getOnSuccessCallback()(responseHeader, buffer);
-            }
-        
-            std::cout << "Response code: " << response << std::endl;
-            curl_easy_cleanup(curl);
-            m_requests.pop();
-        }
-        else
+    CURL *curl;
+    CURLcode res;
+    std::string buffer;
+    std::string responseHeader;
+
+    curl = curl_easy_init();
+    if (curl)
+    {
+        setupCURLRequest(curl, method, request);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+        if (method == HttpMethod::_POST || method == HttpMethod::_PUT ||
+            method == HttpMethod::_PATCH)
         {
-            std::cout << "Error initializing curl" << std::endl;
-        } })
-        .detach();
-return this;
+            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
+        }
+        RequestTask request(request, curl);
+        m_requestsQueue.push(request);
+    }
+    return this;
 }
 
-IHttpClient* HttpClient::get(Request request)
+IHttpClient *HttpClient::get(Request request)
 {
     if (request.getMethod() != HttpMethod::_GET)
     {
@@ -121,7 +103,7 @@ IHttpClient* HttpClient::get(Request request)
     return sendRequest(HttpMethod::_GET, request);
 }
 
-IHttpClient* HttpClient::post(Request request)
+IHttpClient *HttpClient::post(Request request)
 {
     if (request.getMethod() != HttpMethod::_POST)
     {
@@ -130,7 +112,7 @@ IHttpClient* HttpClient::post(Request request)
     return sendRequest(HttpMethod::_POST, request);
 }
 
-IHttpClient* HttpClient::put(Request request)
+IHttpClient *HttpClient::put(Request request)
 {
     if (request.getMethod() != HttpMethod::_PUT)
     {
@@ -139,7 +121,7 @@ IHttpClient* HttpClient::put(Request request)
     return sendRequest(HttpMethod::_PUT, request);
 }
 
-IHttpClient* HttpClient::patch(Request request)
+IHttpClient *HttpClient::patch(Request request)
 {
     if (request.getMethod() != HttpMethod::_PATCH)
     {
@@ -148,7 +130,7 @@ IHttpClient* HttpClient::patch(Request request)
     return sendRequest(HttpMethod::_PATCH, request);
 }
 
-IHttpClient* HttpClient::del(Request request)
+IHttpClient *HttpClient::del(Request request)
 {
     if (request.getMethod() != HttpMethod::_DELETE)
     {
@@ -157,7 +139,7 @@ IHttpClient* HttpClient::del(Request request)
     return sendRequest(HttpMethod::_DELETE, request);
 }
 
-IHttpClient* HttpClient::head(Request request)
+IHttpClient *HttpClient::head(Request request)
 {
     if (request.getMethod() != HttpMethod::_HEAD)
     {
@@ -166,7 +148,7 @@ IHttpClient* HttpClient::head(Request request)
     return sendRequest(HttpMethod::_HEAD, request);
 }
 
-IHttpClient* HttpClient::options(Request request)
+IHttpClient *HttpClient::options(Request request)
 {
     if (request.getMethod() != HttpMethod::_OPTIONS)
     {
@@ -177,25 +159,26 @@ IHttpClient* HttpClient::options(Request request)
 
 bool HttpClient::abortRequest()
 {
-    if(m_requests.empty())
+    if (m_requestsQueue.empty())
     {
         return false;
     }
-    CURL* curl = m_requests.front();
-    
-    curl_easy_cleanup(curl);
-    m_requests.pop();
-    return !m_requests.empty();
+    CURL *curl = m_requestsQueue.front().curl;
+    if (curl_easy_pause(curl, CURLPAUSE_RECV) == CURLE_OK)
+    {
+        return true;
+    }
+    return false;
 }
 
 bool HttpClient::pauseRequest()
 {
-    if(m_requests.empty())
+    if (m_requestsQueue.empty())
     {
         return false;
     }
-    CURL* curl = m_requests.front();
-    if(curl_easy_pause(curl, CURLPAUSE_ALL) == CURLE_OK)
+    CURL *curl = m_requestsQueue.front().curl;
+    if (curl_easy_pause(curl, CURLPAUSE_ALL) == CURLE_OK)
     {
         return true;
     }
@@ -204,14 +187,44 @@ bool HttpClient::pauseRequest()
 
 bool HttpClient::resumeRequest()
 {
-    if(m_requests.empty())
+    if (m_requestsQueue.empty())
     {
         return false;
     }
-    CURL* curl = m_requests.front();
-    if(curl_easy_pause(curl, CURLPAUSE_CONT) == CURLE_OK)
+    CURL *curl = m_requestsQueue.front().curl;
+    if (curl_easy_pause(curl, CURLPAUSE_CONT) == CURLE_OK)
     {
         return true;
     }
     return false;
+}
+
+void HttpClient::execute()
+{
+    if (m_isRunning)
+    {
+        return;
+    }
+    m_isRunning = true;
+
+    std::thread t([this]()
+                  {
+        while (!m_requestsQueue.empty())
+        {
+                CURL *curl = m_requestsQueue.front().curl;
+             string responseHeader;
+            string buffer;    
+            CURLcode res = curl_easy_perform(curl);
+            if (res != CURLE_OK)
+            {
+                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+            }else{
+
+                m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
+
+            }
+            m_requestsQueue.pop();
+        }
+        m_isRunning = false; });
+    t.detach();
 }
