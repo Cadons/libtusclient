@@ -22,7 +22,7 @@ Request::Request()
     setOnErrorCallback(defaultErrorCallback());
 }
 
-Request::Request(Request &&request): url(request.url), body(request.body), method(request.method), headers(request.headers), m_onSuccessCallback(request.m_onSuccessCallback), m_onErrorCallback(request.m_onErrorCallback)
+Request::Request(const Request &request): url(request.url), body(request.body), method(request.method), headers(request.headers), m_onSuccessCallback(request.m_onSuccessCallback), m_onErrorCallback(request.m_onErrorCallback)
 {
 
 }
@@ -88,15 +88,7 @@ Request::Request(string url, string body, HttpMethod method, map<string, string>
     setOnErrorCallback(onErrorCallback);
 }
 
-Request::Request(const Request &request)
-{
-    this->url = request.url;
-    this->body = request.body;
-    this->method = request.method;
-    this->headers = request.headers;
-    setOnSuccessCallback(request.getOnSuccessCallback());
-    setOnErrorCallback(request.getOnErrorCallback());
-}
+
 
 Request &Request::operator=(const Request &request)
 {

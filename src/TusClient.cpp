@@ -7,14 +7,13 @@
 #include <iostream>
 #include <fstream>
 #include "TusClient.h"
+
 #include "http/HttpClient.h"
 using TUS::TusStatus;
 using TUS::TusClient;
 
-TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_httpClient(std::make_unique<Http::HttpClient>())
+TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_tempDir(TEMP_DIR), m_httpClient(std::make_unique<TUS::Http::HttpClient>())
 {
-    m_httpClient = std::make_unique<Http::HttpClient>();
-    m_tempDir = TEMP_DIR;
 
 }
 
@@ -72,7 +71,7 @@ void TusClient::stop()
 
 int TusClient::progress()
 {
-    return m_uploadedChunks*
+    return m_uploadedChunks;
 }
 
 TusStatus TusClient::status()

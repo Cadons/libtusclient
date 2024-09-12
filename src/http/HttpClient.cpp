@@ -9,18 +9,18 @@
 
 #include "http/HttpClient.h"
 #include "http/Request.h"
-#include "http/RequestTask.h"
 
 using TUS::Http::HttpClient;
 using TUS::Http::HttpMethod;
 using TUS::Http::IHttpClient;
 using TUS::Http::Request;
 
+
 HttpClient::HttpClient()
 {
 }
 
-HttpClient::~HttpClient()
+HttpClient::~HttpClient() 
 {
 }
 size_t write_data(void *ptr, size_t size, size_t nmemb, std::string *data)
@@ -91,7 +91,7 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
         RequestTask request(request, curl);
         m_requestsQueue.push(request);
     }
-    return this;
+    return (IHttpClient *)this;
 }
 
 IHttpClient *HttpClient::get(Request request)

@@ -12,6 +12,7 @@
 
 #include "libtusclient.h"
 #include "IHttpClient.h"
+#include "http/RequestTask.h"
 
 #include "Request.h"
 namespace TUS
@@ -19,7 +20,6 @@ namespace TUS
     namespace Http
     {
 
-        class RequestTask;
         /**
          * @brief Represents a HTTP client
          */
@@ -28,7 +28,7 @@ namespace TUS
 
         public:
             HttpClient();
-            ~HttpClient();
+          virtual  ~HttpClient();
             IHttpClient *get(Request request) override;
             IHttpClient *post(Request request) override;
             IHttpClient *put(Request request) override;

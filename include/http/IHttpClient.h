@@ -83,7 +83,9 @@ namespace TUS
              * @return True if the request was resumed, false otherwise.
              */
             virtual bool resumeRequest() = 0;
-            virtual ~IHttpClient() {}
+            virtual ~IHttpClient() {};
+
+
         };
     }
 
