@@ -15,12 +15,11 @@ using TUS::Http::HttpMethod;
 using TUS::Http::IHttpClient;
 using TUS::Http::Request;
 
-
 HttpClient::HttpClient()
 {
 }
 
-HttpClient::~HttpClient() 
+HttpClient::~HttpClient()
 {
 }
 size_t write_data(void *ptr, size_t size, size_t nmemb, std::string *data)
@@ -73,16 +72,13 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
 
     CURL *curl;
     CURLcode res;
-    std::string buffer;
-    std::string responseHeader;
 
     curl = curl_easy_init();
     if (curl)
     {
         setupCURLRequest(curl, method, request);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+
         if (method == HttpMethod::_POST || method == HttpMethod::_PUT ||
             method == HttpMethod::_PATCH)
         {
@@ -209,15 +205,18 @@ void HttpClient::execute()
 
     std::thread t([this]()
                   {
+
         while (!m_requestsQueue.empty())
         {
                 CURL *curl = m_requestsQueue.front().curl;
              string responseHeader;
             string buffer;    
-            CURLcode res = curl_easy_perform(curl);
-            if (res != CURLE_OK)
-            {
-                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+                    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+                    CURLcode res = curl_easy_perform(curl);
+                    if (res != CURLE_OK)
+                    {
+                        std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
             }else{
 
                 m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
