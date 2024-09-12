@@ -88,8 +88,8 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
         {
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
         }
-        RequestTask request(request, curl);
-        m_requestsQueue.push(request);
+        RequestTask requestTask(request, curl);
+        m_requestsQueue.push(requestTask);
     }
     return (IHttpClient *)this;
 }
