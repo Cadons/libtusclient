@@ -98,7 +98,7 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
-     TestParams{"http://localhost:3000/files", "", HttpMethod::_GET, "{\"test\":\"get passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_GET, "{\"test\":\"get passed\"}"},
     TestParams{"http://localhost:3000/files", "{\"data\":[1,2,3,4,5]}", HttpMethod::_POST, "{\"test\":\"post passed\"}"},
     TestParams{"http://localhost:3000/files", "", HttpMethod::_PUT, "{\"test\":\"put passed\"}"},
     TestParams{"http://localhost:3000/files", "", HttpMethod::_PATCH, "{\"test\":\"patch passed\"}"},
@@ -107,5 +107,23 @@ INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::V
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });
 
+TEST_F(HttpClientParameterizedTest, CheckWrongMethod)
+{
+    Request request("http://localhost:3000/files", "", HttpMethod::_GET);
+    EXPECT_THROW(m_httpClient->put(request), std::runtime_error);
+}
+TEST_F(HttpClientParameterizedTest, AbortRequest)
+{
+    Request request("http://localhost:3000/files", "", HttpMethod::_GET);
+    Request requestPost("http://localhost:3000/files", "1234", HttpMethod::_POST);
+    m_httpClient->get(request);
+    m_httpClient->post(requestPost);
+    m_httpClient->execute();
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+            EXPECT_TRUE(m_httpClient->abortRequest());
+
+
+}
 
 } // namespace TUS::Test::Http

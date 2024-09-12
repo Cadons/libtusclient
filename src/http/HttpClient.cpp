@@ -160,8 +160,10 @@ bool HttpClient::abortRequest()
         return false;
     }
     CURL *curl = m_requestsQueue.front().curl;
-    if (curl_easy_pause(curl, CURLPAUSE_RECV) == CURLE_OK)
+    if (curl_easy_pause(curl, CURLPAUSE_RECV | CURLPAUSE_SEND) == CURLE_OK)
     {
+   //  curl_easy_cleanup(curl);//TODO: handle with progress
+        m_requestsQueue.pop();
         return true;
     }
     return false;
@@ -176,6 +178,7 @@ bool HttpClient::pauseRequest()
     CURL *curl = m_requestsQueue.front().curl;
     if (curl_easy_pause(curl, CURLPAUSE_ALL) == CURLE_OK)
     {
+        m_isRunning = false;
         return true;
     }
     return false;
@@ -190,6 +193,7 @@ bool HttpClient::resumeRequest()
     CURL *curl = m_requestsQueue.front().curl;
     if (curl_easy_pause(curl, CURLPAUSE_CONT) == CURLE_OK)
     {
+        m_isRunning=true;
         return true;
     }
     return false;
