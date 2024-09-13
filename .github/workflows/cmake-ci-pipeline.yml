@@ -71,9 +71,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{matrix.conan_home}}
-          key: ${{ runner.os }}-conan-${{hashFiles('**/conanfile.py')}}-${{matrix.c_compiler}}
+          key: ${{ runner.os }}-conan-${{matrix.c_compiler}}
           restore-keys: |
-            ${{ runner.os }}-conan-
+            ${{ runner.os }}-conan-${{matrix.c_compiler}}
       - name: Create Conan profiles
         continue-on-error: true
         run: |
