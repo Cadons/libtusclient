@@ -32,9 +32,6 @@ void TusClient::upload()
         return;
     }
 
-    //post to the server the file
-    m_httpClient->post(Http::Request(m_url, m_filePath));
-
 
     //patch chunks of the file to the server while chunk is not the last one
     while (m_chunkNumber>0)
