@@ -22,10 +22,15 @@ HttpClient::HttpClient()
 HttpClient::~HttpClient()
 {
 }
-size_t write_data(void *ptr, size_t size, size_t nmemb, std::string *data)
+size_t HttpClient::writeDataCallback(void *ptr, size_t size, size_t nmemb, std::string *data)
 {
     data->append(reinterpret_cast<char *>(ptr), size * nmemb);
     return size * nmemb;
+}
+int HttpClient::progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+{
+    
+    return 0;
 }
 std::string HttpClient::convertHttpMethodToString(HttpMethod method)
 {
@@ -54,9 +59,12 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
                                   Request request)
 {
     string methodStr = convertHttpMethodToString(method);
-
+    Progress progress;
     curl_easy_setopt(curl, CURLOPT_URL, request.getUrl().c_str());
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, methodStr.c_str());
+    curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &progress);
+    curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback);
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
     struct curl_slist *headers = NULL;
     for (auto const &header : request.getHeaders())
     {
@@ -77,7 +85,7 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
     if (curl)
     {
         setupCURLRequest(curl, method, request);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback);
 
         if (method == HttpMethod::_POST || method == HttpMethod::_PUT ||
             method == HttpMethod::_PATCH)
@@ -153,51 +161,16 @@ IHttpClient *HttpClient::options(Request request)
     return sendRequest(HttpMethod::_OPTIONS, request);
 }
 
-bool HttpClient::abortRequest()
+IHttpClient *HttpClient::abortAll()
 {
-    if (m_requestsQueue.empty())
+    while (!m_requestsQueue.empty())
     {
-        return false;
-    }
-    CURL *curl = m_requestsQueue.front().curl;
-    if (curl_easy_pause(curl, CURLPAUSE_RECV | CURLPAUSE_SEND) == CURLE_OK)
-    {
-   //  curl_easy_cleanup(curl);//TODO: handle with progress
         m_requestsQueue.pop();
-        return true;
     }
-    return false;
+    m_isRunning = false;
+    return (IHttpClient *)this;
 }
 
-bool HttpClient::pauseRequest()
-{
-    if (m_requestsQueue.empty())
-    {
-        return false;
-    }
-    CURL *curl = m_requestsQueue.front().curl;
-    if (curl_easy_pause(curl, CURLPAUSE_ALL) == CURLE_OK)
-    {
-        m_isRunning = false;
-        return true;
-    }
-    return false;
-}
-
-bool HttpClient::resumeRequest()
-{
-    if (m_requestsQueue.empty())
-    {
-        return false;
-    }
-    CURL *curl = m_requestsQueue.front().curl;
-    if (curl_easy_pause(curl, CURLPAUSE_CONT) == CURLE_OK)
-    {
-        m_isRunning=true;
-        return true;
-    }
-    return false;
-}
 
 void HttpClient::execute()
 {
@@ -212,12 +185,14 @@ void HttpClient::execute()
 
         while (!m_requestsQueue.empty())
         {
+            m_isLastRequestCompleted = false;
                 CURL *curl = m_requestsQueue.front().curl;
              string responseHeader;
             string buffer;    
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
                     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
                     CURLcode res = curl_easy_perform(curl);
+                    m_isLastRequestCompleted=res==CURLE_OK;
                     if (res != CURLE_OK)
                     {
                         std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
@@ -230,4 +205,9 @@ void HttpClient::execute()
         }
         m_isRunning = false; });
     t.detach();
+}
+
+bool HttpClient::isLastRequestCompleted() const
+{
+    return m_isLastRequestCompleted;
 }

@@ -68,21 +68,19 @@ namespace TUS
              * @return A pointer to the HTTP client.
              */
             virtual IHttpClient *options(Request request) = 0;
+
             /**
-             * @brief Abort the current request.
-             * @return True if there are other requests to abort, false otherwise.
+             * @brief Abort all requests.
              */
-            virtual bool abortRequest() = 0;
+            virtual IHttpClient* abortAll() = 0;
+
             /**
-             * @brief Pause the current request.
-             * @return True if the request was paused, false otherwise.
+             * @brief Check if the last request is completed.
+             * @return True if the last request is completed, false otherwise.
              */
-            virtual bool pauseRequest() = 0;
-            /**
-             * @brief Resume the current request.
-             * @return True if the request was resumed, false otherwise.
-             */
-            virtual bool resumeRequest() = 0;
+
+            virtual bool isLastRequestCompleted() const = 0;
+          
             virtual ~IHttpClient() {};
 
 

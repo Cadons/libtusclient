@@ -95,6 +95,7 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
     m_httpClient->execute();
     std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
     EXPECT_EQ(finalResult, testCase.expectedData);
+    EXPECT_TRUE(m_httpClient->isLastRequestCompleted());
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
@@ -112,18 +113,17 @@ TEST_F(HttpClientParameterizedTest, CheckWrongMethod)
     Request request("http://localhost:3000/files", "", HttpMethod::_GET);
     EXPECT_THROW(m_httpClient->put(request), std::runtime_error);
 }
-TEST_F(HttpClientParameterizedTest, AbortRequest)
+
+TEST_F(HttpClientParameterizedTest, AbortAll)
 {
     Request request("http://localhost:3000/files", "", HttpMethod::_GET);
-    Request requestPost("http://localhost:3000/files", "1234", HttpMethod::_POST);
+    Request request2("http://localhost:3000/files", "", HttpMethod::_GET);
     m_httpClient->get(request);
-    m_httpClient->post(requestPost);
+    m_httpClient->get(request2);
+    m_httpClient->abortAll();
     m_httpClient->execute();
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-            EXPECT_TRUE(m_httpClient->abortRequest());
-
-
+    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
+    EXPECT_FALSE(m_httpClient->isLastRequestCompleted());
 }
 
 } // namespace TUS::Test::Http

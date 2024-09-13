@@ -20,6 +20,12 @@ namespace TUS
     namespace Http
     {
 
+        struct LIBTUSAPI_EXPORT Progress
+        {
+            char * data;
+            size_t size;
+        };
+
         /**
          * @brief Represents a HTTP client
          */
@@ -28,7 +34,7 @@ namespace TUS
 
         public:
             HttpClient();
-          virtual  ~HttpClient();
+            virtual ~HttpClient();
             IHttpClient *get(Request request) override;
             IHttpClient *post(Request request) override;
             IHttpClient *put(Request request) override;
@@ -36,15 +42,16 @@ namespace TUS
             IHttpClient *del(Request request) override;
             IHttpClient *head(Request request) override;
             IHttpClient *options(Request request) override;
+          
+            IHttpClient* abortAll() override;
             /**
              * @brief Execute the requests in the queue
              * it start a new thread that will execute the requests, if the thread is already running it will do nothing
              */
             void execute();
-            bool abortRequest() override;
-            bool pauseRequest() override;
-            bool resumeRequest() override;
 
+            bool isLastRequestCompleted() const override;
+            
             static string convertHttpMethodToString(HttpMethod method);
 
         private:
@@ -52,6 +59,26 @@ namespace TUS
             IHttpClient *sendRequest(HttpMethod method, Request request);
             std::queue<RequestTask> m_requestsQueue;
             bool m_isRunning = false;
+            /**
+             * @brief Callback function for the write data of the request
+             * @param ptr is the pointer to the data
+             * @param size is the size of the data
+             * @param nmemb  the size of the data
+             * @param data is the data
+             * @return size_t
+             */
+            static size_t writeDataCallback(void *ptr, size_t size, size_t nmemb, std::string *data);
+            /**
+             * @brief Callback function for the progress of the request
+             * @param clientp is a pointer to the client
+             * @param dltotal is the total size of the download
+             * @param dlnow is the current size of the download
+             * @param ultotal is the total size of the upload
+             * @param ulnow is the current size of the upload
+             * @return int (0=ok, 1=abort)
+             */
+            static int progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+            bool m_isLastRequestCompleted = false;
         };
     }
 }

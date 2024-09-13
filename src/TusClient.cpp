@@ -51,21 +51,18 @@ void TusClient::upload()
 
 void TusClient::cancel()
 {
-    while (m_httpClient->abortRequest())
-    {
-       std::cout<<"Request aborted"<<std::endl;
-    }
+
     
 }
 
 void TusClient::resume()
 {
-   m_httpClient->resumeRequest();
+  
 }
 
 void TusClient::stop()
 {
-    m_httpClient->pauseRequest();
+
    
 }
 
