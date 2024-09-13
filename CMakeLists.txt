@@ -9,9 +9,10 @@ configure_file(config.h.in config.h)
 
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS include/*.h)
+find_package(CURL REQUIRED)
+add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-add_library(libtusclient SHARED ${SOURCES} ${HEADERS})
-
+target_link_libraries(${PROJECT_NAME} CURL::libcurl)
 
 target_include_directories(libtusclient 
     PUBLIC 

@@ -1,14 +1,17 @@
-#pragma once
+#ifndef INCLUDE_LIBTUSCLIENT_H_
+#define INCLUDE_LIBTUSCLIENT_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 
-#include <vector>
-#include <string>
-
-
-#ifdef _WIN32
-  #define LIBTUSCLIENT_EXPORT __declspec(dllexport)
+#ifdef WIN32
+  #include <windows.h>
+  #define LIBTUSAPI_EXPORT __declspec(dllexport)
 #else
-  #define LIBTUSCLIENT_EXPORT
+  #define LIBTUSAPI_EXPORT
 #endif
 
-LIBTUSCLIENT_EXPORT void libtusclient();
-LIBTUSCLIENT_EXPORT void libtusclient_print_vector(const std::vector<std::string> &strings);
+
+#endif // INCLUDE_LIBTUSCLIENT_H_

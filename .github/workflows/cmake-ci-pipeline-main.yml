@@ -61,18 +61,20 @@ jobs:
         shell: bash
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+     
+      - name: Install conan package manager
+        run: |
+          pip install conan
+          conan --version
       - name: Cache .conan
         # Cache the .conan directory to speed up subsequent builds
         uses: actions/cache@v3
         with:
           path: ${{matrix.conan_home}}
-          key: ${{ runner.os }}-conan-${{hashFiles('**/conanfile.py')}}-${{matrix.c_compiler}}
+          key: ${{ runner.os }}-conan-${{matrix.c_compiler}}
           restore-keys: |
-            ${{ runner.os }}-conan-
-      - name: Install conan package manager
-        run: |
-          pip install conan
-          conan --version
+            ${{ runner.os }}-conan-${{matrix.c_compiler}}
+
       - name: Create Conan profiles
         continue-on-error: true
         run: |
@@ -102,6 +104,15 @@ jobs:
       - name: Build Library
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build --preset conan-${{ matrix.build_type }} --target libtusclient
+      - name: Run Mockoon CLI
+        uses: mockoon/cli-action@v2
+        with:
+              # Mockoon CLI version, default to 'latest'
+              version: "latest"
+              # Mockoon local data file or URL
+              data-file: "./mockoon-data.json"
+              # port, default to 3000
+              port: 3000
       - name: Build Tests Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: >
