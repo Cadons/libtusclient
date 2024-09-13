@@ -48,7 +48,7 @@ namespace TUS
              * @brief Execute the requests in the queue
              * it start a new thread that will execute the requests, if the thread is already running it will do nothing
              */
-            void execute();
+            IHttpClient* execute()override;
 
             bool isLastRequestCompleted() const override;
             

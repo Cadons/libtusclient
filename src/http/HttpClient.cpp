@@ -172,11 +172,11 @@ IHttpClient *HttpClient::abortAll()
 }
 
 
-void HttpClient::execute()
+IHttpClient* HttpClient::execute()
 {
     if (m_isRunning)
     {
-        return;
+       return nullptr;
     }
     m_isRunning = true;
 
@@ -205,6 +205,7 @@ void HttpClient::execute()
         }
         m_isRunning = false; });
     t.detach();
+    return (IHttpClient *)this;
 }
 
 bool HttpClient::isLastRequestCompleted() const

@@ -18,6 +18,15 @@ namespace TUS::Test {
         EXPECT_EQ(client.status(), TUS::TusStatus::READY);
 
     }
+
+    TEST(TusClient, uploadTest) {
+
+        TUS::TusClient client("http://localhost:8080/files", "test.txt");
+
+        client.upload();
+
+
+    }
     
 
 

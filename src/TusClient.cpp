@@ -25,13 +25,21 @@ TusClient::~TusClient()
 void TusClient::upload()
 {
     //chunk the file
-    m_chunkNumber = divideFileInChunks(m_filePath);
+    m_chunkNumber =11;/// divideFileInChunks(m_filePath);
     if(m_chunkNumber == -1)
     {
         std::cerr << "Error: Unable to divide file in chunks" << std::endl;
         return;
     }
 
+    std::map<std::string,std::string> headers;
+    headers["Tus-Resumable"] = "1.0.0";
+
+    std::string uuid="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
+    m_httpClient->head(Http::Request(m_url+"/"+uuid,"",Http::HttpMethod::_HEAD,headers));
+
+    m_httpClient->execute();
 
     //patch chunks of the file to the server while chunk is not the last one
     while (m_chunkNumber>0)
