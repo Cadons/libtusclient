@@ -10,9 +10,10 @@ configure_file(config.h.in config.h)
 file(GLOB_RECURSE SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS include/*.h)
 find_package(CURL REQUIRED)
+find_package(Boost REQUIRED)
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} CURL::libcurl)
+target_link_libraries(${PROJECT_NAME} CURL::libcurl Boost::boost)
 
 target_include_directories(libtusclient 
     PUBLIC 

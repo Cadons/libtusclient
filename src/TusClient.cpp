@@ -6,12 +6,15 @@
 
 #include <iostream>
 #include <fstream>
-#include "TusClient.h"
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp> 
 
+#include "TusClient.h"
 #include "http/HttpClient.h"
 using TUS::TusStatus;
 using TUS::TusClient;
-
+using boost::uuids::random_generator;
 TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_tempDir(TEMP_DIR), m_httpClient(std::make_unique<TUS::Http::HttpClient>())
 {
 
@@ -34,10 +37,10 @@ void TusClient::upload()
 
     std::map<std::string,std::string> headers;
     headers["Tus-Resumable"] = "1.0.0";
+    boost::uuids::uuid uuid = random_generator()();
+    std::string uuidStr = boost::uuids::to_string(uuid);
 
-    std::string uuid="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-
-    m_httpClient->head(Http::Request(m_url+"/"+uuid,"",Http::HttpMethod::_HEAD,headers));
+    m_httpClient->head(Http::Request(m_url+"/"+uuidStr,"",Http::HttpMethod::_HEAD,headers));
 
     m_httpClient->execute();
 

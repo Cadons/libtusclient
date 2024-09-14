@@ -67,5 +67,6 @@ class libtusclientRecipe(ConanFile):
     
     def requirements(self):
         self.requires("libcurl/8.9.1")
+        self.requires("boost/1.86.0 ")
         self.requires("gtest/1.15.0")
 
