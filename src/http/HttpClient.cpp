@@ -204,9 +204,7 @@ IHttpClient *HttpClient::execute()
             CURL *curl = m_requestsQueue.front().curl;
             string url = m_requestsQueue.front().getUrl();
 
-            std::cout<<"Executing request to "<<url<<std::endl;
-            std::cout<<"Method: "<<convertHttpMethodToString(m_requestsQueue.front().getMethod())<<std::endl;
-            string responseHeader;
+           string responseHeader;
             string buffer;    
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
                     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
@@ -215,8 +213,7 @@ IHttpClient *HttpClient::execute()
                     if (res != CURLE_OK)
                     {
                         std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
-                        m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
-                        std::cerr<<"Retrying request"<<std::endl;
+                        m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);                        
                         return;
             }else{
 
@@ -225,6 +222,9 @@ IHttpClient *HttpClient::execute()
             }
             
             m_requestsQueue.pop();
+
+            //wait for 10ms before executing the next request, this is to avoid the CPU to be overloaded and server to be flooded with requests
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
         m_isRunning = false; });
     t.detach();

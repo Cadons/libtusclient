@@ -69,11 +69,12 @@ namespace TUS{
         
         std::unique_ptr<Http::IHttpClient> m_httpClient;
         
-        const int CHUNK_SIZE = 1024;
+        const int CHUNK_SIZE = 16*1024;
         const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
         const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
         int m_uploadedChunks=0;
+        string m_tusLocation;
 
         /**
          * @brief Divides the file into chunks.

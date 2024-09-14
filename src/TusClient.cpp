@@ -25,7 +25,21 @@ TusClient::TusClient(std::string url, std::string filePath) : m_url(url), m_file
 TusClient::~TusClient()
 {
 }
+std::string extractLocation(const std::string& header) {
+    std::string locationKey = "Location: ";
+    size_t locationPos = header.find(locationKey);
+    
+    if (locationPos != std::string::npos) {
+        size_t urlStart = locationPos + locationKey.length();
+        size_t urlEnd = header.find("\n", urlStart); 
+        
+        if (urlEnd != std::string::npos) {
+            return header.substr(urlStart, urlEnd - urlStart);
+        }
+    }
 
+    return "";
+}
 void TusClient::upload()
 {
 
@@ -39,11 +53,30 @@ void TusClient::upload()
 
     std::map<std::string, std::string> headers;
     headers["Tus-Resumable"] = "1.0.0";
-
-    m_httpClient->head(Http::Request(m_url + "/files/" + getUUIDString(), "", Http::HttpMethod::_HEAD, headers));
-
-    m_httpClient->execute();
+    // this is for resume
+    //  m_httpClient->head(Http::Request(m_url + "/files/" + getUUIDString(), "", Http::HttpMethod::_HEAD, headers));
+    headers["Content-Type"] = "application/octet-stream"; // Set the appropriate content type
+    headers["Content-Disposition"] = "attachment; filename=\"" + getFilePath().filename().string() + "\"";
+    headers["Content-Range"] = "bytes */" + std::to_string(m_chunkNumber * CHUNK_SIZE);
+    headers["Content-Length"] = "0";
+    headers["Upload-Length"] = std::to_string(m_chunkNumber * CHUNK_SIZE);
+    std::function<void(std::string header, std::string data)> onSuccess = [this](std::string header, std::string data)
+    {     
+        m_tusLocation=extractLocation(header);
+        m_tusLocation.replace(0, getUrl().length() + 7, ""); // remove the url from the location
+        // clean location from \r
+        m_tusLocation.replace(m_tusLocation.find("\r"), 1, "");
+    };
+    m_httpClient->post(Http::Request(m_url + "/files", "", TUS::Http::HttpMethod::_POST, headers, onSuccess));
+     m_httpClient->execute();
+    while (!m_httpClient->isLastRequestCompleted())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+std::cout << "Waiting for the location header" << std::endl;
+    }
+    
     m_status = TusStatus::UPLOADING;
+
     // patch chunks of the file to the server while chunk is not the last one
     for(int i = 0; i < m_chunkNumber; i++)
     {
@@ -70,10 +103,9 @@ void TusClient::upload()
         patchHeaders["Tus-Resumable"] = "1.0.0";
         patchHeaders["Content-Type"] = "application/offset+octet-stream";
         patchHeaders["Upload-Offset"] = std::to_string(m_uploadedChunks);
-        patchHeaders["Upload-Length"] = std::to_string(m_chunkNumber * CHUNK_SIZE);
+        patchHeaders["Content-Length"] = std::to_string(chunkSize);
         std::function<void(std::string header, std::string data)> onSuccess = [this](std::string header, std::string data)
         {
-            std::cout << "Chunk uploaded successfully" << std::endl;
             if (m_httpClient->isLastRequestCompleted())
             {
                 std::cout << "Chunk " << m_uploadedChunks << " uploaded successfully" << std::endl;
@@ -90,19 +122,29 @@ void TusClient::upload()
         {
             std::cerr << "Error: Unable to upload chunk" << std::endl;
             m_status = TusStatus::FAILED;
+            return;
         };
-        m_httpClient->patch(Http::Request(m_url + "/files/" + getUUIDString(), std::string(chunkData.data(), chunkSize), Http::HttpMethod::_PATCH, patchHeaders, onSuccess, onError));
+        m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation, std::string(chunkData.data(), chunkSize), Http::HttpMethod::_PATCH, patchHeaders, onSuccess, onError));
 
        
     }
- m_httpClient->execute();
- while (progress() < 100)
- {
-     std::this_thread::sleep_for(std::chrono::seconds(1));
-     std::cout << "Progress: " << progress() << "%" << std::endl;
- }
+    m_httpClient->execute();
+    while (progress() < 100)
+    {
+        if (!m_httpClient->isLastRequestCompleted())
+        {
+            std::cerr << "Error: Unable to upload chunk " << m_uploadedChunks << std::endl;
+            m_status = TusStatus::FAILED;
+            return;
+        }
+        else
+        {
+            std::cout << progress() << "%";
+        }
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    // stop that updaload if the last chunk is uploaded
+    }
+
     stop();
 }
 

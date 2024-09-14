@@ -42,6 +42,7 @@ namespace TUS
             Request(std::string url, std::string body);
             Request(std::string url, std::string body, HttpMethod method);
             Request(std::string url, std::string body, HttpMethod method, map<string, string> headers);
+            Request(std::string url, std::string body, HttpMethod method, map<string, string> headers, SuccessCallback onSuccessCallback);
             Request(std::string url, std::string body, HttpMethod method, map<string, string> headers, SuccessCallback onSuccessCallback, ErrorCallback onErrorCallback);
             /**
              * @brief Copy constructor

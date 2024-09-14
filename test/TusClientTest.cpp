@@ -12,7 +12,7 @@
 #include "TusClient.h"
 namespace TUS::Test
 {
-    std::filesystem::path generateTestFile();
+    std::filesystem::path generateTestFile(int size = 10);
     TEST(TusClient, clientCreationTest)
     {
 
@@ -26,21 +26,21 @@ namespace TUS::Test
     TEST(TusClient, uploadTest)
     {
 
-        std::filesystem::path testFilePath = generateTestFile();
+        std::filesystem::path testFilePath = generateTestFile(1);
         std::cout << "Test file path: " << testFilePath << std::endl;
         TUS::TusClient client("http://localhost:8080", testFilePath);
 
         client.upload();
     }
 
-    std::filesystem::path generateTestFile()
+    std::filesystem::path generateTestFile(int size )
     {
 
         // generate random .dat files 10MB each
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 255);
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < size; i++)
         {
             std::string data;
             for (int j = 0; j < 1024 * 1024; j++)
@@ -55,14 +55,14 @@ namespace TUS::Test
         libzippp::ZipArchive zipArchive(std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + "test.zip");
         zipArchive.open(libzippp::ZipArchive::New);
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < size; i++)
         {
             zipArchive.addFile(std::to_string(i), std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + std::to_string(i) + ".dat");
             // remove the .dat files
         }
         zipArchive.close();
         // remove the .dat files
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < size; i++)
         {
             std::filesystem::remove(std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + std::to_string(i) + ".dat");
         }
