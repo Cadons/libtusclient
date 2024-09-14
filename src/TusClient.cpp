@@ -62,7 +62,7 @@ void TusClient::upload()
     headers["Upload-Length"] = std::to_string(size);
     headers["Upload-Metadata"] = "filename " + getFilePath().filename().string();
     std::function<void(std::string header, std::string data)> onSuccess = [this](std::string header, std::string data)
-    {     
+    {    
         m_tusLocation=extractLocation(header);
         m_tusLocation.replace(0, getUrl().length() + 7, ""); // remove the url from the location
         // clean location from \r
@@ -73,7 +73,7 @@ void TusClient::upload()
     while (!m_httpClient->isLastRequestCompleted())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-std::cout << "Waiting for the location header" << std::endl;
+        std::cout << "Waiting for the location header" << std::endl;
     }
     
     m_status = TusStatus::UPLOADING;
@@ -102,14 +102,16 @@ std::cout << "Waiting for the location header" << std::endl;
         std::map<std::string, std::string> patchHeaders;
         patchHeaders["Tus-Resumable"] = "1.0.0";
         patchHeaders["Content-Type"] = "application/offset+octet-stream";
-        patchHeaders["Upload-Offset"] = std::to_string(m_uploadedChunks);
+        patchHeaders["Upload-Offset"] = std::to_string(m_uploadedBytes);
         patchHeaders["Content-Length"] = std::to_string(chunkSize);
+
         std::function<void(std::string header, std::string data)> onSuccess = [this](std::string header, std::string data)
         {
             if (m_httpClient->isLastRequestCompleted())
             {
                 std::cout << "Chunk " << m_uploadedChunks << " uploaded successfully" << std::endl;
                 m_uploadedChunks++;
+                m_uploadedBytes += m_lastByteUploaded;
             }
             else
             {

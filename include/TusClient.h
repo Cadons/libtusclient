@@ -75,6 +75,8 @@ namespace TUS{
         int m_chunkNumber=0;
         int m_uploadedChunks=0;
         string m_tusLocation;
+        uintmax_t m_uploadedBytes=0;
+        uintmax_t m_lastByteUploaded=0;
 
         /**
          * @brief Divides the file into chunks.
