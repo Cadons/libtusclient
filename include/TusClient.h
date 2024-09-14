@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include <filesystem>
+#include <boost/uuid/uuid.hpp>
 
 #include "libtusclient.h"
 #include "TusStatus.h"
@@ -69,7 +70,7 @@ namespace TUS{
         std::unique_ptr<Http::IHttpClient> m_httpClient;
         
         const int CHUNK_SIZE = 1024;
-        const string CHUNK_FILE_NAME_PREFIX = "chunk_";
+        const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
         const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
         int m_uploadedChunks=0;
@@ -81,7 +82,7 @@ namespace TUS{
          * @return The number of chunks the file was divided into.
          */
 
-        int divideFileInChunks(path filePath);
+        int divideFileInChunks(path filePath, boost::uuids::uuid uuid);
 
         /**
          * @brief Removes the chunk files, this when a chunk is uploaded successfully.
@@ -89,6 +90,13 @@ namespace TUS{
          * @param path The path of the file to remove the chunks from.
          */
         bool removeChunkFiles(path filePath);
+
+        string getChunkFilename(int chunkNumber);
+
+        boost::uuids::uuid m_uuid;
+
+        string getUUIDString();
+        path getTUSTempDir();
         
         
     public:

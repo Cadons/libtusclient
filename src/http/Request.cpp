@@ -155,6 +155,8 @@ Request::SuccessCallback Request::defaultSuccessCallback()
 {
     return [](string header, string data)
     {
+        std::cout << header << std::endl;
+        std::cout << data << std::endl;
         std::cout << "not implemented" << std::endl;
     };
 }
