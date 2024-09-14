@@ -50,16 +50,17 @@ void TusClient::upload()
         std::cerr << "Error: Unable to divide file in chunks" << std::endl;
         return;
     }
-
+    path chunkFilePath = getTUSTempDir() / getChunkFilename(m_uploadedChunks);
+    uintmax_t size = std::filesystem::file_size(m_filePath);
     std::map<std::string, std::string> headers;
     headers["Tus-Resumable"] = "1.0.0";
     // this is for resume
     //  m_httpClient->head(Http::Request(m_url + "/files/" + getUUIDString(), "", Http::HttpMethod::_HEAD, headers));
     headers["Content-Type"] = "application/octet-stream"; // Set the appropriate content type
     headers["Content-Disposition"] = "attachment; filename=\"" + getFilePath().filename().string() + "\"";
-    headers["Content-Range"] = "bytes */" + std::to_string(m_chunkNumber * CHUNK_SIZE);
     headers["Content-Length"] = "0";
-    headers["Upload-Length"] = std::to_string(m_chunkNumber * CHUNK_SIZE);
+    headers["Upload-Length"] = std::to_string(size);
+    headers["Upload-Metadata"] = "filename " + getFilePath().filename().string();
     std::function<void(std::string header, std::string data)> onSuccess = [this](std::string header, std::string data)
     {     
         m_tusLocation=extractLocation(header);
@@ -81,7 +82,6 @@ std::cout << "Waiting for the location header" << std::endl;
     for(int i = 0; i < m_chunkNumber; i++)
     {
         /* code */
-        path chunkFilePath = getTUSTempDir() / getChunkFilename(m_uploadedChunks);
         std::ifstream chunkFile(chunkFilePath, std::ios::binary);
 
         if (!chunkFile)
@@ -141,8 +141,7 @@ std::cout << "Waiting for the location header" << std::endl;
         {
             std::cout << progress() << "%";
         }
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     stop();

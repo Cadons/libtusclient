@@ -196,7 +196,7 @@ IHttpClient *HttpClient::execute()
 
     std::thread t([this]()
                   {
-                    std::cout<<"Executing requests"<<std::endl;
+                   
         while (!m_requestsQueue.empty())
         {
             m_isLastRequestCompleted = false;
