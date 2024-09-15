@@ -26,9 +26,9 @@ namespace TUS::Test
     TEST(TusClient, uploadTest)
     {
 
-        std::filesystem::path testFilePath = generateTestFile(1);
+        std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
-        TUS::TusClient client("http://localhost:8080", testFilePath);
+        TUS::TusClient client("http://localhost:8080", testFilePath,100);
 
         client.upload();
     }

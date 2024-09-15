@@ -49,7 +49,7 @@ namespace TUS{
         virtual void resume() = 0;
         virtual void stop() = 0;
         
-        virtual int progress() = 0;
+        virtual float progress() = 0;
         virtual TusStatus status() = 0;
         virtual void retry() = 0;
         // Getters
@@ -71,15 +71,16 @@ namespace TUS{
         
         std::unique_ptr<Http::IHttpClient> m_httpClient;
         
-        const int CHUNK_SIZE = 16*1024;
+        const int CHUNK_SIZE;
         const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
         const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
         int m_uploadedChunks=0;
         string m_tusLocation;
-        uintmax_t m_uploadedBytes=0;
         uintmax_t m_lastByteUploaded=0;
         int m_uploadOffset=0;
+
+        float m_progress=0;
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);
         /**
@@ -107,7 +108,7 @@ namespace TUS{
         
         
     public:
-        TusClient(string url, string filePath);
+        TusClient(string url, string filePath,int chunkSize=16*1024);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
@@ -130,7 +131,7 @@ namespace TUS{
          * 
          * @return The progress of the upload as a percentage.
          */
-        int progress() override;
+        float progress() override;
         /**
          * @brief Returns the status of the upload.
          * 

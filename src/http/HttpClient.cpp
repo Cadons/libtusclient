@@ -119,6 +119,7 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
             else
             {
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, request.getBody().size());//set the size of the data
             }
             break;
         }
@@ -228,9 +229,7 @@ IHttpClient *HttpClient::execute()
             string buffer;    
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
                     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-                    std::cout << "Executing request: " << url<<" "<< convertHttpMethodToString(m_requestsQueue.front().getMethod()) << std::endl;
                     CURLcode res = curl_easy_perform(curl);
-                    std::cout << "Request completed: " << url<<" "<< convertHttpMethodToString(m_requestsQueue.front().getMethod()) << std::endl;
                     m_isLastRequestCompleted=res==CURLE_OK;
                     if (res != CURLE_OK)
                     {
