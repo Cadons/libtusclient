@@ -60,16 +60,18 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
 {
     string methodStr = convertHttpMethodToString(method);
     Progress progress;
-    if(request.getUrl().find("https://")==0){
+    if (request.getUrl().find("https://") == 0)
+    {
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     }
-    list<string> badURLChars = {"<", ">", "#", "%", "{", "}", "|", "\\", "^", "~", "[", "]", "`","/"};
+    list<string> badURLChars = {"<", ">", "#", "%", "{", "}", "|", "\\", "^", "~", "[", "]", "`"};
     for (auto const &badChar : badURLChars)
     {
-        if (request.getUrl().back()==badChar[0])
+        if (request.getUrl().back() == badChar[0])
         {
-            throw std::runtime_error("Bad character ("+badChar+")in URL");
+            std::string requestSummury = request.getUrl() + " " + methodStr;
+            throw std::runtime_error("Bad character (" + badChar + ")in URL\n" + requestSummury);
         }
     }
     curl_easy_setopt(curl, CURLOPT_URL, request.getUrl().c_str());
@@ -77,11 +79,12 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_XFERINFODATA, &progress);
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);//timeout in seconds for the connection, if the connection is not established in 10 seconds the request will be aborted
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L); // timeout in seconds for the connection, if the connection is not established in 10 seconds the request will be aborted
 
     struct curl_slist *headers = NULL;
     for (auto const &header : request.getHeaders())
     {
+
         headers = curl_slist_append(headers, (header.first + ": " +
                                               header.second)
                                                  .c_str());
@@ -100,11 +103,27 @@ IHttpClient *HttpClient::sendRequest(HttpMethod method, Request request)
     {
         setupCURLRequest(curl, method, request);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback);
-
-        if (method == HttpMethod::_POST || method == HttpMethod::_PUT ||
-            method == HttpMethod::_PATCH)
+        switch (method)
         {
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
+        case HttpMethod::_HEAD:
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1L);
+            break;
+        case HttpMethod::_POST:
+        case HttpMethod::_PUT:
+        case HttpMethod::_PATCH:
+        {
+            if (request.getBody().empty())
+            {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+            }
+            else
+            {
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
+            }
+            break;
+        }
+        default:
+            break;
         }
         RequestTask requestTask(request, curl);
         m_requestsQueue.push(requestTask);
@@ -187,12 +206,13 @@ IHttpClient *HttpClient::abortAll()
 
 IHttpClient *HttpClient::execute()
 {
-    
+
     if (m_isRunning)
     {
         return nullptr;
     }
     m_isRunning = true;
+    m_isLastRequestCompleted = false;
 
     std::thread t([this]()
                   {
@@ -204,11 +224,13 @@ IHttpClient *HttpClient::execute()
             CURL *curl = m_requestsQueue.front().curl;
             string url = m_requestsQueue.front().getUrl();
 
-           string responseHeader;
+            string responseHeader;
             string buffer;    
                     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
                     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+                    std::cout << "Executing request: " << url<<" "<< convertHttpMethodToString(m_requestsQueue.front().getMethod()) << std::endl;
                     CURLcode res = curl_easy_perform(curl);
+                    std::cout << "Request completed: " << url<<" "<< convertHttpMethodToString(m_requestsQueue.front().getMethod()) << std::endl;
                     m_isLastRequestCompleted=res==CURLE_OK;
                     if (res != CURLE_OK)
                     {
@@ -220,7 +242,7 @@ IHttpClient *HttpClient::execute()
                 m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
 
             }
-            
+            curl_easy_cleanup(curl);//cleanup the curl handle
             m_requestsQueue.pop();
 
             //wait for 10ms before executing the next request, this is to avoid the CPU to be overloaded and server to be flooded with requests

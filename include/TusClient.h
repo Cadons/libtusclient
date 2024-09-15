@@ -62,6 +62,8 @@ namespace TUS{
     class LIBTUSAPI_EXPORT TusClient: public ITusClient
     {
     private:
+        using OnSuccessCallback = std::function<void(std::string,std::string)>;
+        using OnErrorCallback = std::function<void(std::string,std::string)>;
         string m_url; 
         path m_filePath;
         TusStatus m_status;
@@ -77,7 +79,9 @@ namespace TUS{
         string m_tusLocation;
         uintmax_t m_uploadedBytes=0;
         uintmax_t m_lastByteUploaded=0;
+        int m_uploadOffset=0;
 
+        void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);
         /**
          * @brief Divides the file into chunks.
          * 
