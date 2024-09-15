@@ -48,6 +48,7 @@ namespace TUS{
         virtual void cancel() = 0;
         virtual void resume() = 0;
         virtual void stop() = 0;
+        virtual void pause() = 0;
         
         virtual float progress() = 0;
         virtual TusStatus status() = 0;
@@ -55,6 +56,7 @@ namespace TUS{
         // Getters
         virtual path getFilePath() const = 0;
         virtual string getUrl() const = 0;
+
     };
     /**
      * @brief The TusClient class represents a client for uploading files using the TUS protocol.
@@ -81,6 +83,7 @@ namespace TUS{
         int m_uploadOffset=0;
 
         float m_progress=0;
+        bool m_paused=false;
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);
         /**
@@ -105,6 +108,10 @@ namespace TUS{
 
         string getUUIDString();
         path getTUSTempDir();
+
+        void uploadChuncks();
+
+        void uploadChunk(int chunkNumber);
         
         
     public:
@@ -142,6 +149,11 @@ namespace TUS{
          * @brief Retries the upload.
          */
         void retry() override;
+
+        /**
+         * @brief Pauses the upload.
+         */
+        void pause() override;
 
         path getFilePath() const override;
         string getUrl() const override;

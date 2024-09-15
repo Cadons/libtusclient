@@ -10,6 +10,7 @@
 #include <libzippp/libzippp.h>
 
 #include "TusClient.h"
+#include <thread>
 namespace TUS::Test
 {
     std::filesystem::path generateTestFile(int size = 10);
@@ -31,6 +32,47 @@ namespace TUS::Test
         TUS::TusClient client("http://localhost:8080", testFilePath,100);
 
         client.upload();
+
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
+
+    TEST(TusClient, pauseTest)
+    {
+        std::filesystem::path testFilePath = generateTestFile(10);
+        std::cout << "Test file path: " << testFilePath << std::endl;
+        TUS::TusClient client("http://localhost:8080", testFilePath,100);
+
+        std::thread([&]() {
+            client.upload();
+        }).detach();    
+        //wait 10 seconds
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        client.pause();
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+    }
+    TEST(TusClient, pauseResumeTest)
+    {
+        std::filesystem::path testFilePath = generateTestFile(10);
+        std::cout << "Test file path: " << testFilePath << std::endl;
+        TUS::TusClient client("http://localhost:8080", testFilePath,100);
+
+        std::thread([&]() {
+            client.upload();
+        }).detach();    
+        //wait 10 seconds
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        client.pause();
+
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+
+        client.resume();
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
     }
 
     std::filesystem::path generateTestFile(int size )
