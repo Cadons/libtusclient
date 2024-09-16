@@ -83,7 +83,7 @@ void TusClient::uploadChuncks()
 {
         m_status = TusStatus::UPLOADING;
 
-    int i=(m_uploadOffset/CHUNK_SIZE)+1;
+    int i=m_uploadedChunks+1;
     for (; i < m_chunkNumber;)
     {
         uploadChunk(i);
@@ -329,6 +329,7 @@ int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
 bool TusClient::removeChunkFiles(path filePath)
 {
     if(std::filesystem::exists(filePath)){
+        return true;
             return remove(filePath);
 
     }
