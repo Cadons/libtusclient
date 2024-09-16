@@ -83,7 +83,7 @@ void TusClient::uploadChuncks()
 {
         m_status = TusStatus::UPLOADING;
 
-    int i=m_uploadOffset/CHUNK_SIZE;
+    int i=(m_uploadOffset/CHUNK_SIZE)+1;
     for (; i < m_chunkNumber;)
     {
         uploadChunk(i);
@@ -140,7 +140,6 @@ void TusClient::uploadChunk(int chunkNumber)
             {
                 std::cerr << "Error: Unable to upload chunk " << m_uploadedChunks << std::endl;
                 m_status = TusStatus::FAILED;
-                std::cout << m_chunkNumber << std::endl;
                 return;
             }
         }
@@ -215,9 +214,12 @@ void TusClient::stop()
     for (int i = 0; i < m_chunkNumber; i++)
     {
         path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
-        if (!removeChunkFiles(chunkFilePath))
+        if (std::filesystem::exists(chunkFilePath))
         {
-            std::cerr << "Error: Unable to remove chunk file " << chunkFilePath << std::endl;
+            if (!removeChunkFiles(chunkFilePath))
+            {
+                std::cerr << "Error: Unable to remove chunk file " << chunkFilePath << std::endl;
+            }
         }
     }
     m_status = TusStatus::FINISHED;
@@ -326,5 +328,9 @@ int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
 
 bool TusClient::removeChunkFiles(path filePath)
 {
-    return remove(filePath);
+    if(std::filesystem::exists(filePath)){
+            return remove(filePath);
+
+    }
+    return false;
 }
