@@ -258,9 +258,10 @@ std::string TusClient::getUUIDString()
 path TusClient::getTUSTempDir()
 {
     path filesTempDir = m_tempDir / getUUIDString();
+
     if (!std::filesystem::exists(filesTempDir))
     {
-        std::filesystem::create_directory(filesTempDir);
+        std::filesystem::create_directories(filesTempDir);
     }
     return filesTempDir;
 }
