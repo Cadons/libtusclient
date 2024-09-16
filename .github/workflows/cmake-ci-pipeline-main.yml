@@ -113,6 +113,8 @@ jobs:
               data-file: "./mockoon-data.json"
               # port, default to 3000
               port: 3000
+      - name: Docker TUSD
+        run: docker run -d -p 8080:8080 tusproject/tusd:latest
       - name: Build Tests Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: >
