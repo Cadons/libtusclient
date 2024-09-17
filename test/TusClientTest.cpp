@@ -8,9 +8,11 @@
 #include <fstream>
 #include <random>
 #include <libzippp/libzippp.h>
+#include <filesystem>
+#include <thread>
 
 #include "TusClient.h"
-#include <thread>
+
 namespace TUS::Test
 {
     std::filesystem::path generateTestFile(int size = 10);
@@ -94,21 +96,21 @@ namespace TUS::Test
             datFile.close();
         }
         // Zip the files
-        libzippp::ZipArchive zipArchive(std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + "test.zip");
+        libzippp::ZipArchive zipArchive((std::filesystem::current_path() / "test.zip").string());
         zipArchive.open(libzippp::ZipArchive::New);
 
         for (int i = 0; i < size; i++)
         {
-            zipArchive.addFile(std::to_string(i), std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + std::to_string(i) + ".dat");
+            zipArchive.addFile(std::to_string(i), (std::filesystem::current_path() / (std::to_string(i) + ".dat")).string());
             // remove the .dat files
         }
         zipArchive.close();
         // remove the .dat files
         for (int i = 0; i < size; i++)
         {
-            std::filesystem::remove(std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + std::to_string(i) + ".dat");
+            std::filesystem::remove(std::filesystem::current_path()/( std::to_string(i) + ".dat"));
         }
-        return std::filesystem::current_path().string() + std::filesystem::path::preferred_separator + "test.zip";
+        return std::filesystem::current_path()/ "test.zip";
     }
 
 }

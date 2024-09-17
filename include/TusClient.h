@@ -9,6 +9,7 @@
 #include <memory>
 #include <filesystem>
 #include <boost/uuid/uuid.hpp>
+#include <functional>
 
 #include "libtusclient.h"
 #include "TusStatus.h"
@@ -115,7 +116,7 @@ namespace TUS{
         
         
     public:
-        TusClient(string url, string filePath,int chunkSize=16*1024);
+        TusClient(string url, path filePath,int chunkSize=16*1024);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
