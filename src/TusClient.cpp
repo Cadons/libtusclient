@@ -102,7 +102,7 @@ void TusClient::uploadChunk(int chunkNumber)
     path chunkFilePath = getTUSTempDir() / getChunkFilename(chunkNumber);
 
     /* code */
-    std::ifstream chunkFile(chunkFilePath, std::ios::binary);
+    std::ifstream chunkFile(chunkFilePath, std::ios::binary);//TODO: create a list as class field to store the chunk files in RAM, don't read from disk every time during upload. This will improve the performance
     if (!chunkFile)
     {
         std::cerr << "Error: Unable to open chunk file " << chunkFilePath << std::endl;
@@ -211,6 +211,7 @@ void TusClient::stop()
 {
 
     // remove the chunk files
+
     for (int i = 0; i < m_chunkNumber; i++)
     {
         path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
@@ -222,6 +223,7 @@ void TusClient::stop()
             }
         }
     }
+    std::filesystem::remove(getTUSTempDir()/getUUIDString());//remove the temp directory
     m_status = TusStatus::FINISHED;
 }
 
@@ -329,7 +331,7 @@ int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
 bool TusClient::removeChunkFiles(path filePath)
 {
     if(std::filesystem::exists(filePath)){
-        return true;
+    
             return remove(filePath);
 
     }
