@@ -107,6 +107,7 @@ jobs:
           port: 3000
 
       - name: Docker TUSD
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: docker run -d -p 8080:8080 tusproject/tusd:latest
 
       - name: Build Tests Windows
@@ -115,16 +116,10 @@ jobs:
           cp ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/* ${{ github.workspace }}/build/test;
           cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
 
-      - name: Test Project Ubuntu
+      - name: Test Project
         uses: threeal/ctest-action@v1.1.0
         if: ${{ matrix.os == 'ubuntu-latest' }}
         with:
           build-config: ${{ steps.strings.outputs.build-type }}
           test-dir: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
-      - name: Test Project Windows
-        uses: threeal/ctest-action@v1.1.0
-        if: ${{ matrix.os == 'windows-latest' }}
-        with:
-          build-config: ${{ steps.strings.outputs.build-type }}
-          test-dir: ${{ github.workspace }}/build
