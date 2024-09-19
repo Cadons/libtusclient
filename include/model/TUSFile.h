@@ -23,7 +23,7 @@ namespace TUS
     {
     public:
         
-        TUSFile(std::string filePath, std::string uploadUrl, std::string appName, int64_t uploadedBytes, int64_t fileSize);
+        TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName);
         ~TUSFile();
         std::string getFilePath() const;
         std::string getUploadUrl() const;
@@ -42,7 +42,7 @@ namespace TUS
 
     private:
         int64_t m_lastEdit;/* last time the record was edited in unix time */
-        const std::string m_filePath;
+        const std::filesystem::path m_filePath;
         const std::string m_uploadUrl;
         const std::string m_appName;
         int64_t m_uploadOffset;/* the offset of the file that has been uploaded */

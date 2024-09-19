@@ -9,11 +9,13 @@
 
 using TUS::TUSFile;
 
-TUSFile::TUSFile(std::string filePath, std::string url, std::string appName, int64_t uploadedBytes, int64_t fileSize)
-    : m_filePath(filePath), m_uploadUrl(url), m_appName(appName), m_uploadOffset(uploadedBytes), m_fileSize(fileSize),
-    m_identifcationHash(std::to_string(std::hash<std::string>{}(filePath + url + appName)))
+TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName)
+    : m_filePath(filePath), m_uploadUrl(uploadUrl), m_appName(appName), m_identifcationHash(std::to_string(std::hash<std::string>{}(filePath.string() + uploadUrl + appName)))
+    , m_fileSize(std::filesystem::file_size(filePath))
 {
     m_lastEdit = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    m_uploadOffset = 0;
+    m_resumeFrom = 0;
 }
 
 TUSFile::~TUSFile()

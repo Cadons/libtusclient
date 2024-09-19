@@ -13,13 +13,15 @@
 
 #include "TusClient.h"
 #include "http/HttpClient.h"
+#include "model/TUSFile.h"
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
-TusClient::TusClient(std::string url, path filePath, int chunkSize) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_tempDir(TEMP_DIR), m_httpClient(std::make_unique<TUS::Http::HttpClient>()), CHUNK_SIZE(chunkSize * 1024)
+TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_tempDir(TEMP_DIR), m_httpClient(std::make_unique<TUS::Http::HttpClient>()), CHUNK_SIZE(chunkSize * 1024)
 {
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
+    m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName);
 }
 
 TusClient::~TusClient()

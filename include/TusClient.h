@@ -14,6 +14,7 @@
 #include "libtusclient.h"
 #include "TusStatus.h"
 #include "http/IHttpClient.h"
+
 using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
@@ -39,6 +40,7 @@ using std::filesystem::path;
  * It also provides methods for retrieving the upload progress and status.
  */
 namespace TUS{
+    class TUSFile;
     /*
     * @brief The ITusClient class represents an interface for a client for uploading files using the TUS protocol.
     */
@@ -85,6 +87,9 @@ namespace TUS{
 
         float m_progress=0;
         bool m_paused=false;
+        std::shared_ptr<TUSFile> m_tusFile;
+
+        
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);
         /**
@@ -116,7 +121,7 @@ namespace TUS{
         
         
     public:
-        TusClient(string url, path filePath,int chunkSize=16*1024);
+        TusClient(string appName,string url, path filePath,int chunkSize=16*1024);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
