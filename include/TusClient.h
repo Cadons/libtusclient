@@ -41,6 +41,7 @@ using std::filesystem::path;
  */
 namespace TUS{
     class TUSFile;
+    class ICacheManager;
     /*
     * @brief The ITusClient class represents an interface for a client for uploading files using the TUS protocol.
     */
@@ -59,6 +60,8 @@ namespace TUS{
         // Getters
         virtual path getFilePath() const = 0;
         virtual string getUrl() const = 0;
+
+        
 
     };
     /**
