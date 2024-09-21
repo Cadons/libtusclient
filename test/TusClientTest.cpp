@@ -19,7 +19,7 @@ namespace TUS::Test
     TEST(TusClient, clientCreationTest)
     {
 
-        TUS::TusClient client("http://localhost:8080/files", "test.txt");
+        TUS::TusClient client("testapp","http://localhost:8080/files", "test.txt");
 
         EXPECT_EQ(client.getUrl(), "http://localhost:8080/files");
         EXPECT_EQ(client.getFilePath(), "test.txt");
@@ -31,7 +31,7 @@ namespace TUS::Test
 
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
-        TUS::TusClient client("http://localhost:8080", testFilePath,100);
+        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
 
         client.upload();
 
@@ -42,7 +42,7 @@ namespace TUS::Test
     {
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
-        TUS::TusClient client("http://localhost:8080", testFilePath,100);
+        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
 
         std::thread([&]() {
             client.upload();
@@ -59,7 +59,7 @@ namespace TUS::Test
     {
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
-        TUS::TusClient client("http://localhost:8080", testFilePath,100);
+        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
 
         // std::thread([&]() {
         //     client.upload();
