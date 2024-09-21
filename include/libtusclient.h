@@ -20,7 +20,7 @@
     #define TEMP_DIR "/tmp/TUS/"
 
 #elif __APPLE__
-    #define TEMP_DIR getenv("TMPDIR")
+    #define TEMP_DIR (std::string(getenv("TMPDIR")) + "/TUS/").c_str()
 #elif __ANDROID__
     #define TEMP_DIR "/data/local/tmp/TUS/"
 #else

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include "repository/CacheRepository.h"
+#include <boost/uuid/uuid_generators.hpp>
 #include "model/TUSFile.h"
 
 using namespace TUS;
@@ -14,7 +15,7 @@ protected:
         file << "test-app";
         file.close();
 
-        cacheRepository = std::make_unique<CacheRepository>("test-app");
+        cacheRepository = std::make_unique<CacheRepository>("test-app",true);
         cacheRepository->clearCache();
     }
 
@@ -24,40 +25,41 @@ protected:
     }
     const std::filesystem::path m_filePath=std::filesystem::current_path()/ "test.txt";
     std::unique_ptr<CacheRepository> cacheRepository;
+    const boost::uuids::uuid m_uuid = boost::uuids::random_generator()();
 };
 
 TEST_F(CacheRepositoryTest, add) {
-    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app");
+    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app",m_uuid,"1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findByHash(file.getIdentificationHash());
-    ASSERT_EQ(result->getIdentificationHash(), file.getIdentificationHash());
+    EXPECT_EQ(result->getIdentificationHash(), file.getIdentificationHash());
 }
 
 TEST_F(CacheRepositoryTest, remove) {
-    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app");
+    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app",m_uuid,"1234567890e39484");
     cacheRepository->add(file);
     cacheRepository->remove(file);
     auto result = cacheRepository->findByHash(file.getIdentificationHash());
-    ASSERT_EQ(result, nullptr);
+    EXPECT_EQ(result, nullptr);
 }
 
 TEST_F(CacheRepositoryTest, findByHash) {
-    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app");
+    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app",m_uuid,"1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findByHash(file.getIdentificationHash());
-    ASSERT_EQ(result->getIdentificationHash(), file.getIdentificationHash());
+    EXPECT_EQ(result->getIdentificationHash(), file.getIdentificationHash());
 }
 
 TEST_F(CacheRepositoryTest, findAll) {
-    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app");
+    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app",m_uuid,"1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findAll();
-    ASSERT_EQ(result.size(), 1);
-    ASSERT_EQ(result[0].getIdentificationHash(), file.getIdentificationHash());
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0].getIdentificationHash(), file.getIdentificationHash());
 }
 
 TEST_F(CacheRepositoryTest, saveAndOpen) {
-    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app");
+    TUSFile file(m_filePath, "http://localhost:1080/upload", "test-app",m_uuid,"1234567890e39484");
     EXPECT_EQ(file.getAppName(), "test-app");
     EXPECT_EQ(file.getFilePath(), m_filePath);
     EXPECT_EQ(file.getUploadUrl(), "http://localhost:1080/upload");
@@ -69,8 +71,8 @@ TEST_F(CacheRepositoryTest, saveAndOpen) {
     EXPECT_EQ(result[0].getAppName(), "test-app");
     EXPECT_EQ(result[0].getFilePath(), m_filePath);
     EXPECT_EQ(result[0].getUploadUrl(), "http://localhost:1080/upload");
-    ASSERT_EQ(result.size(), 1);
-    ASSERT_EQ(result[0].getIdentificationHash(), file.getIdentificationHash());
+    EXPECT_EQ(result.size(), 1);
+    EXPECT_EQ(result[0].getIdentificationHash(), file.getIdentificationHash());
 }
 
 

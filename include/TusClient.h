@@ -80,6 +80,8 @@ namespace TUS{
         bool m_paused=false;
         std::shared_ptr<TUSFile> m_tusFile;
 
+        std::string m_appName;
+
         
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);

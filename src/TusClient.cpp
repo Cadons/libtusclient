@@ -17,11 +17,16 @@
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
-TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) : m_url(url), m_filePath(filePath), m_status(TusStatus::READY), m_tempDir(TEMP_DIR), m_httpClient(std::make_unique<TUS::Http::HttpClient>()), CHUNK_SIZE(chunkSize * 1024)
+TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) :
+    m_appName(appName),
+    m_url(url), m_filePath(filePath),
+    m_status(TusStatus::READY), m_tempDir(TEMP_DIR), 
+    m_httpClient(std::make_unique<TUS::Http::HttpClient>()), 
+    CHUNK_SIZE(chunkSize * 1024)
 {
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
-    m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName);
+    m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName,m_uuid);
 
 }
 
@@ -74,7 +79,8 @@ void TusClient::upload()
         m_tusLocation = extractHeaderValue(header, "Location");
         m_tusLocation.replace(0, getUrl().length() + 7, ""); // remove the url from the location
     };
-    m_httpClient->post(Http::Request(m_url + "/files", "", TUS::Http::HttpMethod::_POST, headers, onPostSuccess));
+    m_httpClient->post(Http::Request(m_url + "/files", "", 
+                       TUS::Http::HttpMethod::_POST, headers, onPostSuccess));
     m_httpClient->execute();
     wait(std::chrono::milliseconds(100), [this]()
          { return m_httpClient->isLastRequestCompleted(); }, "Waiting for the location header");
@@ -86,7 +92,7 @@ void TusClient::upload()
 
 void TusClient::uploadChuncks()
 {
-        m_status = TusStatus::UPLOADING;
+    m_status = TusStatus::UPLOADING;
 
     int i=m_uploadedChunks+1;
     for (; i < m_chunkNumber;)
@@ -163,7 +169,10 @@ void TusClient::uploadChunk(int chunkNumber)
     };
     m_lastByteUploaded = chunkSize;
 
-    m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation, std::string(chunkData.data(), chunkSize), Http::HttpMethod::_PATCH, patchHeaders, onPatchSuccess, onPatchError));
+    m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation, 
+                        std::string(chunkData.data(), chunkSize), 
+                        Http::HttpMethod::_PATCH, patchHeaders,
+                        onPatchSuccess, onPatchError));
     m_httpClient->execute();
     wait(std::chrono::milliseconds(100), [this]()
          { return m_httpClient->isLastRequestCompleted(); }, "");
@@ -228,7 +237,7 @@ void TusClient::stop()
             }
         }
     }
-    std::filesystem::remove(getTUSTempDir()/getUUIDString());//remove the temp directory
+    std::filesystem::remove(getTUSTempDir()/m_appName/getUUIDString());//remove the temp directory
     m_status = TusStatus::FINISHED;
 }
 
@@ -266,7 +275,7 @@ std::string TusClient::getUUIDString()
 
 path TusClient::getTUSTempDir()
 {
-    path filesTempDir = m_tempDir / getUUIDString();
+    path filesTempDir = m_tempDir/m_appName/"files"/getUUIDString();
 
     if (!std::filesystem::exists(filesTempDir))
     {

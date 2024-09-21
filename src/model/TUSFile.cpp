@@ -9,14 +9,17 @@
 
 using TUS::TUSFile;
 
-TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName)
+TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,  boost::uuids::uuid uuid,std::string tusId)
     : m_filePath(filePath), m_uploadUrl(uploadUrl), m_appName(appName), m_identifcationHash(std::to_string(std::hash<std::string>{}(filePath.string() + uploadUrl + appName)))
     , m_fileSize(std::filesystem::file_size(filePath))
+    ,m_tusIdentifier(tusId), m_uuid(uuid)
 {
     m_lastEdit = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
     m_uploadOffset = 0;
     m_resumeFrom = 0;
 }
+
+
 
 TUSFile::~TUSFile()
 {
@@ -57,6 +60,21 @@ std::string TUSFile::getIdentificationHash() const
     return m_identifcationHash;
 }
 
+std::string TUSFile::getTusIdentifier() const
+{
+    return m_tusIdentifier;
+}
+
+boost::uuids::uuid TUSFile::getUuid() const
+{
+    return m_uuid;
+}
+
+void TUSFile::setTusIdentifier(std::string tusIdentifier)
+{
+    m_tusIdentifier = tusIdentifier;
+}
+
 void TUSFile::setUploadOffset(int64_t uploadOffset)
 {
     m_uploadOffset = uploadOffset;
@@ -73,6 +91,7 @@ int TUSFile::getResumeFrom() const
 {
     return m_resumeFrom;
 }
+
 
 void TUSFile::setLastEdit(int64_t lastEdit)
 {

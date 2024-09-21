@@ -8,6 +8,7 @@
 #include <string>
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include <boost/uuid/uuid.hpp>
 
 #include "libtusclient.h"
 namespace TUS
@@ -30,7 +31,7 @@ namespace TUS
          * @param uploadUrl The URL to which the file will be uploaded.
          * @param appName The name of the application that created the record.
          */
-        TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName);
+        TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,boost::uuids::uuid uuid,std::string tusID="");
         ~TUSFile();
         std::filesystem::path getFilePath() const;
         std::string getUploadUrl() const;
@@ -40,10 +41,13 @@ namespace TUS
         int64_t getLastEdit() const;
         int64_t getUploadOffset() const;
         int getResumeFrom() const;
+
+        std::string getTusIdentifier() const;
+        boost::uuids::uuid getUuid() const;
         
         void setLastEdit(int64_t lastEdit);        
         void setUploadOffset(int64_t uploadOffset);
-
+        void setTusIdentifier(std::string tusIdentifier);
         void setResumeFrom(int resumeFrom);
 
         bool select(std::string filePath, std::string appName, std::string uploadUrl);
@@ -57,6 +61,8 @@ namespace TUS
         int64_t m_uploadOffset;/* the offset of the file that has been uploaded */
         int m_resumeFrom;/* the offset from which the upload should resume */
         const int64_t m_fileSize;
+        std::string m_tusIdentifier;/* the identifier of the file */
+        const boost::uuids::uuid m_uuid;/* the uuid of the file */
 
         const std::string m_identifcationHash;/* the hash of the file path and the upload url and app name*/
 

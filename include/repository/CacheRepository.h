@@ -15,7 +15,7 @@ namespace TUS {
 class LIBTUSAPI_EXPORT CacheRepository : public IRepository<TUSFile> {
 
 public:
-    CacheRepository(std::string appName);
+    CacheRepository(std::string appName,bool clearCache=false);
     ~CacheRepository() override;
 
     void add(const TUSFile& item) override;
