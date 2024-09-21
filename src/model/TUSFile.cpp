@@ -22,7 +22,7 @@ TUSFile::~TUSFile()
 {
 }
 
-std::string TUSFile::getFilePath() const
+std::filesystem::path TUSFile::getFilePath() const
 {
     return m_filePath;
 }
@@ -52,6 +52,11 @@ int64_t TUSFile::getUploadOffset() const
     return m_uploadOffset;
 }
 
+std::string TUSFile::getIdentificationHash() const
+{
+    return m_identifcationHash;
+}
+
 void TUSFile::setUploadOffset(int64_t uploadOffset)
 {
     m_uploadOffset = uploadOffset;
@@ -63,6 +68,20 @@ void TUSFile::setResumeFrom(int resumeFrom)
     m_resumeFrom = resumeFrom;
     updateFile();
 }
+
+int TUSFile::getResumeFrom() const
+{
+    return m_resumeFrom;
+}
+
+void TUSFile::setLastEdit(int64_t lastEdit)
+{
+    m_lastEdit = lastEdit;
+}
+
+
+
+
 
 bool TUSFile::select(std::string filePath, std::string appName, std::string uploadUrl)
 {

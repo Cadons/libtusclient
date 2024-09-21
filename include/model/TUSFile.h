@@ -1,5 +1,5 @@
-#ifndef INCLUDE_CACHE_CACHE_RECORD_H_
-#define INCLUDE_CACHE_CACHE_RECORD_H_
+#ifndef INCLUDE_MODEL_TUSFILE_H_
+#define INCLUDE_MODEL_TUSFILE_H_
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
@@ -7,6 +7,8 @@
  */
 #include <string>
 #include <filesystem>
+#include <nlohmann/json.hpp>
+
 #include "libtusclient.h"
 namespace TUS
 {
@@ -22,17 +24,24 @@ namespace TUS
     class LIBTUSAPI_EXPORT TUSFile
     {
     public:
-        
+        /**
+         * @brief Construct a new TUSFile object.
+         * @param filePath The path of the file to be uploaded.
+         * @param uploadUrl The URL to which the file will be uploaded.
+         * @param appName The name of the application that created the record.
+         */
         TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName);
         ~TUSFile();
-        std::string getFilePath() const;
+        std::filesystem::path getFilePath() const;
         std::string getUploadUrl() const;
         std::string getAppName() const;
+        std::string getIdentificationHash() const;
         int64_t getFileSize() const;
         int64_t getLastEdit() const;
         int64_t getUploadOffset() const;
-
+        int getResumeFrom() const;
         
+        void setLastEdit(int64_t lastEdit);        
         void setUploadOffset(int64_t uploadOffset);
 
         void setResumeFrom(int resumeFrom);
@@ -40,7 +49,7 @@ namespace TUS
         bool select(std::string filePath, std::string appName, std::string uploadUrl);
 
 
-    private:
+    protected:
         int64_t m_lastEdit;/* last time the record was edited in unix time */
         const std::filesystem::path m_filePath;
         const std::string m_uploadUrl;
@@ -55,4 +64,4 @@ namespace TUS
     };
 
 } // namespace TUS
-#endif // INCLUDE_CACHE_CACHE_RECORD_H_
+#endif // INCLUDE_MODEL_TUSFILE_H_

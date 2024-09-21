@@ -19,19 +19,7 @@ using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
 
-//temporary directory for the chunks for each os 
-#ifdef WIN32
-    #define TEMP_DIR R"(C:\Users\AppData\Local\Temp\TUS\)"
-#elif __linux__
-    #define TEMP_DIR "/tmp/TUS/"
 
-#elif __APPLE__
-    #define TEMP_DIR getenv("TMPDIR")
-#elif __ANDROID__
-    #define TEMP_DIR "/data/local/tmp/TUS/"
-#else
-    #define TEMP_DIR "/tmp/TUS/"
-#endif
 
 /**
  * @brief The TusClient class represents a client for uploading files using the TUS protocol.
@@ -168,7 +156,5 @@ namespace TUS{
         string getUrl() const override;
 
     };
-
-}
-
+} // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

@@ -22,6 +22,7 @@ TusClient::TusClient(std::string appName,std::string url, path filePath, int chu
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
     m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName);
+
 }
 
 TusClient::~TusClient()
@@ -50,6 +51,8 @@ std::string extractHeaderValue(const std::string &header, const std::string &key
 
 void TusClient::upload()
 {
+
+//check the cache for the file and resume the upload if it was interrupted
 
     // chunk the file
     m_chunkNumber = divideFileInChunks(m_filePath, m_uuid);
