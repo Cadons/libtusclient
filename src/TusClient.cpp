@@ -264,8 +264,9 @@ void TusClient::getUploadInfo()
 void TusClient::resume()
 {
 
-    m_status.store(TusStatus::READY);
     getUploadInfo();
+        m_status.store(TusStatus::READY);
+
     uploadChunks();
 }
 
