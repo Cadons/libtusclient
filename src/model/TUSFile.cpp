@@ -3,7 +3,11 @@
 #include <string>
 #include <functional>
 
-
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
 
 #include "model/TUSFile.h"
 
@@ -68,6 +72,16 @@ std::string TUSFile::getTusIdentifier() const
 boost::uuids::uuid TUSFile::getUuid() const
 {
     return m_uuid;
+}
+
+int TUSFile::getChunkNumber() const
+{
+    return m_chunkNumber;
+}
+
+void TUSFile::setChunkNumber(int chunkNumber)
+{
+    m_chunkNumber = chunkNumber;
 }
 
 void TUSFile::setTusIdentifier(std::string tusIdentifier)

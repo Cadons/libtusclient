@@ -16,6 +16,7 @@
 #include "http/IHttpClient.h"
 
 
+
 using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
@@ -32,6 +33,7 @@ namespace TUS{
     class TUSFile;
     template<typename T>
     class IRepository;
+    class TUSChunk;
     /*
     * @brief The ITusClient class represents an interface for a client for uploading files using the TUS protocol.
     */
@@ -74,7 +76,6 @@ namespace TUS{
         int m_chunkNumber=0;
         int m_uploadedChunks=0;
         string m_tusLocation;
-        uintmax_t m_lastByteUploaded=0;
         int m_uploadOffset=0;
 
         float m_progress=0;
@@ -83,8 +84,16 @@ namespace TUS{
         std::shared_ptr<TUSFile> m_tusFile;
         std::unique_ptr<IRepository<TUSFile>> m_cacheManager;
 
+        std::vector<TUSChunk> m_chunks;
+
         std::string m_appName;
 
+        /**
+         * @brief Loads the chunks from the file.
+         */
+        void loadChunks();
+
+        void updateUploadOffset();
         
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);

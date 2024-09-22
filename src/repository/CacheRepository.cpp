@@ -115,6 +115,7 @@ bool CacheRepository::open()
         file->setResumeFrom(item["resumeFrom"]);
         file->setLastEdit(item["lastEdit"]);
         file->setTusIdentifier(item["tusId"]);
+        file->setChunkNumber(item["chunkNumber"]);
         m_cache.push_back(file);
     }
 
@@ -144,6 +145,7 @@ bool CacheRepository::save()
             item["uploadOffset"] = file->getUploadOffset();
             item["resumeFrom"] = file->getResumeFrom();
             item["tusId"] = file->getTusIdentifier();
+            item["chunkNumber"] = file->getChunkNumber();
             j.push_back(item);
         }
     }else{

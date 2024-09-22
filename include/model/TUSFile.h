@@ -44,11 +44,13 @@ namespace TUS
 
         std::string getTusIdentifier() const;
         boost::uuids::uuid getUuid() const;
+        int getChunkNumber() const;
         
         void setLastEdit(int64_t lastEdit);        
         void setUploadOffset(int64_t uploadOffset);
         void setTusIdentifier(std::string tusIdentifier);
         void setResumeFrom(int resumeFrom);
+        void setChunkNumber(int chunkNumber);
 
         bool select(std::string filePath, std::string appName, std::string uploadUrl);
 
@@ -63,6 +65,7 @@ namespace TUS
         const int64_t m_fileSize;
         std::string m_tusIdentifier;/* the identifier of the file */
         const boost::uuids::uuid m_uuid;/* the uuid of the file */
+        int m_chunkNumber;/* the number of the chunk that is being uploaded */
 
         const std::string m_identifcationHash;/* the hash of the file path and the upload url and app name*/
 
