@@ -11,9 +11,11 @@
 #include <boost/uuid/uuid.hpp>
 #include <functional>
 
+
 #include "libtusclient.h"
 #include "TusStatus.h"
 #include "http/IHttpClient.h"
+
 
 
 
@@ -66,7 +68,7 @@ namespace TUS{
         using OnErrorCallback = std::function<void(std::string,std::string)>;
         string m_url; 
         path m_filePath;
-        TusStatus m_status;
+        std::atomic<TusStatus> m_status;
         path m_tempDir;
         
         
@@ -77,9 +79,10 @@ namespace TUS{
         int m_uploadedChunks=0;
         string m_tusLocation;
         int m_uploadOffset=0;
+        bool m_nextChunk=false;
+        size_t m_uploadLength=0;
 
-        float m_progress=0;
-  
+        std::atomic<float> m_progress{0};  
         std::unique_ptr<Http::IHttpClient> m_httpClient;
         std::shared_ptr<TUSFile> m_tusFile;
         std::unique_ptr<IRepository<TUSFile>> m_cacheManager;
@@ -93,7 +96,7 @@ namespace TUS{
          */
         void loadChunks();
 
-        void updateUploadOffset();
+        void getUploadInfo();
         
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);

@@ -201,58 +201,45 @@ IHttpClient *HttpClient::abortAll()
     {
         m_requestsQueue.pop();
     }
-    m_isRunning = false;
+    m_abort = true;
     return (IHttpClient *)this;
 }
 
 IHttpClient *HttpClient::execute()
 {
 
-    if (m_isRunning)
-    {
-        return nullptr;
-    }
-    m_isRunning = true;
-    m_isLastRequestCompleted = false;
-
-    std::thread t([this]()
-                  {
-                   
         while (!m_requestsQueue.empty())
         {
-            m_isLastRequestCompleted = false;
+            if(m_abort)
+            {
+                m_requestsQueue.pop();
+                m_abort = false;
+                return (IHttpClient *)this;
+            }
 
             CURL *curl = m_requestsQueue.front().curl;
             string url = m_requestsQueue.front().getUrl();
 
             string responseHeader;
-            string buffer;    
-                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-                    curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-                    CURLcode res = curl_easy_perform(curl);
-                    m_isLastRequestCompleted=res==CURLE_OK;
-                    if (res != CURLE_OK)
-                    {
-                        std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
-                        m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);                        
-                        return;
-            }else{
+            string buffer;
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+            CURLcode res = curl_easy_perform(curl);
+            if (res != CURLE_OK)
+            {
+                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+                m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
+                return (IHttpClient *)this;
+            }
+            else
+            {
 
                 m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
-
             }
-            curl_easy_cleanup(curl);//cleanup the curl handle
+            curl_easy_cleanup(curl); // cleanup the curl handle
             m_requestsQueue.pop();
-
-            //wait for 10ms before executing the next request, this is to avoid the CPU to be overloaded and server to be flooded with requests
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        m_isRunning = false; });
-    t.detach();
+
     return (IHttpClient *)this;
 }
 
-bool HttpClient::isLastRequestCompleted() const
-{
-    return m_isLastRequestCompleted;
-}

@@ -93,9 +93,7 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
             break;
     }
     m_httpClient->execute();
-    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
     EXPECT_EQ(finalResult, testCase.expectedData);
-    EXPECT_TRUE(m_httpClient->isLastRequestCompleted());
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
@@ -123,8 +121,6 @@ TEST_F(HttpClientParameterizedTest, AbortAll)
     m_httpClient->get(request2);
     m_httpClient->abortAll();
     m_httpClient->execute();
-    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
-    EXPECT_FALSE(m_httpClient->isLastRequestCompleted());
 }
 
 } // namespace TUS::Test::Http

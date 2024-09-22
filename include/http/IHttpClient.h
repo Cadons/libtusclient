@@ -74,12 +74,6 @@ namespace TUS
              */
             virtual IHttpClient* abortAll() = 0;
 
-            /**
-             * @brief Check if the last request is completed.
-             * @return True if the last request is completed, false otherwise.
-             */
-            virtual bool isLastRequestCompleted() const = 0;
-
             virtual IHttpClient* execute() = 0;
           
             virtual ~IHttpClient() {};

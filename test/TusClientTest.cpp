@@ -48,33 +48,35 @@ namespace TUS::Test
             client.upload();
         }).detach();    
         //wait 10 seconds
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        client.pause();
-
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
+        client.pause();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
     }
     TEST(TusClient, pauseResumeTest)
     {
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
-        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
-
+        TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, 100);
         std::thread([&]() {
             client.upload();
-        }).detach();    
-        //wait 10 seconds
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        std::cout<<std::endl;
+        }).detach();
+
+        while (client.progress()<30)
+        {
+           
+        }
+
+        std::cout<<"Pause"<<std::endl;
+        
         client.pause();
-
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+        
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        std::cout<< "Resuming"<<std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
 
         client.resume();
-        std::this_thread::sleep_for(std::chrono::seconds(5));
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
     }
 
