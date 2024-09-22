@@ -14,6 +14,7 @@
 #include "TusClient.h"
 #include "http/HttpClient.h"
 #include "model/TUSFile.h"
+#include "repository/CacheRepository.h"
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
@@ -26,7 +27,17 @@ TusClient::TusClient(std::string appName,std::string url, path filePath, int chu
 {
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
+    m_cacheManager = std::make_unique<TUS::CacheRepository>(m_appName);
     m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName,m_uuid);
+    //update the tusFile with the data from the cache
+    if(m_cacheManager->findByHash(m_tusFile->getIdentificationHash())!= nullptr)
+    {
+        auto tusFile = m_cacheManager->findByHash(m_tusFile->getIdentificationHash());
+        m_tusFile->setUploadOffset(tusFile->getUploadOffset());
+        m_tusFile->setLastEdit(tusFile->getLastEdit());
+        m_tusFile->setTusIdentifier(tusFile->getTusIdentifier());
+        m_tusFile->setResumeFrom(tusFile->getResumeFrom());
+    }
 
 }
 
@@ -87,22 +98,23 @@ void TusClient::upload()
     resume();
 
     // patch chunks of the file to the server while chunk is not the last one
-    uploadChuncks();
+    uploadChunks();
 }
 
-void TusClient::uploadChuncks()
+void TusClient::uploadChunks()
 {
-    m_status = TusStatus::UPLOADING;
 
     int i=m_uploadedChunks+1;
+    m_status = TusStatus::UPLOADING;
+
     for (; i < m_chunkNumber;)
     {
         uploadChunk(i);
         i++;
-        if(m_paused)
+      if(m_status==TusStatus::PAUSED)
         {
             wait(std::chrono::milliseconds(100), [this]()
-            { return m_paused; }, "Waiting for the resume");
+            { return !(m_status==TusStatus::PAUSED); }, "Waiting for the resume");
         }
     }
     stop();
@@ -110,6 +122,10 @@ void TusClient::uploadChuncks()
 
 void TusClient::uploadChunk(int chunkNumber)
 {
+    if (m_status==TusStatus::PAUSED)
+    {
+        return;
+    }
     path chunkFilePath = getTUSTempDir() / getChunkFilename(chunkNumber);
 
     /* code */
@@ -184,11 +200,7 @@ void TusClient::uploadChunk(int chunkNumber)
     // Move the cursor to the beginning of the line
     std::cout << "Uploading: " << progress() << "%" << std::flush;
 
-    if (m_paused)
-    {
-        m_status = TusStatus::PAUSED;
-        return;
-    }
+
 }
 
 void TusClient::cancel()
@@ -213,12 +225,12 @@ void TusClient::resume()
     m_httpClient->execute();
     wait(std::chrono::milliseconds(100), [this]()
          { return m_httpClient->isLastRequestCompleted(); }, "Waiting for the upload-offset");
-    uploadChuncks();
+    uploadChunks();
 }
 
 void TusClient::pause()
 {
-    m_paused = true;
+    m_status=TusStatus::PAUSED;
 }
 
 void TusClient::stop()
@@ -238,7 +250,14 @@ void TusClient::stop()
         }
     }
     std::filesystem::remove(getTUSTempDir()/m_appName/getUUIDString());//remove the temp directory
-    m_status = TusStatus::FINISHED;
+    if(m_uploadOffset==std::filesystem::file_size(m_filePath))
+    {
+        m_status = TusStatus::FINISHED;
+    }
+    else
+    {
+        m_status = TusStatus::CANCELED;
+    }
 }
 
 float TusClient::progress()
@@ -255,7 +274,7 @@ void TusClient::retry()
 {
     std::cout << "Retrying upload of file " << m_filePath << std::endl;
    resume();
-   uploadChuncks();
+   uploadChunks();
 }
 
 path TusClient::getFilePath() const

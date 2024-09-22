@@ -15,6 +15,7 @@
 #include "TusStatus.h"
 #include "http/IHttpClient.h"
 
+
 using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
@@ -29,7 +30,8 @@ using std::filesystem::path;
  */
 namespace TUS{
     class TUSFile;
-    class ICacheManager;
+    template<typename T>
+    class IRepository;
     /*
     * @brief The ITusClient class represents an interface for a client for uploading files using the TUS protocol.
     */
@@ -65,7 +67,6 @@ namespace TUS{
         TusStatus m_status;
         path m_tempDir;
         
-        std::unique_ptr<Http::IHttpClient> m_httpClient;
         
         const int CHUNK_SIZE;
         const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
@@ -77,8 +78,10 @@ namespace TUS{
         int m_uploadOffset=0;
 
         float m_progress=0;
-        bool m_paused=false;
+  
+        std::unique_ptr<Http::IHttpClient> m_httpClient;
         std::shared_ptr<TUSFile> m_tusFile;
+        std::unique_ptr<IRepository<TUSFile>> m_cacheManager;
 
         std::string m_appName;
 
@@ -108,7 +111,7 @@ namespace TUS{
         string getUUIDString();
         path getTUSTempDir();
 
-        void uploadChuncks();
+        void uploadChunks();
 
         void uploadChunk(int chunkNumber);
         

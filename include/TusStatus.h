@@ -15,7 +15,8 @@ namespace TUS
         UPLOADING,
         FAILED,
         FINISHED,
-        PAUSED
+        PAUSED,
+        CANCELED
     };
 
 }

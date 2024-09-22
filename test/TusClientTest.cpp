@@ -66,9 +66,10 @@ namespace TUS::Test
         }).detach();    
         //wait 10 seconds
         std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::cout<<std::endl;
         client.pause();
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
 
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 
