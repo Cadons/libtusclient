@@ -226,6 +226,7 @@ IHttpClient *HttpClient::execute()
         string buffer;
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;

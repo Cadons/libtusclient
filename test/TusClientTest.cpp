@@ -48,7 +48,7 @@ namespace TUS::Test
             client.upload();
         }).detach();    
         //wait 10 seconds
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
         client.pause();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
     }
@@ -61,25 +61,25 @@ namespace TUS::Test
             client.upload();
         }).detach();
 
-        while (client.progress()<30)
+        while (client.progress()<10)
         {
         }
 
-        std::cout<<"Pause"<<std::endl;
         
-        client.pause();
+        client.pause();  
+        std::cout<<"Pause"<<std::endl;
+
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
         
         std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        std::cout<< "Resuming"<<std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::cout<< "Resuming"<<std::endl;
 
         std::thread([&]() {
             client.resume();
-        }).detach();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
 
+
+        }).detach();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
     }
 

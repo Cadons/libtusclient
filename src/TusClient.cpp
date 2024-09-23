@@ -121,6 +121,7 @@ void TusClient::uploadChunks()
     }
     for (; (m_uploadOffset<m_uploadLength)&&m_status==TusStatus::UPLOADING;)
     {
+ 
         if(m_status==TusStatus::CANCELED)
         {
             stop();
@@ -138,12 +139,10 @@ void TusClient::uploadChunks()
         else{
             uploadChunk(i);
             i++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         } 
        
-
     }
- 
+
     stop();
 }
 
@@ -259,6 +258,7 @@ void TusClient::getUploadInfo()
     m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "", Http::HttpMethod::_HEAD, headers, headSuccess));
 
     m_httpClient->execute();
+
 }
 
 void TusClient::resume()
@@ -290,8 +290,8 @@ void TusClient::stop()
     {
         return;
     }
-    // remove the chunk files
 
+    // remove the chunk files
     for (int i = 0; i < m_chunkNumber; i++)
     {
         path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
