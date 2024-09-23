@@ -237,7 +237,6 @@ void TusClient::uploadChunk(int chunkNumber)
                         Http::HttpMethod::_PATCH, patchHeaders,
                         onPatchSuccess, onPatchError));
     m_httpClient->execute();
-    std::cout<<"Chunk "<<chunkNumber<<" uploaded"<<std::endl;
 }
 
 void TusClient::cancel()
@@ -275,7 +274,6 @@ void TusClient::pause()
 {
     if (m_status == TusStatus::UPLOADING) {
         m_status.store(TusStatus::PAUSED);
-        m_httpClient->abortAll();
         std::cout << "Upload paused" << std::endl;
     } else {
         std::cerr << "Cannot pause, current status is not UPLOADING" << std::endl;

@@ -75,7 +75,11 @@ namespace TUS::Test
         std::cout<< "Resuming"<<std::endl;
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        client.resume();
+        std::thread([&]() {
+            client.resume();
+        }).detach();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
     }
 

@@ -80,7 +80,6 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L); // timeout in seconds for the connection, if the connection is not established in 10 seconds the request will be aborted
-curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     struct curl_slist *headers = NULL;
     for (auto const &header : request.getHeaders())
     {

@@ -9,5 +9,4 @@ RequestTask::RequestTask(Request request, CURL *curl) : Request(request), curl(c
 
 RequestTask::~RequestTask()
 {
-    curl_easy_cleanup(curl);
 }
