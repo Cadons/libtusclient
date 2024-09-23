@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <boost/uuid/uuid.hpp>
 #include <functional>
+#include <atomic>
 
 
 #include "libtusclient.h"
