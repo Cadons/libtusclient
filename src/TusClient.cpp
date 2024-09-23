@@ -237,6 +237,7 @@ void TusClient::uploadChunk(int chunkNumber)
                         Http::HttpMethod::_PATCH, patchHeaders,
                         onPatchSuccess, onPatchError));
     m_httpClient->execute();
+    std::cout<<"Chunk "<<chunkNumber<<" uploaded"<<std::endl;
 }
 
 void TusClient::cancel()
@@ -265,7 +266,7 @@ void TusClient::resume()
 {
 
     getUploadInfo();
-        m_status.store(TusStatus::READY);
+    m_status.store(TusStatus::READY);
 
     uploadChunks();
 }

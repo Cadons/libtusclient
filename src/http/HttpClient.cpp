@@ -80,7 +80,7 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progressCallback);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L); // timeout in seconds for the connection, if the connection is not established in 10 seconds the request will be aborted
-
+curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
     struct curl_slist *headers = NULL;
     for (auto const &header : request.getHeaders())
     {
@@ -199,7 +199,10 @@ IHttpClient *HttpClient::abortAll()
 {
     while (!m_requestsQueue.empty())
     {
+
+       curl_easy_cleanup(m_requestsQueue.front().curl);
         m_requestsQueue.pop();
+        
     }
     m_abort = true;
     return (IHttpClient *)this;
@@ -208,37 +211,36 @@ IHttpClient *HttpClient::abortAll()
 IHttpClient *HttpClient::execute()
 {
 
-        while (!m_requestsQueue.empty())
-        {
-            if(m_abort)
-            {
-                m_requestsQueue.pop();
-                m_abort = false;
-                return (IHttpClient *)this;
-            }
-
-            CURL *curl = m_requestsQueue.front().curl;
-            string url = m_requestsQueue.front().getUrl();
-
-            string responseHeader;
-            string buffer;
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
-            curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
-            CURLcode res = curl_easy_perform(curl);
-            if (res != CURLE_OK)
-            {
-                std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
-                m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
-                return (IHttpClient *)this;
-            }
-            else
-            {
-
-                m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
-            }
-            curl_easy_cleanup(curl); // cleanup the curl handle
+    while (!m_requestsQueue.empty()) {
+        if (m_abort) {
+            curl_easy_cleanup(m_requestsQueue.front().curl);
             m_requestsQueue.pop();
+
+            m_abort = false;
+            return (IHttpClient *)this;
         }
+
+        CURL *curl = m_requestsQueue.front().curl;
+        string url = m_requestsQueue.front().getUrl();
+
+        string responseHeader;
+        string buffer;
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
+        CURLcode res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+            m_requestsQueue.front().getOnErrorCallback()(responseHeader,
+                                                         buffer);
+            return (IHttpClient *)this;
+        } else {
+
+            m_requestsQueue.front().getOnSuccessCallback()(responseHeader,
+                                                           buffer);
+        }
+        curl_easy_cleanup(curl); // cleanup the curl handle
+        m_requestsQueue.pop();
+    }
 
     return (IHttpClient *)this;
 }

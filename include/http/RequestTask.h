@@ -18,6 +18,7 @@ namespace TUS
         {
             CURL *curl;
             RequestTask(Request request, CURL *curl);
+            ~RequestTask();
         };
     }
 }

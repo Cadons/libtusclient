@@ -63,7 +63,6 @@ namespace TUS::Test
 
         while (client.progress()<30)
         {
-           
         }
 
         std::cout<<"Pause"<<std::endl;
