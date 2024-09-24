@@ -21,11 +21,16 @@ namespace TUS::Test
     TEST(TusClient, clientCreationTest)
     {
 
+        //create text file
+        std::ofstream testFile("test.txt");
+        testFile << "Hello World";
+        testFile.close();
         TUS::TusClient client("testapp","http://localhost:8080/files", "test.txt");
 
         EXPECT_EQ(client.getUrl(), "http://localhost:8080/files");
         EXPECT_EQ(client.getFilePath(), "test.txt");
         EXPECT_EQ(client.status(), TUS::TusStatus::READY);
+        std::filesystem::remove("test.txt");
     }
 
     TEST(TusClient, uploadTest)
