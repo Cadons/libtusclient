@@ -83,6 +83,10 @@ std::string extractHeaderValue(const std::string &header, const std::string &key
 void TusClient::upload()
 {
 
+    if(m_tusFile==nullptr)
+    {
+          createTusFile();
+    }
 
     // chunk the file
     m_chunkNumber = divideFileInChunks(m_filePath, m_uuid);
@@ -358,7 +362,6 @@ void TusClient::retry()
   if(m_status==TusStatus::FAILED||m_status==TusStatus::CANCELED)
   {
     std::cout<<"Retrying upload"<<std::endl;
-   createTusFile();
       upload();
   }
   std::cerr<<"Nothing to retry"<<std::endl;

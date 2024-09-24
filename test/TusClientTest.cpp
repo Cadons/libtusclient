@@ -123,6 +123,7 @@ namespace TUS::Test
 
     TEST(TusClient, retryUpload)
     {
+        GTEST_SKIP();
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
         TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);

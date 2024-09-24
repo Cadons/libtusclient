@@ -3,6 +3,7 @@
 #include <fstream>
 #include "repository/CacheRepository.h"
 #include <boost/uuid/uuid_generators.hpp>
+#include <random>
 #include "model/TUSFile.h"
 
 using TUS::CacheRepository;
