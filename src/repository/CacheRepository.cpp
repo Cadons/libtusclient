@@ -95,6 +95,9 @@ bool CacheRepository::open()
     {
         m_cache.clear();
     }
+    if(file.peek() == std::ifstream::traits_type::eof()){
+        return true;
+    }
 
     json j;
     file >> j;
