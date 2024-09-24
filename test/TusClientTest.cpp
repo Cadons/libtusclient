@@ -46,22 +46,23 @@ namespace TUS::Test
         std::cout << "Test file path: " << testFilePath << std::endl;
         TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
 
-        std::thread([&]() {
+        std::thread uploadThread([&]() {
             client.upload();
-        }).detach();    
+        });
         //wait 10 seconds
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
         client.pause();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+        uploadThread.join();
     }
     TEST(TusClient, pauseResumeTest)
     {
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
         TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, 100);
-        std::thread([&]() {
+        std::thread uploadThread([&]() {
             client.upload();
-        }).detach();
+        });
 
         while (client.progress()<10)
         {
@@ -87,6 +88,7 @@ namespace TUS::Test
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
 
         resumeThread.join();
+        uploadThread.join();
     }
 
     std::filesystem::path generateTestFile(int size )
