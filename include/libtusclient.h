@@ -6,6 +6,7 @@
  * See the LICENSE file in the project root for more information.
  */
 
+#define TUS_PROTOCOL_VERSION "1.0.0"
 #ifdef WIN32
   #include <windows.h>
   #define LIBTUSAPI_EXPORT __declspec(dllexport)

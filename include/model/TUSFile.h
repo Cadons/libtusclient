@@ -32,6 +32,7 @@ namespace TUS
          * @param appName The name of the application that created the record.
          */
         TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,boost::uuids::uuid uuid,std::string tusID="");
+        TUSFile(std::shared_ptr<TUSFile> file);
         ~TUSFile();
         std::filesystem::path getFilePath() const;
         std::string getUploadUrl() const;

@@ -35,16 +35,17 @@ CacheRepository::~CacheRepository()
     save();
 }
 
-void CacheRepository::add(const TUSFile &item)
+void CacheRepository::add(std::shared_ptr<TUSFile> item)
 {
     m_cache.push_back(std::make_shared<TUSFile>(item));
 }
 
-void CacheRepository::remove(const TUSFile &item)
+void CacheRepository::remove(std::shared_ptr<TUSFile> item)
 {
     auto it = std::find_if(m_cache.begin(), m_cache.end(), [&item](const std::shared_ptr<TUSFile> &file)
-                           { return file->getIdentificationHash() == item.getIdentificationHash(); });
-
+                           { return file->getIdentificationHash() == item->getIdentificationHash(); });
+    //remove folder from temp with item uuid
+    std::filesystem::remove_all(std::filesystem::path(TEMP_DIR) / m_appName / "files"/boost::uuids::to_string(item->getUuid()));
     if (it != m_cache.end())
     {
         m_cache.erase(it);
@@ -64,13 +65,13 @@ std::shared_ptr<TUSFile> CacheRepository::findByHash(const std::string &id) cons
     return nullptr;
 }
 
-std::vector<TUSFile> CacheRepository::findAll() const
+std::vector<std::shared_ptr<TUSFile>> CacheRepository::findAll() const
 {
-    std::vector<TUSFile> files;
+    std::vector<std::shared_ptr<TUSFile>>files;
 
     for (const auto &file : m_cache)
     {
-        files.push_back(*file);
+        files.push_back(file);
     }
 
     return files;
@@ -102,13 +103,29 @@ bool CacheRepository::open()
         return true;
     }
 
+    std::vector<std::string> requiredFields = {
+        "uuid", "lastEdit", "hash", "filePath", "appName", "uploadUrl", 
+        "uploadOffset", "resumeFrom", "tusId", "chunkNumber"
+    };
+    bool completeObject = true;
     for (const auto &item : j)
     {
+        for (const auto &field : requiredFields)
+        {
+            if (item.find(field) == item.end())
+            {
+                completeObject = false;
+                break;
+            }
+        }
+        if(!completeObject){
+            continue;
+        }
         std::string filePath = item["filePath"];
         std::string appName = item["appName"];
         std::string uploadUrl = item["uploadUrl"];
         boost::uuids::string_generator gen;
-        std::string uuidString=item["uuid"];
+        std::string uuidString = item["uuid"];
         boost::uuids::uuid uuid = gen(uuidString);
         std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(filePath, uploadUrl, appName, uuid);
         file->setUploadOffset(item["uploadOffset"]);

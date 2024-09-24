@@ -18,10 +18,10 @@ public:
     CacheRepository(std::string appName,bool clearCache=false);
     ~CacheRepository() override;
 
-    void add(const TUSFile& item) override;
-    void remove(const TUSFile& item) override;
+    void add(std::shared_ptr<TUSFile>) override;
+    void remove(std::shared_ptr<TUSFile>) override;
     std::shared_ptr<TUSFile> findByHash(const std::string& id) const override;
-    std::vector<TUSFile> findAll() const override;
+   std::vector<std::shared_ptr<TUSFile>> findAll() const override;
 
     bool open() override;
     bool save() override;

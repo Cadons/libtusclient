@@ -11,6 +11,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <functional>
 #include <atomic>
+#include <map>
 
 
 #include "libtusclient.h"
@@ -98,6 +99,8 @@ namespace TUS{
         void loadChunks();
 
         void getUploadInfo();
+
+        void createTusFile();
         
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition,std::string message);
@@ -169,6 +172,14 @@ namespace TUS{
          * @brief Pauses the upload.
          */
         void pause() override;
+
+        /**
+         * @brief Returns the server information for the TUS server.
+         * this function can be used to understand which extensions are supported by the server.
+         * @return The server information.
+         */
+        
+        std::map<string,string> getTusServerInformation();
 
         path getFilePath() const override;
         string getUrl() const override;

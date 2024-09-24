@@ -27,10 +27,8 @@ TusClient::TusClient(std::string appName,std::string url, path filePath, int chu
     m_httpClient(std::make_unique<TUS::Http::HttpClient>()), 
     CHUNK_SIZE(chunkSize * 1024)
 {
-    boost::uuids::uuid uuid = random_generator()();
-    m_uuid = uuid;
+    createTusFile();
     m_cacheManager = std::make_unique<TUS::CacheRepository>(m_appName);
-    m_tusFile = std::make_unique<TUS::TUSFile>(filePath, url,appName,m_uuid);
     //update the tusFile with the data from the cache
     if(m_cacheManager->findByHash(m_tusFile->getIdentificationHash())!= nullptr)
     {
@@ -48,7 +46,19 @@ TusClient::TusClient(std::string appName,std::string url, path filePath, int chu
 
 TusClient::~TusClient()
 {
+   
 }
+
+void TusClient::createTusFile()
+{
+
+m_tusFile.reset();
+        boost::uuids::uuid uuid = random_generator()();
+        m_uuid = uuid;
+        m_tusFile = std::make_unique<TUS::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
+    
+}
+
 std::string extractHeaderValue(const std::string &header, const std::string &key)
 {
     size_t record = header.find(key + ": ");
@@ -83,7 +93,7 @@ void TusClient::upload()
     }
     uintmax_t size = std::filesystem::file_size(m_filePath);
     std::map<std::string, std::string> headers;
-    headers["Tus-Resumable"] = "1.0.0";
+    headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     headers["Content-Type"] = "application/octet-stream"; // Set the appropriate content type
     headers["Content-Disposition"] = "attachment; filename=\"" + getFilePath().filename().string() + "\"";
     headers["Content-Length"] = "0";
@@ -99,6 +109,9 @@ void TusClient::upload()
     m_httpClient->execute();
    
     getUploadInfo();
+
+    m_cacheManager->add(m_tusFile);
+    m_cacheManager->save();
     std::cout<<"Upload started"<<std::endl;
     // patch chunks of the file to the server while chunk is not the last one
     uploadChunks();
@@ -185,10 +198,10 @@ void TusClient::uploadChunk(int chunkNumber)
     path chunkFilePath = getTUSTempDir() / getChunkFilename(chunkNumber);
     TUSChunk chunk = m_chunks[chunkNumber];
     std::map<std::string, std::string> patchHeaders;
-
+    
     m_nextChunk = false;
 
-    patchHeaders["Tus-Resumable"] = "1.0.0";
+    patchHeaders["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     patchHeaders["Content-Type"] = "application/offset+octet-stream";
     patchHeaders["Content-Length"] = std::to_string(chunk.getChunkSize());
     patchHeaders["Upload-Offset"] = std::to_string(m_uploadOffset);
@@ -241,7 +254,20 @@ void TusClient::uploadChunk(int chunkNumber)
 
 void TusClient::cancel()
 {
-    m_status.store(TusStatus::CANCELED);
+    function<void(string, string)> onSuccess = [this](string header, string data)
+    {
+        m_status.store(TusStatus::CANCELED);
+        m_cacheManager->remove(m_tusFile);
+        m_cacheManager->save();
+        std::cout << "Upload canceled" << std::endl;
+        
+    };
+    std::map<std::string, std::string> headers;
+    headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
+    headers["accept"] = "*/*";
+
+    m_httpClient->del(Http::Request(m_url + "/files/" + m_tusLocation, "", Http::HttpMethod::_DELETE, headers, onSuccess));
+    m_httpClient->execute();
 }
 
 void TusClient::getUploadInfo()
@@ -255,11 +281,31 @@ void TusClient::getUploadInfo()
     };
 
     headers.clear();
-    headers["Tus-Resumable"] = "1.0.0";
+    headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "", Http::HttpMethod::_HEAD, headers, headSuccess));
 
     m_httpClient->execute();
 
+}
+
+std::map<std::string, std::string> TusClient::getTusServerInformation()
+{
+    std::map<std::string, std::string> serverInfo;
+    std::map<std::string, std::string> headers;
+    headers["accept"] = "*/*";
+    
+    function<void(string, string)> onSuccess = [&serverInfo](string header, string data)
+    {
+        serverInfo["Upload-Offset"] = extractHeaderValue(header, "Upload-Offset");
+        serverInfo["Upload-Length"] = extractHeaderValue(header, "Upload-Length");
+        serverInfo["Tus-Resumable"] = extractHeaderValue(header, "Tus-Resumable");
+        serverInfo["Tus-Version"] = extractHeaderValue(header, "Tus-Version");
+        serverInfo["Tus-Extension"] = extractHeaderValue(header, "Tus-Extension");
+        serverInfo["Tus-Max-Size"] = extractHeaderValue(header, "Tus-Max-Size");
+    };
+    m_httpClient->options(Http::Request(m_url + "/files", "", Http::HttpMethod::_OPTIONS, headers, onSuccess));
+    m_httpClient->execute();
+    return serverInfo;
 }
 
 void TusClient::resume()
@@ -292,19 +338,8 @@ void TusClient::stop()
         return;
     }
 
-    // remove the chunk files
-    for (int i = 0; i < m_chunkNumber; i++)
-    {
-        path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
-        if (std::filesystem::exists(chunkFilePath))
-        {
-            if (!removeChunkFiles(chunkFilePath))
-            {
-                std::cerr << "Error: Unable to remove chunk file " << chunkFilePath << std::endl;
-            }
-        }
-    }
-    std::filesystem::remove(getTUSTempDir()/m_appName/getUUIDString());//remove the temp directory
+    m_cacheManager->remove(m_tusFile);
+    m_cacheManager->save();
 
 }
 
@@ -320,9 +355,13 @@ TusStatus TusClient::status()
 
 void TusClient::retry()
 {
-    std::cout << "Retrying upload of file " << m_filePath << std::endl;
-   resume();
-   uploadChunks();
+  if(m_status==TusStatus::FAILED||m_status==TusStatus::CANCELED)
+  {
+    std::cout<<"Retrying upload"<<std::endl;
+   createTusFile();
+      upload();
+  }
+  std::cerr<<"Nothing to retry"<<std::endl;
 }
 
 path TusClient::getFilePath() const

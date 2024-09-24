@@ -23,6 +23,11 @@ TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::str
     m_resumeFrom = 0;
 }
 
+TUSFile::TUSFile(std::shared_ptr<TUSFile> file)
+    : m_filePath(file->getFilePath()), m_uploadUrl(file->getUploadUrl()), m_appName(file->getAppName()), m_identifcationHash(file->getIdentificationHash())
+    , m_fileSize(file->getFileSize()), m_lastEdit(file->getLastEdit()), m_uploadOffset(file->getUploadOffset()), m_tusIdentifier(file->getTusIdentifier()), m_uuid(file->getUuid())
+{
+}
 
 
 TUSFile::~TUSFile()

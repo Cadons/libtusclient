@@ -18,14 +18,12 @@
 namespace TUS::Test
 {
     std::filesystem::path generateTestFile(int size = 10);
+    std::filesystem::path generateSimpleFile();
     TEST(TusClient, clientCreationTest)
     {
 
         //create text file
-        std::ofstream testFile("test.txt");
-        testFile << "Hello World";
-        testFile.close();
-        TUS::TusClient client("testapp","http://localhost:8080/files", "test.txt");
+        TUS::TusClient client("testapp","http://localhost:8080/files", generateSimpleFile());
 
         EXPECT_EQ(client.getUrl(), "http://localhost:8080/files");
         EXPECT_EQ(client.getFilePath(), "test.txt");
@@ -94,6 +92,59 @@ namespace TUS::Test
 
         resumeThread.join();
         uploadThread.join();
+    }
+
+    TEST(TusClient, getServerInformationTest)
+    {
+       
+        TUS::TusClient client("testapp","http://localhost:8080/files", generateSimpleFile());
+        std::map<std::string, std::string> serverInformation = client.getTusServerInformation();
+        EXPECT_EQ(serverInformation["Tus-Resumable"], "1.0.0");
+        EXPECT_EQ(serverInformation["Tus-Version"], "1.0.0");
+        EXPECT_EQ(serverInformation["Tus-Extension"], "creation,creation-with-upload,termination,concatenation,creation-defer-length");
+        std::filesystem::remove("test.txt");
+    }
+
+    TEST(TusClient, cancelUpload)
+    {
+        std::filesystem::path testFilePath = generateTestFile(10);
+        std::cout << "Test file path: " << testFilePath << std::endl;
+        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
+
+        std::thread uploadThread([&]() {
+            client.upload();
+        });
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+       
+        client.cancel();
+        EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
+        uploadThread.join();
+    }
+
+    TEST(TusClient, retryUpload)
+    {
+        std::filesystem::path testFilePath = generateTestFile(10);
+        std::cout << "Test file path: " << testFilePath << std::endl;
+        TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
+
+        std::thread uploadThread([&]() {
+            client.upload();
+        });
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        client.cancel();
+        uploadThread.join();
+
+        EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
+        client.retry();
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
+
+    std::filesystem::path generateSimpleFile()
+    {
+        std::ofstream testFile("test.txt");
+        testFile << "Hello World";
+        testFile.close();
+        return "test.txt";
     }
 
     std::filesystem::path generateTestFile(int size )
