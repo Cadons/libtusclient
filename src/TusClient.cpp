@@ -109,11 +109,12 @@ void TusClient::uploadChunks()
 
     int i=m_uploadedChunks;
     m_status.store(TusStatus::UPLOADING);
-    if(m_chunks.size()==0)
+    if (m_chunks.empty())
     {
         loadChunks();
     }
-    if(m_uploadLength==0)
+
+    if (m_uploadLength == 0)
     {
        std::cout<<"No file to upload"<<std::endl;
        m_status.store(TusStatus::FINISHED);

@@ -12,7 +12,9 @@
 #include <thread>
 
 #include "TusClient.h"
-
+/**
+ * @brief These tests are integration tests that test the TusClient class
+ */
 namespace TUS::Test
 {
     std::filesystem::path generateTestFile(int size = 10);
@@ -73,14 +75,18 @@ namespace TUS::Test
         
         std::this_thread::sleep_for(std::chrono::seconds(1));
             std::cout<< "Resuming"<<std::endl;
-
-        std::thread([&]() {
+        float progress = client.progress();
+        std::thread resumeThread([&]() {
             client.resume();
+        });
 
+        while (client.progress() == progress) {
+          
+        }
 
-        }).detach();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
+
+        resumeThread.join();
     }
 
     std::filesystem::path generateTestFile(int size )
