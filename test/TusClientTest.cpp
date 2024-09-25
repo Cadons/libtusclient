@@ -123,7 +123,6 @@ namespace TUS::Test
 
     TEST(TusClient, retryUpload)
     {
-        GTEST_SKIP();
         std::filesystem::path testFilePath = generateTestFile(10);
         std::cout << "Test file path: " << testFilePath << std::endl;
         TUS::TusClient client("testapp","http://localhost:8080", testFilePath,100);
@@ -136,8 +135,9 @@ namespace TUS::Test
         uploadThread.join();
 
         EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
-        client.retry();
+       client.retry();
         EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+
     }
 
     std::filesystem::path generateSimpleFile()

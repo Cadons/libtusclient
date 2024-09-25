@@ -21,6 +21,7 @@ HttpClient::HttpClient()
 
 HttpClient::~HttpClient()
 {
+
 }
 size_t HttpClient::writeDataCallback(void *ptr, size_t size, size_t nmemb, std::string *data)
 {
@@ -239,6 +240,7 @@ IHttpClient *HttpClient::execute()
                                                            buffer);
         }
         curl_easy_cleanup(curl); // cleanup the curl handle
+
         m_requestsQueue.pop();
     }
 

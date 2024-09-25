@@ -140,16 +140,16 @@ void TusClient::uploadChunks()
     for (; (m_uploadOffset<m_uploadLength)&&m_status==TusStatus::UPLOADING;)
     {
  
-        if(m_status==TusStatus::CANCELED)
+        if(m_status.load()==TusStatus::CANCELED)
         {
             stop();
             return;
-        }else if(m_status==TusStatus::FAILED)
+        }else if(m_status.load()==TusStatus::FAILED)
         {
             std::cerr<<"Upload failed"<<std::endl;
             return;
         }
-        else if(m_status==TusStatus::PAUSED)
+        else if(m_status.load()==TusStatus::PAUSED)
         {
             std::cout<<"Upload paused"<<std::endl;
             return;
@@ -160,7 +160,7 @@ void TusClient::uploadChunks()
         } 
        
     }
-
+    m_status.store(TusStatus::FINISHED);
     stop();
 }
 
@@ -194,7 +194,7 @@ void TusClient::loadChunks()
 
 void TusClient::uploadChunk(int chunkNumber)
 {
-    if (m_status == TusStatus::PAUSED)
+    if (m_status.load() != TusStatus::UPLOADING)
     {
         return;
     }
@@ -258,6 +258,11 @@ void TusClient::uploadChunk(int chunkNumber)
 
 void TusClient::cancel()
 {
+    if(m_tusLocation.empty())
+    {
+        std::cerr<<"No upload to cancel"<<std::endl;
+        return;
+    }
     function<void(string, string)> onSuccess = [this](string header, string data)
     {
         m_status.store(TusStatus::CANCELED);
@@ -354,7 +359,7 @@ float TusClient::progress()
 
 TusStatus TusClient::status()
 {
-    return m_status;
+    return m_status.load();
 }
 
 void TusClient::retry()
@@ -362,9 +367,17 @@ void TusClient::retry()
   if(m_status==TusStatus::FAILED||m_status==TusStatus::CANCELED)
   {
     std::cout<<"Retrying upload"<<std::endl;
-      upload();
-  }
+    m_status.store(TusStatus::READY);
+    m_chunks.clear();
+    m_uploadedChunks=0;
+    m_uploadOffset=0;
+    m_nextChunk=false;
+    m_progress.store(0);
+    upload();
+  }else{
   std::cerr<<"Nothing to retry"<<std::endl;
+
+  }
 }
 
 path TusClient::getFilePath() const
