@@ -44,15 +44,15 @@ namespace TUS{
     class LIBTUSAPI_EXPORT ITusClient
     {
     public:
-        virtual void upload() = 0;
+        virtual bool upload() = 0;
         virtual void cancel() = 0;
-        virtual void resume() = 0;
+        virtual bool resume() = 0;
         virtual void stop() = 0;
         virtual void pause() = 0;
         
         virtual float progress() = 0;
         virtual TusStatus status() = 0;
-        virtual void retry() = 0;
+        virtual bool retry() = 0;
         // Getters
         virtual path getFilePath() const = 0;
         virtual string getUrl() const = 0;
@@ -127,7 +127,7 @@ namespace TUS{
         string getUUIDString();
         path getTUSTempDir();
 
-        void uploadChunks();
+        bool uploadChunks();
 
         void uploadChunk(int chunkNumber);
 
@@ -141,7 +141,7 @@ namespace TUS{
         /**
          * @brief Uploads the file to the server using the TUS protocol.
          */
-        void upload() override;
+        bool upload() override;
         /**
          * @brief Cancels the upload.
          */
@@ -149,7 +149,7 @@ namespace TUS{
         /**
          * @brief Resumes the upload.
          */
-        void resume() override;
+        bool resume() override;
         /**
          * @brief Stops the upload.
          */
@@ -169,7 +169,7 @@ namespace TUS{
         /**
          * @brief Retries the upload.
          */
-        void retry() override;
+        bool retry() override;
 
         /**
          * @brief Pauses the upload.

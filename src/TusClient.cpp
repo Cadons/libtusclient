@@ -124,7 +124,7 @@ std::string extractHeaderValue(const std::string &header, const std::string &key
     return "";
 }
 
-void TusClient::upload()
+bool TusClient::upload()
 {
 
     if(m_tusFile==nullptr)
@@ -137,7 +137,7 @@ void TusClient::upload()
     if (m_chunkNumber == -1)
     {
         std::cerr << "Error: Unable to divide file in chunks" << std::endl;
-        return;
+        return false;
     }
     uintmax_t size = std::filesystem::file_size(m_filePath);
     std::map<std::string, std::string> headers;
@@ -162,10 +162,10 @@ void TusClient::upload()
     m_cacheManager->save();
     std::cout<<"Upload started"<<std::endl;
     // patch chunks of the file to the server while chunk is not the last one
-    uploadChunks();
+   return uploadChunks();
 }
 
-void TusClient::uploadChunks()
+bool TusClient::uploadChunks()
 {
 
     int i=m_uploadedChunks;
@@ -179,7 +179,7 @@ void TusClient::uploadChunks()
     {
        std::cout<<"No file to upload"<<std::endl;
        m_status.store(TusStatus::FINISHED);
-       return;
+       return true;
     }
     for (; (m_uploadOffset<m_uploadLength)&&m_status==TusStatus::UPLOADING;)
     {
@@ -187,16 +187,16 @@ void TusClient::uploadChunks()
         if(m_status.load()==TusStatus::CANCELED)
         {
             stop();
-            return;
+            return false;
         }else if(m_status.load()==TusStatus::FAILED)
         {
             std::cerr<<"Upload failed"<<std::endl;
-            return;
+            return false;
         }
         else if(m_status.load()==TusStatus::PAUSED)
         {
             std::cout<<"Upload paused"<<std::endl;
-            return;
+            return true;
         }
         else{
             uploadChunk(i);
@@ -206,6 +206,7 @@ void TusClient::uploadChunks()
     }
     m_status.store(TusStatus::FINISHED);
     stop();
+    return true;
 }
 
 void TusClient::loadChunks()
@@ -361,13 +362,13 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
     return serverInfo;
 }
 
-void TusClient::resume()
+bool TusClient::resume()
 {
 
     getUploadInfo();
     m_status.store(TusStatus::READY);
 
-    uploadChunks();
+   return uploadChunks();
 }
 
 void TusClient::pause()
@@ -406,22 +407,24 @@ TusStatus TusClient::status()
     return m_status.load();
 }
 
-void TusClient::retry()
+bool TusClient::retry()
 {
-  if(m_status==TusStatus::FAILED||m_status==TusStatus::CANCELED)
-  {
-    std::cout<<"Retrying upload"<<std::endl;
-    m_status.store(TusStatus::READY);
-    m_chunks.clear();
-    m_uploadedChunks=0;
-    m_uploadOffset=0;
-    m_nextChunk=false;
-    m_progress.store(0);
-    upload();
-  }else{
-  std::cerr<<"Nothing to retry"<<std::endl;
-
-  }
+    if (m_status == TusStatus::FAILED || m_status == TusStatus::CANCELED)
+    {
+        std::cout << "Retrying upload" << std::endl;
+        m_status.store(TusStatus::READY);
+        m_chunks.clear();
+        m_uploadedChunks = 0;
+        m_uploadOffset = 0;
+        m_nextChunk = false;
+        m_progress.store(0);
+        return upload();
+    }
+    else
+    {
+        std::cerr << "Nothing to retry" << std::endl;
+        return false;
+    }
 }
 
 path TusClient::getFilePath() const

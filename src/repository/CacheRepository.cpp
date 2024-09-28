@@ -125,6 +125,10 @@ bool CacheRepository::open()
             continue;
         }
         std::string filePath = item["filePath"];
+        if(!std::filesystem::exists(filePath)){
+           
+            continue;
+        }
         std::string appName = item["appName"];
         std::string uploadUrl = item["uploadUrl"];
         boost::uuids::string_generator gen;
