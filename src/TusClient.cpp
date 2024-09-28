@@ -16,16 +16,13 @@
 #include "model/TUSFile.h"
 #include "repository/CacheRepository.h"
 #include "model/TUSChunk.h"
+#include "utility/ChunkUtility.h"
 
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
-TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) :
-    m_appName(appName),
-    m_url(url), m_filePath(filePath),
-    m_status(TusStatus::READY), m_tempDir(TEMP_DIR), 
-    m_httpClient(std::make_unique<TUS::Http::HttpClient>()), 
-    CHUNK_SIZE(chunkSize * 1024)
+
+void TusClient::initialize()
 {
     createTusFile();
     m_cacheManager = std::make_unique<TUS::CacheRepository>(m_appName);
@@ -40,8 +37,55 @@ TusClient::TusClient(std::string appName,std::string url, path filePath, int chu
         m_tusFile->setChunkNumber(tusFile->getChunkNumber());
         m_chunkNumber = m_tusFile->getChunkNumber();
     }
+}
 
+TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) :
+    m_appName(appName),
+    m_url(url), m_filePath(filePath),
+    m_status(TusStatus::READY), m_tempDir(TEMP_DIR), 
+    m_httpClient(std::make_unique<TUS::Http::HttpClient>()), 
+    m_chunkSize(chunkSize * 1024)
+{
+   
+initialize();
 
+}
+
+TusClient::TusClient(std::string appName, std::string url, path filePath) :
+    m_appName(std::move(appName)),
+    m_url(std::move(url)), 
+    m_filePath(std::move(filePath)),
+    m_status(TusStatus::READY), 
+    m_tempDir(TEMP_DIR), 
+    m_httpClient(std::make_unique<TUS::Http::HttpClient>())
+{
+    initialize();
+    auto fileSize = std::filesystem::file_size(m_filePath);
+    if (fileSize >= Utility::ChunkUtility::getChunkSizeFromGB(1))
+    {
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(10); //>1GB chunk size 10MB
+    }
+    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(100)) //>100MB chunk size 5MB
+    {
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(5); 
+    }
+    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(50)) //>50MB chunk size 2MB
+    {
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(2);
+    }
+    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(10)) //>10MB chunk size 1MB
+    {
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(1);
+    }
+    else if (fileSize < Utility::ChunkUtility::getChunkSizeFromMB(5)) // <5MB chunk size 100KB
+    {
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(100);
+    }
+    else // <5MB chunk size 32KB
+    {
+        
+        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(32);
+    }
 }
 
 TusClient::~TusClient()
@@ -52,10 +96,10 @@ TusClient::~TusClient()
 void TusClient::createTusFile()
 {
 
-m_tusFile.reset();
-        boost::uuids::uuid uuid = random_generator()();
-        m_uuid = uuid;
-        m_tusFile = std::make_unique<TUS::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
+    m_tusFile.reset();
+    boost::uuids::uuid uuid = random_generator()();
+    m_uuid = uuid;
+    m_tusFile = std::make_unique<TUS::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
     
 }
 
@@ -428,10 +472,10 @@ int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
     inputFile.seekg(0, std::ios::beg);            // Seek back to the beginning of the file
 
     // Calculate the number of chunks
-    int numChunks = (fileSize + CHUNK_SIZE - 1) / CHUNK_SIZE;
+    int numChunks = (fileSize + m_chunkSize - 1) / m_chunkSize;
 
     // Create a buffer to store the chunk data
-    std::vector<char> buffer(CHUNK_SIZE);
+    std::vector<char> buffer(m_chunkSize);
     int totalBytesRead = 0;
 
     for (int i = 0; i < numChunks; ++i)
@@ -446,7 +490,7 @@ int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
         }
 
         // Read from input file and write to output file
-        inputFile.read(buffer.data(), CHUNK_SIZE);
+        inputFile.read(buffer.data(), m_chunkSize);
         std::streamsize bytesRead = inputFile.gcount();
         outputFile.write(buffer.data(), bytesRead);
         totalBytesRead += bytesRead;

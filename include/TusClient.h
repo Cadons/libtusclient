@@ -74,7 +74,7 @@ namespace TUS{
         path m_tempDir;
         
         
-        const int CHUNK_SIZE;
+        int m_chunkSize;
         const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
         const string CHUNK_FILE_EXTENSION = ".bin";
         int m_chunkNumber=0;
@@ -130,10 +130,13 @@ namespace TUS{
         void uploadChunks();
 
         void uploadChunk(int chunkNumber);
+
         
+        void initialize();
         
     public:
-        TusClient(string appName,string url, path filePath,int chunkSize=16*1024);
+        TusClient(string appName,string url, path filePath,int chunkSize);
+        TusClient(string appName,string url, path filePath);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
