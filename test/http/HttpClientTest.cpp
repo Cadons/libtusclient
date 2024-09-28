@@ -93,9 +93,7 @@ TEST_P(HttpClientParameterizedTest, HttpRequest)
             break;
     }
     m_httpClient->execute();
-    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
     EXPECT_EQ(finalResult, testCase.expectedData);
-    EXPECT_TRUE(m_httpClient->isLastRequestCompleted());
 }
 
 INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::Values(
@@ -103,7 +101,8 @@ INSTANTIATE_TEST_SUITE_P(HttpClientTest, HttpClientParameterizedTest, testing::V
     TestParams{"http://localhost:3000/files", "{\"data\":[1,2,3,4,5]}", HttpMethod::_POST, "{\"test\":\"post passed\"}"},
     TestParams{"http://localhost:3000/files", "", HttpMethod::_PUT, "{\"test\":\"put passed\"}"},
     TestParams{"http://localhost:3000/files", "", HttpMethod::_PATCH, "{\"test\":\"patch passed\"}"},
-    TestParams{"http://localhost:3000/files", "", HttpMethod::_DELETE, "{\"test\":\"delete passed\"}"}
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_DELETE, "{\"test\":\"delete passed\"}"},
+    TestParams{"http://localhost:3000/files", "", HttpMethod::_HEAD, ""}
 ), [](const testing::TestParamInfo<HttpClientParameterizedTest::ParamType>& info) {
     return  HttpClient::convertHttpMethodToString(info.param.method);
 });
@@ -122,8 +121,6 @@ TEST_F(HttpClientParameterizedTest, AbortAll)
     m_httpClient->get(request2);
     m_httpClient->abortAll();
     m_httpClient->execute();
-    std::this_thread::sleep_for(std::chrono::seconds(m_timeout));
-    EXPECT_FALSE(m_httpClient->isLastRequestCompleted());
 }
 
 } // namespace TUS::Test::Http

@@ -74,6 +74,20 @@ Request::Request(string url, string body, HttpMethod method, map<string, string>
     setOnErrorCallback(defaultErrorCallback());
 }
 
+Request::Request(string url, string body, HttpMethod method, map<string, string> headers, SuccessCallback onSuccessCallback)
+{
+    this->url = url;
+    this->body = body;
+    this->method = method;
+    this->headers = headers;
+    if (this->headers.find("Content-Type") == this->headers.end())
+    {
+        this->headers["Content-Type"] = "application/json";
+    }
+    setOnSuccessCallback(onSuccessCallback);
+    setOnErrorCallback(defaultErrorCallback());
+}
+
 Request::Request(string url, string body, HttpMethod method, map<string, string> headers, SuccessCallback onSuccessCallback, ErrorCallback onErrorCallback)
 {
     this->url = url;
@@ -155,6 +169,8 @@ Request::SuccessCallback Request::defaultSuccessCallback()
 {
     return [](string header, string data)
     {
+        std::cout << header << std::endl;
+        std::cout << data << std::endl;
         std::cout << "not implemented" << std::endl;
     };
 }

@@ -248,7 +248,7 @@
     },
     {
       "uuid": "7f29a90c-46b8-4e7e-9883-b0f9e4e74a22",
-      "documentation": "OPTIONS request for /files",
+      "documentation": "GET request for /files",
       "method": "get",
       "endpoint": "files",
       "responses": [
@@ -286,7 +286,7 @@
     },
     {
       "uuid": "d1c3d001-3b75-4768-b78e-61b4b2774ba6",
-      "documentation": "OPTIONS request for /files",
+      "documentation": "PUT request for /files",
       "method": "put",
       "endpoint": "files",
       "responses": [
@@ -324,7 +324,7 @@
     },
     {
       "uuid": "494d935d-5629-4b33-b09f-c08cf9b8f07c",
-      "documentation": "OPTIONS request for /files",
+      "documentation": "PATCH request for /files",
       "method": "patch",
       "endpoint": "files",
       "responses": [
@@ -362,13 +362,51 @@
     },
     {
       "uuid": "58ff2e32-bbd9-40f2-9173-743651d6d73b",
-      "documentation": "OPTIONS request for /files",
+      "documentation": "DELETE request for /files",
       "method": "delete",
       "endpoint": "files",
       "responses": [
         {
           "uuid": "3bac1761-e80f-4bdb-8464-617fdbd6e0ef",
           "body": "{\"test\":\"delete passed\"}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "No Content",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Status",
+              "value": "ok"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
+    },
+    {
+      "uuid": "0d390305-5755-445e-9935-d6f9ce13d39b",
+      "documentation": "HEAD request for /files",
+      "method": "head",
+      "endpoint": "files",
+      "responses": [
+        {
+          "uuid": "a5e78c71-2b5d-4674-982a-86f7a1268528",
+          "body": "",
           "latency": 0,
           "statusCode": 200,
           "label": "No Content",
@@ -465,6 +503,10 @@
     {
       "type": "route",
       "uuid": "58ff2e32-bbd9-40f2-9173-743651d6d73b"
+    },
+    {
+      "type": "route",
+      "uuid": "0d390305-5755-445e-9935-d6f9ce13d39b"
     }
   ],
   "callbacks": []

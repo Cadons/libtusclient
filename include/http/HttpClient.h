@@ -48,9 +48,9 @@ namespace TUS
              * @brief Execute the requests in the queue
              * it start a new thread that will execute the requests, if the thread is already running it will do nothing
              */
-            void execute();
+            IHttpClient* execute()override;
 
-            bool isLastRequestCompleted() const override;
+         
             
             static string convertHttpMethodToString(HttpMethod method);
 
@@ -58,7 +58,7 @@ namespace TUS
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
             IHttpClient *sendRequest(HttpMethod method, Request request);
             std::queue<RequestTask> m_requestsQueue;
-            bool m_isRunning = false;
+            bool m_abort = false;
             /**
              * @brief Callback function for the write data of the request
              * @param ptr is the pointer to the data
@@ -78,7 +78,6 @@ namespace TUS
              * @return int (0=ok, 1=abort)
              */
             static int progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
-            bool m_isLastRequestCompleted = false;
         };
     }
 }
