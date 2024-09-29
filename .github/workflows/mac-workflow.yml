@@ -9,7 +9,7 @@ on:
 jobs:
   
   build-mac:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     strategy:
       fail-fast: false
@@ -86,11 +86,11 @@ jobs:
 
   test-mac:
     needs: build-mac
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest]
+        os: [macos-13]
 
     steps:
       - name: "Create folder for test results"
@@ -113,6 +113,7 @@ jobs:
       - name: Docker TUSD
         run: |
           brew install docker
+          colima start
           docker run -d -p 8080:8080 tuspro
 
       - name: Test Project
