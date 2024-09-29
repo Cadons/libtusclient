@@ -116,6 +116,7 @@ jobs:
 
       - name: Test Project
         run: |
+          cp ${{ github.workspace }}/build/Debug/libtusclient.dll ${{ github.workspace }}/build/Debug/test/
           ${{ github.workspace }}\build\Debug\libtusclient_test.exe --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
