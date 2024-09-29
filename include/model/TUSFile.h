@@ -1,10 +1,12 @@
-#ifndef INCLUDE_MODEL_TUSFILE_H_
-#define INCLUDE_MODEL_TUSFILE_H_
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
+
+#ifndef INCLUDE_MODEL_TUSFILE_H_
+#define INCLUDE_MODEL_TUSFILE_H_
+
 #include <string>
 #include <filesystem>
 #include <nlohmann/json.hpp>

@@ -1,5 +1,10 @@
-#ifndef _INCLUDE_MODEL_TUSCHUNK_H_
-#define _INCLUDE_MODEL_TUSCHUNK_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+#ifndef INCLUDE_MODEL_TUSCHUNK_H_
+#define INCLUDE_MODEL_TUSCHUNK_H_
 
 #include <string>
 #include <vector>
@@ -47,4 +52,4 @@ namespace TUS {
 
 } // namespace TUS
 
-#endif // _INCLUDE_MODEL_TUSCHUNK_H_
+#endif // INCLUDE_MODEL_TUSCHUNK_H_

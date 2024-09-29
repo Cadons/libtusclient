@@ -1,10 +1,11 @@
-#ifndef INCLUDE_LIBTUSCLIENT_H_
-#define INCLUDE_LIBTUSCLIENT_H_
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
+
+#ifndef INCLUDE_LIBTUSCLIENT_H_
+#define INCLUDE_LIBTUSCLIENT_H_
 
 #define TUS_PROTOCOL_VERSION "1.0.0"
 #ifdef WIN32

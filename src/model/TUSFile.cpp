@@ -1,13 +1,13 @@
 
-#include <chrono>
-#include <string>
-#include <functional>
-
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
+
+#include <chrono>
+#include <string>
+#include <functional>
 
 #include "model/TUSFile.h"
 

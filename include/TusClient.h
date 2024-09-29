@@ -1,10 +1,12 @@
-#ifndef INCLUDE_TUSCLIENT_H_
-#define INCLUDE_TUSCLIENT_H_
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
+
+#ifndef INCLUDE_TUSCLIENT_H_
+#define INCLUDE_TUSCLIENT_H_
+
 #include <string>
 #include <memory>
 #include <filesystem>

@@ -1,5 +1,10 @@
-#ifndef _INCLUDE_IFILECHUNKER_H_
-#define _INCLUDE_IFILECHUNKER_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+#ifndef INCLUDE_IFILECHUNKER_H_
+#define INCLUDE_IFILECHUNKER_H_
 
 #include <vector>
 #include <string>
@@ -82,4 +87,4 @@ template <typename T>
 
 } // namespace TUS
 
-#endif // _INCLUDE_IFILECHUNKER_H_
+#endif  // INCLUDE_IFILECHUNKER_H_
