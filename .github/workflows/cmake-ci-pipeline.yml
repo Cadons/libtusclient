@@ -77,8 +77,9 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
+          name: build-artifacts-linux
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+
 
   build-windows:
     runs-on: windows-latest
@@ -148,7 +149,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
+          name: build-artifacts-windows
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
   
   build-mac:
@@ -217,7 +218,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifacts
+          name: build-artifacts-mac
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
   test:
@@ -234,7 +235,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: build-artifacts
+          name: build-artifacts-linux
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
       - name: Run Mockoon CLI
@@ -251,7 +252,7 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-            ctest --test-dir ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test --output-on-failure --no-tests=error --output-junit ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+            ctest --test-dir ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }} --output-on-failure --no-tests=error --output-junit ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
