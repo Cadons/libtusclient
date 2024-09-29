@@ -81,6 +81,13 @@ jobs:
         with:
           name: build-artifacts-windows
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
+      - name: Upload artifacts for test
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-for-test
+          path: |
+            ${{ github.workspace }}/build/Debug/libtusclient.dll
+            ${{ github.workspace }}/build/Debug/test/libtusclient_test.exe
   test-windows:
     needs: build-windows
     runs-on: windows-latest
