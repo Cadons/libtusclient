@@ -9,7 +9,7 @@ on:
 jobs:
   
   build-mac:
-    runs-on: macos-13
+    runs-on: macos-latest
 
     strategy:
       fail-fast: false
@@ -86,11 +86,11 @@ jobs:
 
   test-mac:
     needs: build-mac
-    runs-on: macos-13
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13]
+        os: [macos-latest]
 
     steps:
       - name: "Create folder for test results"
@@ -124,7 +124,6 @@ jobs:
         run: |
           chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
           export DYLD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$DYLD_LIBRARY_PATH
-          otool -L ${{ github.workspace }}/build/Debug/test/libtusclient_test
           ${{ github.workspace }}/build/Debug/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml
 
       - name: Upload test results
