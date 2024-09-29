@@ -118,7 +118,7 @@ jobs:
 
       - name: Run tusd in background
         run: |
-          nohup ./tusd/tusd -host 0.0.0.0 -port 8080 &
+          nohup ./tusd/tusd_darwin_arm64/tusd -host 0.0.0.0 -port 8080 &
 
       - name: Test Project
         run: |
