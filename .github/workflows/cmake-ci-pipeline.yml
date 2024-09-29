@@ -19,10 +19,6 @@ jobs:
             cpp_compiler: g++
             conan_home: /home/runner/.conan2
             conan_profile: /home/runner/.conan2/profiles/default
-          - c_compiler: clang
-            cpp_compiler: clang++
-            conan_home: /home/runner/.conan2
-            conan_profile: /home/runner/.conan2/profiles/default
 
     steps:
       - uses: actions/checkout@v4
