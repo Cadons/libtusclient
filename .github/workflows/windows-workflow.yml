@@ -98,7 +98,7 @@ jobs:
 
     steps:
       - name: "Create folder for test results"
-        run: mkdir -p ${{ github.workspace }}/build/Debug
+        run: mkdir -p ${{ github.workspace }}\build\Debug
       - uses: actions/checkout@v4
 
       - name: Download build artifacts
@@ -117,9 +117,9 @@ jobs:
       - name: Download tusd server
         run: |
           curl -L -o tusd_windows_amd64.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_windows_amd64.zip
-          tar -xf tusd_windows_amd64.zip -C ${{ github.workspace }}/tusd
+          tar -xf tusd_windows_amd64.zip -C ${{ github.workspace }}\tusd
       - name: Start tusd server
-        run: ${{ github.workspace }}/tusd/tusd_windows_amd64/tusd.exe -port 8080 -dir ${{ github.workspace }}/tusd
+        run: ${{ github.workspace }}\tusd\tusd_windows_amd64\tusd.exe -port 8080 -dir ${{ github.workspace }}\tusd
 
       - name: Test Project
         run: |
