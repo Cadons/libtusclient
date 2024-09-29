@@ -110,12 +110,15 @@ jobs:
           data-file: "./mockoon-data.json"
           port: 3000
 
-      - name: Docker TUSD
+      - name: Download and unzip tusd
         run: |
-          brew install docker
-          brew install colima
-          colima start
-          docker run -d -p 8080:8080 tuspro
+          curl -L -o tusd.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_darwin_arm64.zip
+          unzip tusd.zip -d tusd
+          chmod +x tusd/tusd
+
+      - name: Run tusd in background
+        run: |
+          nohup ./tusd/tusd -host 0.0.0.0 -port 8080 &
 
       - name: Test Project
         if: ${{ matrix.os == 'macos-latest' }}
