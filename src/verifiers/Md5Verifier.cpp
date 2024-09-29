@@ -5,9 +5,12 @@
  */
 #include <sstream>
 #include <vector>
+#include <boost/uuid/detail/md5.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <iomanip>
 
 #include "verifiers/Md5Verifier.h"
-#include <boost/uuid/detail/md5.hpp>
+
 
 using TUS::FileVerifier::Md5Verifier;
 
