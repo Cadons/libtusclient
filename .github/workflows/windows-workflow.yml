@@ -1,4 +1,4 @@
-name: libtusclient CI Windows
+name: libtusclient CI Windows 
 
 on:
   workflow_dispatch:
