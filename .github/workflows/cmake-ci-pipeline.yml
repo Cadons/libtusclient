@@ -79,6 +79,11 @@ jobs:
         with:
           name: build-artifacts-linux
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+      - name: Upload artifacts for test
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-for-test
+          path: ${{ github.workspace }}/build/Debug
 
 
   build-windows:
@@ -235,7 +240,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: build-artifacts-linux
+          name: build-artifacts-for-test
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
       - name: Run Mockoon CLI
