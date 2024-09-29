@@ -97,6 +97,9 @@ jobs:
         run: mkdir -p ${{ github.workspace }}/build/Debug
       - uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
@@ -109,6 +112,7 @@ jobs:
           version: "latest"
           data-file: "./mockoon-data.json"
           port: 3000
+
       - name: Docker TUSD
         run: docker run -d -p 8080:8080 tuspro
 
@@ -119,12 +123,12 @@ jobs:
           export DYLD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$DYLD_LIBRARY_PATH
           otool -L ${{ github.workspace }}/build/Debug/test/libtusclient_test
           ${{ github.workspace }}/build/Debug/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: test-results
           path: ${{ github.workspace }}/build/Debug/test-results.xml
-    
   release-mac:
     needs: test-mac
     if: github.event_name == 'release'
