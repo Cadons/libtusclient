@@ -263,6 +263,7 @@ jobs:
         run: |
           chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
           export LD_LIBRARY_PATH=${{ github.workspace }}/build/:$LD_LIBRARY_PATH
+          ldd ${{ github.workspace }}/build/Debug/test/libtusclient_test
           ${{ github.workspace }}/build/Debug/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
