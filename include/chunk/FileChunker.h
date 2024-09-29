@@ -21,6 +21,13 @@ namespace TUS
     {
       
     class TUSChunk;
+    /**
+     * @brief This class is responsible for chunking a file into multiple chunks.
+     * The chunks are stored in a temporary directory and can be loaded from there.
+     * The class also provides methods to remove the chunk files and to get the temporary directory.
+     * To get the chunks, the loadChunks method must be called and you can get the chunks with the getChunks method,
+     * which returns a vector of TUSChunk objects.
+     */
     class LIBTUSAPI_EXPORT FileChunker : public IFileChunker<TUSChunk>
     {
     private:

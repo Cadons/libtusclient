@@ -171,6 +171,10 @@ void FileChunker::clearChunks()
 
 std::vector<TUSChunk> FileChunker::getChunks() const
 {
+    if(m_chunks.empty())
+    {
+        throw std::runtime_error("Chunks are empty. Call loadChunks() first.");
+    }
     return m_chunks;
 }
 
