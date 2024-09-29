@@ -78,12 +78,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-linux
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.so
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: ${{ github.workspace }}/build/Debug
+          path: |
+            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.so
+            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test
 
 
   build-windows:
@@ -155,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-windows
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
   
   build-mac:
     runs-on: macos-latest
@@ -224,7 +226,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-mac
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dylib
 
   test:
     needs: build-linux
@@ -257,7 +259,9 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-            ctest --test-dir ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }} --output-on-failure --no-tests=error --output-junit ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          chmod +x ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test
+          export LD_LIBRARY_PATH=${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}:$LD_LIBRARY_PATH
+          ./${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
