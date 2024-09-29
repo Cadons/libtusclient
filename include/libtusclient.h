@@ -14,18 +14,4 @@
   #define LIBTUSAPI_EXPORT
 #endif
 
-//temporary directory for the chunks for each os 
-#ifdef WIN32
-    #define TEMP_DIR R"(C:\Users\AppData\Local\Temp\TUS\)"
-#elif __linux__
-    #define TEMP_DIR "/tmp/TUS/"
-
-#elif __APPLE__
-    #define TEMP_DIR (std::string(getenv("TMPDIR")) + "/TUS/").c_str()
-#elif __ANDROID__
-    #define TEMP_DIR "/data/local/tmp/TUS/"
-#else
-    #define TEMP_DIR "/tmp/TUS/"
-#endif
-
 #endif // INCLUDE_LIBTUSCLIENT_H_
