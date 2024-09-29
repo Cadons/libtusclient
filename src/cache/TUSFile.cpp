@@ -1,17 +1,17 @@
 
-#include <chrono>
-#include <string>
-#include <functional>
-
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
 
-#include "model/TUSFile.h"
+#include <chrono>
+#include <string>
+#include <functional>
 
-using TUS::TUSFile;
+#include "cache/TUSFile.h"
+
+using TUS::Cache::TUSFile;
 
 TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,  boost::uuids::uuid uuid,std::string tusId)
     : m_filePath(filePath), m_uploadUrl(uploadUrl), m_appName(appName), m_identifcationHash(std::to_string(std::hash<std::string>{}(filePath.string() + uploadUrl + appName)))

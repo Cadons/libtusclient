@@ -1,0 +1,153 @@
+name: libtusclient CI Windows
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+  release:
+    types: [created]
+
+
+jobs:
+ 
+  build-windows:
+    runs-on: windows-latest
+   
+
+    strategy:
+      fail-fast: false
+      matrix:
+        c_compiler: [cl]
+        include:
+          - c_compiler: cl
+            cpp_compiler: cl
+            conan_home: C:\Users\runneradmin\.conan2
+            conan_profile: C:\Users\runneradmin\.conan2\profiles\default
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "build-type=release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "build-type=debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install conan package manager
+        run: |
+          pip install conan
+          conan --version
+
+      - name: Cache .conan
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.conan_home }}
+          key: ${{ runner.os }}-conan-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
+          restore-keys: |
+            ${{ runner.os }}-conan-${{ matrix.c_compiler }}-
+
+      - name: Create Conan profiles
+        continue-on-error: true
+        run: |
+          conan profile detect
+
+      - name: Conan profile setup
+        run: |
+          (Get-Content ${{ matrix.conan_profile }}) -replace '^build_type=.*', "build_type=${{ steps.strings.outputs.test-folder }}" | Set-Content ${{ matrix.conan_profile }}
+
+      - name: Install dependencies
+        run: |
+          conan install . --build=missing --profile=default
+
+      - name: Configure CMake
+        run: cmake --preset conan-default
+
+      - name: Build Library
+        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient
+
+      - name: Build Tests
+        run: |
+          cp ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/* ${{ github.workspace }}/build/test;
+          cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-windows
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
+      - name: Upload artifacts for test
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-for-test
+          path: |
+            ${{ github.workspace }}/build/Debug/libtusclient.dll
+            ${{ github.workspace }}/build/Debug/test/libtusclient_test.exe
+  test-windows:
+    needs: build-windows
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest]
+
+    steps:
+      - name: "Create folder for test results"
+        run: mkdir -p ${{ github.workspace }}/build/Debug
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts-for-test
+          path: ${{ github.workspace }}/build/Debug
+
+      - name: Run Mockoon CLI
+        uses: mockoon/cli-action@v2
+        with:
+          version: "latest"
+          data-file: "./mockoon-data.json"
+          port: 3000
+
+      - name: Download tusd server
+        run: |
+          curl -L -o tusd_windows_amd64.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_windows_amd64.zip
+          tar -xf tusd_windows_amd64.zip -C ${{ github.workspace }}/tusd
+      - name: Start tusd server
+        run: ${{ github.workspace }}/tusd/tusd_windows_amd64/tusd.exe -port 8080 -dir ${{ github.workspace }}/tusd
+
+      - name: Test Project
+        run: |
+          cp ${{ github.workspace }}/build/Debug/libtusclient.dll ${{ github.workspace }}/build/Debug/test/
+          ${{ github.workspace }}\build\Debug\libtusclient_test.exe --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ${{ github.workspace }}\build\Debug\test-results.xml
+
+  release-windows:
+    needs: test-windows
+    if: github.event_name == 'release'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          asset_name: libtusclient-${{ steps.strings.outputs.build-type }}.zip
+          asset_content_type: application/zip

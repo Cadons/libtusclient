@@ -13,21 +13,23 @@
 
 #include "TusClient.h"
 #include "http/HttpClient.h"
-#include "model/TUSFile.h"
-#include "repository/CacheRepository.h"
-#include "model/TUSChunk.h"
-#include "utility/ChunkUtility.h"
+#include "cache/TUSFile.h"
+#include "cache/CacheRepository.h"
+#include "chunk/TUSChunk.h"
+#include "chunk/utility/ChunkUtility.h"
+#include "chunk/FileChunker.h"
 
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
 
-void TusClient::initialize()
+void TusClient::initialize(int chunkSize)
 {
     createTusFile();
-    m_cacheManager = std::make_unique<TUS::CacheRepository>(m_appName);
-    //update the tusFile with the data from the cache
-    if(m_cacheManager->findByHash(m_tusFile->getIdentificationHash())!= nullptr)
+    m_cacheManager = std::make_unique<TUS::Cache::CacheRepository>(m_appName);
+    m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
+    // update the tusFile with the data from the cache
+    if (m_cacheManager->findByHash(m_tusFile->getIdentificationHash()) != nullptr)
     {
         auto tusFile = m_cacheManager->findByHash(m_tusFile->getIdentificationHash());
         m_tusFile->setUploadOffset(tusFile->getUploadOffset());
@@ -39,58 +41,25 @@ void TusClient::initialize()
     }
 }
 
-TusClient::TusClient(std::string appName,std::string url, path filePath, int chunkSize) :
-    m_appName(appName),
-    m_url(url), m_filePath(filePath),
-    m_status(TusStatus::READY), m_tempDir(TEMP_DIR), 
-    m_httpClient(std::make_unique<TUS::Http::HttpClient>()), 
-    m_chunkSize(chunkSize * 1024)
+TusClient::TusClient(std::string appName, std::string url, path filePath, int chunkSize) : m_appName(appName),
+m_status(TusStatus::READY),
+m_httpClient(std::make_unique<TUS::Http::HttpClient>())
 {
-   
-initialize();
 
+    initialize(chunkSize);
 }
 
-TusClient::TusClient(std::string appName, std::string url, path filePath) :
-    m_appName(std::move(appName)),
-    m_url(std::move(url)), 
-    m_filePath(std::move(filePath)),
-    m_status(TusStatus::READY), 
-    m_tempDir(TEMP_DIR), 
-    m_httpClient(std::make_unique<TUS::Http::HttpClient>())
+TusClient::TusClient(std::string appName, std::string url, path filePath) : m_appName(std::move(appName)),
+                                                                            m_url(std::move(url)),
+                                                                            m_filePath(std::move(filePath)),
+                                                                            m_status(TusStatus::READY),
+                                                                            m_httpClient(std::make_unique<TUS::Http::HttpClient>())
 {
-    initialize();
-    auto fileSize = std::filesystem::file_size(m_filePath);
-    if (fileSize >= Utility::ChunkUtility::getChunkSizeFromGB(1))
-    {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(10); //>1GB chunk size 10MB
-    }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(100)) //>100MB chunk size 5MB
-    {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(5); 
-    }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(50)) //>50MB chunk size 2MB
-    {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(2);
-    }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(10)) //>10MB chunk size 1MB
-    {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(1);
-    }
-    else if (fileSize < Utility::ChunkUtility::getChunkSizeFromMB(5)) // <5MB chunk size 100KB
-    {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(100);
-    }
-    else // <5MB chunk size 32KB
-    {
-        
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(32);
-    }
+    initialize(0);
 }
 
 TusClient::~TusClient()
 {
-   
 }
 
 void TusClient::createTusFile()
@@ -99,8 +68,7 @@ void TusClient::createTusFile()
     m_tusFile.reset();
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
-    m_tusFile = std::make_unique<TUS::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
-    
+    m_tusFile = std::make_unique<TUS::Cache::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
 }
 
 std::string extractHeaderValue(const std::string &header, const std::string &key)
@@ -127,13 +95,13 @@ std::string extractHeaderValue(const std::string &header, const std::string &key
 bool TusClient::upload()
 {
 
-    if(m_tusFile==nullptr)
+    if (m_tusFile == nullptr)
     {
-          createTusFile();
+        createTusFile();
     }
 
     // chunk the file
-    m_chunkNumber = divideFileInChunks(m_filePath, m_uuid);
+    m_chunkNumber = m_fileChunker->chunkFile();
     if (m_chunkNumber == -1)
     {
         std::cerr << "Error: Unable to divide file in chunks" << std::endl;
@@ -152,89 +120,66 @@ bool TusClient::upload()
         m_tusLocation = extractHeaderValue(header, "Location");
         m_tusLocation.replace(0, getUrl().length() + 7, ""); // remove the url from the location
     };
-    m_httpClient->post(Http::Request(m_url + "/files", "", 
-                       TUS::Http::HttpMethod::_POST, headers, onPostSuccess));
+    m_httpClient->post(Http::Request(m_url + "/files", "",
+                                     TUS::Http::HttpMethod::_POST, headers, onPostSuccess));
     m_httpClient->execute();
-   
+
     getUploadInfo();
 
     m_cacheManager->add(m_tusFile);
     m_cacheManager->save();
-    std::cout<<"Upload started"<<std::endl;
+    std::cout << "Upload started" << std::endl;
     // patch chunks of the file to the server while chunk is not the last one
-   return uploadChunks();
+    return uploadChunks();
 }
 
 bool TusClient::uploadChunks()
 {
 
-    int i=m_uploadedChunks;
+    int i = m_uploadedChunks;
     m_status.store(TusStatus::UPLOADING);
-    if (m_chunks.empty())
+    if (m_fileChunker->getChunkNumber() == 0)
     {
-        loadChunks();
+       if(!m_fileChunker->loadChunks())
+       {
+            m_status.store(TusStatus::FAILED);
+            return false;
+       }
     }
 
     if (m_uploadLength == 0)
     {
-       std::cout<<"No file to upload"<<std::endl;
-       m_status.store(TusStatus::FINISHED);
-       return true;
+        std::cout << "No file to upload" << std::endl;
+        m_status.store(TusStatus::FINISHED);
+        return true;
     }
-    for (; (m_uploadOffset<m_uploadLength)&&m_status==TusStatus::UPLOADING;)
+    for (; (m_uploadOffset < m_uploadLength) && m_status == TusStatus::UPLOADING;)
     {
- 
-        if(m_status.load()==TusStatus::CANCELED)
+
+        if (m_status.load() == TusStatus::CANCELED)
         {
             stop();
             return false;
-        }else if(m_status.load()==TusStatus::FAILED)
+        }
+        else if (m_status.load() == TusStatus::FAILED)
         {
-            std::cerr<<"Upload failed"<<std::endl;
+            std::cerr << "Upload failed" << std::endl;
             return false;
         }
-        else if(m_status.load()==TusStatus::PAUSED)
+        else if (m_status.load() == TusStatus::PAUSED)
         {
-            std::cout<<"Upload paused"<<std::endl;
+            std::cout << "Upload paused" << std::endl;
             return true;
         }
-        else{
+        else
+        {
             uploadChunk(i);
             i++;
-        } 
-       
+        }
     }
     m_status.store(TusStatus::FINISHED);
     stop();
     return true;
-}
-
-void TusClient::loadChunks()
-{
-    for (int i = 0; i < m_chunkNumber; i++)
-    {
-        path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
-
-        std::ifstream chunkFile(chunkFilePath, std::ios::binary);
-        if (!chunkFile)
-        {
-            std::cerr << "Error: Unable to open chunk file " << chunkFilePath << std::endl;
-           m_status.store(TusStatus::FAILED);
-            return;
-        }
-
-        chunkFile.seekg(0, std::ios::end);             // Seek to the end of the file to get the size
-        std::streamsize chunkSize = chunkFile.tellg(); // Get the current position in the file, which is the size of the file
-        chunkFile.seekg(0, std::ios::beg);             // Seek back to the beginning of the file
-
-        std::vector<char> chunkData(chunkSize);
-        chunkFile.read(chunkData.data(), chunkSize);
-        chunkFile.close();
-
-        TUSChunk chunk(chunkData, chunkSize);
-
-        m_chunks.push_back(chunk);
-    }
 }
 
 void TusClient::uploadChunk(int chunkNumber)
@@ -244,10 +189,9 @@ void TusClient::uploadChunk(int chunkNumber)
         return;
     }
 
-    path chunkFilePath = getTUSTempDir() / getChunkFilename(chunkNumber);
-    TUSChunk chunk = m_chunks[chunkNumber];
+    Chunk::TUSChunk chunk = m_fileChunker->getChunks().at(chunkNumber);
     std::map<std::string, std::string> patchHeaders;
-    
+
     m_nextChunk = false;
 
     patchHeaders["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
@@ -257,35 +201,36 @@ void TusClient::uploadChunk(int chunkNumber)
 
     OnSuccessCallback onPatchSuccess = [this](std::string header, std::string data)
     {
-     
-            if (header.find("204 No Content") != std::string::npos)
-            {
-                m_uploadedChunks++;
-                m_nextChunk = true;
-                m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
+        if (header.find("204 No Content") != std::string::npos)
+        {
+            m_uploadedChunks++;
+            m_nextChunk = true;
+            m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
 
-                m_progress.store(static_cast<float>(m_uploadOffset) / std::filesystem::file_size(m_filePath) * 100);
-            }
-            else if (header.find("409 Conflict") != std::string::npos)
+            m_progress.store(static_cast<float>(m_uploadOffset) / std::filesystem::file_size(m_filePath) * 100);
+        }
+        else if (header.find("409 Conflict") != std::string::npos)
+        {
+            static int retry = 0;
+            if (retry < 3)
             {
-                static int retry = 0;
-                if (retry < 3)
-                {
-                    retry++;
-                    std::cout << "Conflict detected, retrying the upload" << std::endl;
-                    getUploadInfo();
-                }
-                else
-                {
-                    std::cerr << "Error: Too many conflicts " << m_uploadedChunks << std::endl << header << std::endl;
-                    m_status.store(TusStatus::FAILED);
-                }
+                retry++;
+                std::cout << "Conflict detected, retrying the upload" << std::endl;
+                getUploadInfo();
             }
             else
             {
-                std::cerr << "Error: Unable to upload chunk " << m_uploadedChunks << std::endl << header << std::endl;
+                std::cerr << "Error: Too many conflicts " << m_uploadedChunks << std::endl
+                          << header << std::endl;
                 m_status.store(TusStatus::FAILED);
-            }           
+            }
+        }
+        else
+        {
+            std::cerr << "Error: Unable to upload chunk " << m_uploadedChunks << std::endl
+                      << header << std::endl;
+            m_status.store(TusStatus::FAILED);
+        }
     };
 
     OnErrorCallback onPatchError = [this](std::string header, std::string data)
@@ -294,18 +239,18 @@ void TusClient::uploadChunk(int chunkNumber)
         m_status.store(TusStatus::FAILED);
     };
 
-    m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation, 
-                        std::string(chunk.getData().data(), chunk.getChunkSize()), 
-                        Http::HttpMethod::_PATCH, patchHeaders,
-                        onPatchSuccess, onPatchError));
+    m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation,
+                                      std::string(reinterpret_cast<char*>(chunk.getData().data()), chunk.getChunkSize()),
+                                      Http::HttpMethod::_PATCH, patchHeaders,
+                                      onPatchSuccess, onPatchError));
     m_httpClient->execute();
 }
 
 void TusClient::cancel()
 {
-    if(m_tusLocation.empty())
+    if (m_tusLocation.empty())
     {
-        std::cerr<<"No upload to cancel"<<std::endl;
+        std::cerr << "No upload to cancel" << std::endl;
         return;
     }
     function<void(string, string)> onSuccess = [this](string header, string data)
@@ -314,7 +259,6 @@ void TusClient::cancel()
         m_cacheManager->remove(m_tusFile);
         m_cacheManager->save();
         std::cout << "Upload canceled" << std::endl;
-        
     };
     std::map<std::string, std::string> headers;
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
@@ -331,7 +275,7 @@ void TusClient::getUploadInfo()
     OnSuccessCallback headSuccess = [this](std::string header, std::string data)
     {
         m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
-        m_uploadLength= std::stoi(extractHeaderValue(header, "Upload-Length"));
+        m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
     };
 
     headers.clear();
@@ -339,7 +283,6 @@ void TusClient::getUploadInfo()
     m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "", Http::HttpMethod::_HEAD, headers, headSuccess));
 
     m_httpClient->execute();
-
 }
 
 std::map<std::string, std::string> TusClient::getTusServerInformation()
@@ -347,7 +290,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
     std::map<std::string, std::string> serverInfo;
     std::map<std::string, std::string> headers;
     headers["accept"] = "*/*";
-    
+
     function<void(string, string)> onSuccess = [&serverInfo](string header, string data)
     {
         serverInfo["Upload-Offset"] = extractHeaderValue(header, "Upload-Offset");
@@ -368,22 +311,25 @@ bool TusClient::resume()
     getUploadInfo();
     m_status.store(TusStatus::READY);
 
-   return uploadChunks();
+    return uploadChunks();
 }
 
 void TusClient::pause()
 {
-    if (m_status == TusStatus::UPLOADING) {
+    if (m_status == TusStatus::UPLOADING)
+    {
         m_status.store(TusStatus::PAUSED);
         std::cout << "Upload paused" << std::endl;
-    } else {
+    }
+    else
+    {
         std::cerr << "Cannot pause, current status is not UPLOADING" << std::endl;
     }
 }
 
 void TusClient::stop()
 {
-    if(m_uploadOffset==m_uploadLength&&m_status!=TusStatus::CANCELED&&m_status!=TusStatus::FAILED)
+    if (m_uploadOffset == m_uploadLength && m_status != TusStatus::CANCELED && m_status != TusStatus::FAILED)
     {
         m_status.store(TusStatus::FINISHED);
     }
@@ -394,7 +340,6 @@ void TusClient::stop()
 
     m_cacheManager->remove(m_tusFile);
     m_cacheManager->save();
-
 }
 
 float TusClient::progress()
@@ -413,7 +358,7 @@ bool TusClient::retry()
     {
         std::cout << "Retrying upload" << std::endl;
         m_status.store(TusStatus::READY);
-        m_chunks.clear();
+        m_fileChunker->clearChunks();
         m_uploadedChunks = 0;
         m_uploadOffset = 0;
         m_nextChunk = false;
@@ -440,75 +385,4 @@ std::string TusClient::getUrl() const
 std::string TusClient::getUUIDString()
 {
     return boost::uuids::to_string(m_uuid);
-}
-
-path TusClient::getTUSTempDir()
-{
-    path filesTempDir = m_tempDir/m_appName/"files"/getUUIDString();
-
-    if (!std::filesystem::exists(filesTempDir))
-    {
-        std::filesystem::create_directories(filesTempDir);
-    }
-    return filesTempDir;
-}
-
-std::string TusClient::getChunkFilename(int chunkNumber)
-{
-    return getUUIDString() + CHUNK_FILE_NAME_PREFIX + std::to_string(chunkNumber) + CHUNK_FILE_EXTENSION;
-}
-
-
-
-int TusClient::divideFileInChunks(path filePath, boost::uuids::uuid uuid)
-{
-    std::ifstream inputFile(filePath, std::ios::binary | std::ios::ate); // Open input file in binary mode and seek to the end
-
-    if (!inputFile)
-    {
-        std::cerr << "Error: Unable to open input file " << filePath << std::endl;
-        return -1;
-    }
-
-    // Get the size of the file
-    std::streamsize fileSize = inputFile.tellg(); // Get the current position in the input file, which is the size of the file
-    inputFile.seekg(0, std::ios::beg);            // Seek back to the beginning of the file
-
-    // Calculate the number of chunks
-    int numChunks = (fileSize + m_chunkSize - 1) / m_chunkSize;
-
-    // Create a buffer to store the chunk data
-    std::vector<char> buffer(m_chunkSize);
-    int totalBytesRead = 0;
-
-    for (int i = 0; i < numChunks; ++i)
-    {
-        path outputFilePath = getTUSTempDir() / getChunkFilename(i);
-        std::ofstream outputFile(outputFilePath, std::ios::binary); // Open output file in binary mode
-
-        if (!outputFile)
-        {
-            std::cerr << "Error: Unable to create output file " << outputFilePath << std::endl;
-            return -1;
-        }
-
-        // Read from input file and write to output file
-        inputFile.read(buffer.data(), m_chunkSize);
-        std::streamsize bytesRead = inputFile.gcount();
-        outputFile.write(buffer.data(), bytesRead);
-        totalBytesRead += bytesRead;
-    }
-
-    inputFile.close();
-    return numChunks;
-}
-
-bool TusClient::removeChunkFiles(path filePath)
-{
-    if(std::filesystem::exists(filePath)){
-    
-            return remove(filePath);
-
-    }
-    return false;
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+
 #include <fstream>
 #include <iostream>
 #include <filesystem>
@@ -6,15 +12,15 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/string_generator.hpp>
 
-#include "repository/CacheRepository.h"
+#include "cache/CacheRepository.h"
 
 using json = nlohmann::json;
 
-using TUS::CacheRepository;
-using TUS::TUSFile;
+using TUS::Cache::CacheRepository;
+using TUS::Cache::TUSFile;
 
 CacheRepository::CacheRepository(std::string appName, bool clear)
-    : m_appName(appName), m_path(std::filesystem::path(TEMP_DIR) / m_appName / ".cache.json")
+    : m_appName(appName), m_path(std::filesystem::temp_directory_path() / m_appName / ".cache.json")
 {
     if (!std::filesystem::exists(m_path.parent_path()))
     {
@@ -45,7 +51,7 @@ void CacheRepository::remove(std::shared_ptr<TUSFile> item)
     auto it = std::find_if(m_cache.begin(), m_cache.end(), [&item](const std::shared_ptr<TUSFile> &file)
                            { return file->getIdentificationHash() == item->getIdentificationHash(); });
     //remove folder from temp with item uuid
-    std::filesystem::remove_all(std::filesystem::path(TEMP_DIR) / m_appName / "files"/boost::uuids::to_string(item->getUuid()));
+    std::filesystem::remove_all(std::filesystem::temp_directory_path() / m_appName / "files"/boost::uuids::to_string(item->getUuid()));
     if (it != m_cache.end())
     {
         m_cache.erase(it);

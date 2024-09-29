@@ -11,12 +11,12 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <random>
 
-#include "repository/CacheRepository.h"
+#include "cache/CacheRepository.h"
 
-#include "model/TUSFile.h"
+#include "cache/TUSFile.h"
 
-using TUS::CacheRepository;
-using TUS::TUSFile;
+using TUS::Cache::CacheRepository;
+using TUS::Cache::TUSFile;
 
 class CacheRepositoryTest : public ::testing::Test {
 protected:

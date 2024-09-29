@@ -1,5 +1,10 @@
-#ifndef _INCLUDE_MODEL_TUSCHUNK_H_
-#define _INCLUDE_MODEL_TUSCHUNK_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+#ifndef INCLUDE_CHUNK_TUSCHUNK_H_
+#define INCLUDE_CHUNK_TUSCHUNK_H_
 
 #include <string>
 #include <vector>
@@ -7,7 +12,7 @@
 #include "libtusclient.h"
 
 namespace TUS {
-
+    namespace Chunk{
     /**
      * @class TUSChunk
      * @brief Represents a chunk of a TUS file.
@@ -24,14 +29,14 @@ namespace TUS {
          * @param data The data of the chunk.
          * @param offset The offset of the chunk in the file.
          */
-        TUSChunk(std::vector<char> data, size_t offset);
+        TUSChunk(std::vector<uint8_t> data, size_t offset);
 
         /**
          * @brief Get the data of the chunk.
          *
          * @return The data of the chunk.
          */
-        std::vector<char> getData() const;
+        std::vector<uint8_t> getData() const;
 
         /**
          * @brief Get the offset of the chunk in the file.
@@ -41,10 +46,11 @@ namespace TUS {
         size_t getChunkSize() const;
 
     private:
-        std::vector<char> m_data;
+        std::vector<uint8_t> m_data;
         size_t m_chunkSize;
     };
+    } // namespace Model
 
 } // namespace TUS
 
-#endif // _INCLUDE_MODEL_TUSCHUNK_H_
+#endif  // INCLUDE_CHUNK_TUSCHUNK_H_

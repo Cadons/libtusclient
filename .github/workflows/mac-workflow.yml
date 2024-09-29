@@ -1,0 +1,145 @@
+name: libtusclient CI MacOS
+
+on:
+  push:
+  pull_request:
+  release:
+    types: [created]
+
+jobs:
+  
+  build-mac:
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        c_compiler: [clang]
+        include:
+          - c_compiler: clang
+            cpp_compiler: clang++
+            conan_home: /Users/runner/.conan2
+            conan_profile: /Users/runner/.conan2/profiles/default
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "build-type=release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "build-type=debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install conan package manager
+        run: |
+          pip install conan
+          conan --version
+
+      - name: Cache .conan
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.conan_home }}
+          key: ${{ runner.os }}-conan-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
+          restore-keys: |
+            ${{ runner.os }}-conan-${{ matrix.c_compiler }}-
+
+      - name: Create Conan profiles
+        continue-on-error: true
+        run: |
+          conan profile detect
+
+      - name: Conan profile setup
+        run: |
+          sed -i '' 's/^build_type=.*/build_type=${{ steps.strings.outputs.test-folder }}/g' ${{ matrix.conan_profile }}
+
+      - name: Install dependencies
+        run: |
+          conan install . --build=missing --profile=default
+
+      - name: Configure CMake
+        run: cmake --preset conan-${{ steps.strings.outputs.build-type }}
+
+      - name: Build Library
+        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient
+
+      - name: Build Tests
+        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-mac
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.dylib
+      - name: Upload artifacts for test
+        uses: actions/upload-artifact@v3
+        with:
+            name: build-artifacts-for-test-mac
+            path: |
+              ${{ github.workspace }}/build/Debug/liblibtusclient.dylib
+              ${{ github.workspace }}/build/Debug/test/libtusclient_test
+
+  test-mac:
+    needs: build-mac
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest]
+
+    steps:
+      - name: "Create folder for test results"
+        run: mkdir -p ${{ github.workspace }}/build/Debug
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts-for-test-mac
+          path: ${{ github.workspace }}/build/Debug
+
+      - name: Run Mockoon CLI
+        uses: mockoon/cli-action@v2
+        with:
+          version: "latest"
+          data-file: "./mockoon-data.json"
+          port: 3000
+
+      - name: Download and unzip tusd
+        run: |
+          curl -L -o tusd.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_darwin_arm64.zip
+          unzip tusd.zip -d tusd
+          chmod +x tusd/tusd_darwin_arm64/tusd
+
+      - name: Run tusd in background
+        run: |
+          nohup ./tusd/tusd_darwin_arm64/tusd -host 0.0.0.0 -port 8080 &
+
+      - name: Test Project
+        run: |
+          chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
+          export DYLD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$DYLD_LIBRARY_PATH
+          ${{ github.workspace }}/build/Debug/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: ${{ github.workspace }}/build/Debug/test-results.xml
+  release-mac:
+    needs: test-mac
+    if: github.event_name == 'release'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+  
