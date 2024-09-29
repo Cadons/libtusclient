@@ -9,7 +9,14 @@
 
 using TUS::FileVerifier::Md5Verifier;
 
-class FileVerifierTest : public ::testing::TestWithParam<std::tuple<std::shared_ptr<TUS::FileVerifier::IFileVerifier>, std::vector<uint8_t>, std::string>> {};
+class FileVerifierTest : public ::testing::TestWithParam<
+    std::tuple<std::shared_ptr<TUS::FileVerifier::IFileVerifier>, 
+    std::vector<uint8_t>, 
+    std::string
+    >> 
+{
+
+};
 
 TEST_P(FileVerifierTest, VerifyHash)
 {
