@@ -7,38 +7,22 @@ on:
     types: [created]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
+  build-linux:
+    runs-on: ubuntu-latest
 
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        c_compiler: [gcc, clang, cl]
+        c_compiler: [gcc, clang]
         include:
-          - os: windows-latest
-            c_compiler: cl
-            cpp_compiler: cl
-            conan_home: C:\Users\runneradmin\.conan2
-            conan_profile: C:\Users\runneradmin\.conan2\profiles\default
-          - os: ubuntu-latest
-            c_compiler: gcc
+          - c_compiler: gcc
             cpp_compiler: g++
             conan_home: /home/runner/.conan2
             conan_profile: /home/runner/.conan2/profiles/default
-          - os: ubuntu-latest
-            c_compiler: clang
+          - c_compiler: clang
             cpp_compiler: clang++
             conan_home: /home/runner/.conan2
             conan_profile: /home/runner/.conan2/profiles/default
-
-        exclude:
-          - os: windows-latest
-            c_compiler: gcc
-          - os: windows-latest
-            c_compiler: clang
-          - os: ubuntu-latest
-            c_compiler: cl
 
     steps:
       - uses: actions/checkout@v4
@@ -73,13 +57,76 @@ jobs:
         run: |
           conan profile detect
 
-      - name: Conan profile setup Linux
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: Conan profile setup
         run: |
           sed -i 's/^build_type=.*/build_type=${{ steps.strings.outputs.test-folder }}/g' ${{ matrix.conan_profile }}
 
-      - name: Conan profile setup Windows
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Install dependencies
+        run: |
+          conan install . --build=missing --profile=default
+
+      - name: Configure CMake
+        run: cmake --preset conan-${{ steps.strings.outputs.build-type }}
+
+      - name: Build Library
+        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient
+
+      - name: Build Tests
+        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+
+  build-windows:
+    runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        c_compiler: [cl]
+        include:
+          - c_compiler: cl
+            cpp_compiler: cl
+            conan_home: C:\Users\runneradmin\.conan2
+            conan_profile: C:\Users\runneradmin\.conan2\profiles\default
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "build-type=release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "build-type=debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install conan package manager
+        run: |
+          pip install conan
+          conan --version
+
+      - name: Cache .conan
+        uses: actions/cache@v3
+        with:
+          path: ${{ matrix.conan_home }}
+          key: ${{ runner.os }}-conan-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
+          restore-keys: |
+            ${{ runner.os }}-conan-${{ matrix.c_compiler }}-
+
+      - name: Create Conan profiles
+        continue-on-error: true
+        run: |
+          conan profile detect
+
+      - name: Conan profile setup
         run: |
           (Get-Content ${{ matrix.conan_profile }}) -replace '^build_type=.*', "build_type=${{ steps.strings.outputs.test-folder }}" | Set-Content ${{ matrix.conan_profile }}
 
@@ -87,23 +134,13 @@ jobs:
         run: |
           conan install . --build=missing --profile=default
 
-      - name: Configure CMake (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: cmake --preset conan-${{ steps.strings.outputs.build-type }}
-
-      - name: Configure CMake (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Configure CMake
         run: cmake --preset conan-default
 
       - name: Build Library
         run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient
 
-      - name: Build Tests Ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
-
-      - name: Build Tests Windows
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Build Tests
         run: |
           cp ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/* ${{ github.workspace }}/build/test;
           cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
@@ -115,7 +152,7 @@ jobs:
           path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
   test:
-    needs: build
+    needs: build-linux
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -149,9 +186,28 @@ jobs:
           build-config: ${{ steps.strings.outputs.build-type }}
           test-dir: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
 
-  release:
-    needs: build
+  release-linux:
+    needs: build-linux
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+
+      - name: Upload Release Artifact
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          asset_name: libtusclient-${{ steps.strings.outputs.build-type }}.zip
+          asset_content_type: application/zip
+  release-windows:
+    needs: build-windows
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
