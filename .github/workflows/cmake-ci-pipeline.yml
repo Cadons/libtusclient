@@ -261,6 +261,7 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
+          ls ${{ github.workspace }}/build/Debug
           chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
           export LD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$LD_LIBRARY_PATH
           ldd ${{ github.workspace }}/build/Debug/test/libtusclient_test
