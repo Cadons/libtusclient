@@ -113,6 +113,7 @@ jobs:
       - name: Docker TUSD
         run: |
           brew install docker
+          brew install colima
           colima start
           docker run -d -p 8080:8080 tuspro
 

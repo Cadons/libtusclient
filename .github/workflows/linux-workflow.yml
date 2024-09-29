@@ -74,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-linux
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.so
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
