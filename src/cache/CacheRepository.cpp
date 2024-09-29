@@ -12,12 +12,12 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/string_generator.hpp>
 
-#include "repository/CacheRepository.h"
+#include "cache/CacheRepository.h"
 
 using json = nlohmann::json;
 
-using TUS::CacheRepository;
-using TUS::TUSFile;
+using TUS::Cache::CacheRepository;
+using TUS::Cache::TUSFile;
 
 CacheRepository::CacheRepository(std::string appName, bool clear)
     : m_appName(appName), m_path(std::filesystem::temp_directory_path() / m_appName / ".cache.json")

@@ -9,9 +9,9 @@
 #include <string>
 #include <functional>
 
-#include "model/TUSFile.h"
+#include "cache/TUSFile.h"
 
-using TUS::TUSFile;
+using TUS::Cache::TUSFile;
 
 TUSFile::TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,  boost::uuids::uuid uuid,std::string tusId)
     : m_filePath(filePath), m_uploadUrl(uploadUrl), m_appName(appName), m_identifcationHash(std::to_string(std::hash<std::string>{}(filePath.string() + uploadUrl + appName)))

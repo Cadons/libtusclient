@@ -13,11 +13,11 @@
 
 #include "TusClient.h"
 #include "http/HttpClient.h"
-#include "model/TUSFile.h"
-#include "repository/CacheRepository.h"
-#include "model/TUSChunk.h"
-#include "utility/ChunkUtility.h"
-#include "FileChunker.h"
+#include "cache/TUSFile.h"
+#include "cache/CacheRepository.h"
+#include "chunk/TUSChunk.h"
+#include "chunk/utility/ChunkUtility.h"
+#include "chunk/FileChunker.h"
 
 using boost::uuids::random_generator;
 using TUS::TusClient;
@@ -26,8 +26,8 @@ using TUS::TusStatus;
 void TusClient::initialize(int chunkSize)
 {
     createTusFile();
-    m_cacheManager = std::make_unique<TUS::CacheRepository>(m_appName);
-    m_fileChunker = std::make_unique<TUS::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
+    m_cacheManager = std::make_unique<TUS::Cache::CacheRepository>(m_appName);
+    m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
     // update the tusFile with the data from the cache
     if (m_cacheManager->findByHash(m_tusFile->getIdentificationHash()) != nullptr)
     {
@@ -68,7 +68,7 @@ void TusClient::createTusFile()
     m_tusFile.reset();
     boost::uuids::uuid uuid = random_generator()();
     m_uuid = uuid;
-    m_tusFile = std::make_unique<TUS::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
+    m_tusFile = std::make_unique<TUS::Cache::TUSFile>(m_filePath, m_url, m_appName, m_uuid);
 }
 
 std::string extractHeaderValue(const std::string &header, const std::string &key)
@@ -185,7 +185,7 @@ void TusClient::uploadChunk(int chunkNumber)
         return;
     }
 
-    TUSChunk chunk = m_fileChunker->getChunks().at(chunkNumber);
+    Chunk::TUSChunk chunk = m_fileChunker->getChunks().at(chunkNumber);
     std::map<std::string, std::string> patchHeaders;
 
     m_nextChunk = false;

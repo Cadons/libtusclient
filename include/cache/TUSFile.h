@@ -4,8 +4,8 @@
  * See the LICENSE file in the project root for more information.
  */
 
-#ifndef INCLUDE_MODEL_TUSFILE_H_
-#define INCLUDE_MODEL_TUSFILE_H_
+#ifndef INCLUDE_CACHE_TUSFILE_H_
+#define INCLUDE_CACHE_TUSFILE_H_
 
 #include <string>
 #include <filesystem>
@@ -15,7 +15,7 @@
 #include "libtusclient.h"
 namespace TUS
 {
-
+namespace Cache{
     /**
      * @brief The TUSFile class represents a file upload record in the cache.
      * When a file is uploaded, a record is created and stored in the cache, this
@@ -75,5 +75,7 @@ namespace TUS
         void updateFile();
     };
 
+} // namespace Model
+
 } // namespace TUS
-#endif // INCLUDE_MODEL_TUSFILE_H_
+#endif // INCLUDE_CACHE_TUSFILE_H_

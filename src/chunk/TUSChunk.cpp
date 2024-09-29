@@ -4,9 +4,9 @@
  * See the LICENSE file in the project root for more information.
  */
 
-#include "model/TUSChunk.h"
+#include "chunk/TUSChunk.h"
 
-using TUS::TUSChunk;
+using TUS::Chunk::TUSChunk;
 
 TUSChunk::TUSChunk(std::vector<char> data, size_t offset)
     : m_data(data), m_chunkSize(offset)

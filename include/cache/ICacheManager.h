@@ -4,8 +4,8 @@
  * See the LICENSE file in the project root for more information.
  */
 
-#ifndef INCLUDE_ICACHEMANAGER_H_
-#define INCLUDE_ICACHEMANAGER_H_
+#ifndef INCLUDE_CACHE_ICACHEMANAGER_H_
+#define INCLUDE_CACHE_ICACHEMANAGER_H_
 
 #include <string>
 

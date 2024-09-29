@@ -3,8 +3,8 @@
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
-#ifndef INCLUDE_MODEL_TUSCHUNK_H_
-#define INCLUDE_MODEL_TUSCHUNK_H_
+#ifndef INCLUDE_CHUNK_TUSCHUNK_H_
+#define INCLUDE_CHUNK_TUSCHUNK_H_
 
 #include <string>
 #include <vector>
@@ -12,7 +12,7 @@
 #include "libtusclient.h"
 
 namespace TUS {
-
+    namespace Chunk{
     /**
      * @class TUSChunk
      * @brief Represents a chunk of a TUS file.
@@ -49,7 +49,8 @@ namespace TUS {
         std::vector<char> m_data;
         size_t m_chunkSize;
     };
+    } // namespace Model
 
 } // namespace TUS
 
-#endif // INCLUDE_MODEL_TUSCHUNK_H_
+#endif  // INCLUDE_CHUNK_TUSCHUNK_H_

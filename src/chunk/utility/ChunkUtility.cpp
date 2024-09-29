@@ -4,9 +4,9 @@
  * See the LICENSE file in the project root for more information.
  */
 
-#include "utility/ChunkUtility.h"
+#include "chunk/utility/ChunkUtility.h"
 
-using TUS::Utility::ChunkUtility;
+using TUS::Chunk::Utility::ChunkUtility;
 
 int ChunkUtility::getChunkSizeFromGB(int size)
 {

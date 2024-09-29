@@ -17,13 +17,10 @@
 
 #include "libtusclient.h"
 #include "TusStatus.h"
-#include "http/IHttpClient.h"
-#include "IFileChunker.h"
 
 using std::string;
 using std::unique_ptr;
 using std::filesystem::path;
-
 
 /**
  * @brief The TusClient class represents a client for uploading files using the TUS protocol.
@@ -33,12 +30,27 @@ using std::filesystem::path;
  */
 namespace TUS
 {
-    class TUSFile;
-    template <typename T>
-    class IRepository;
-    class TUSChunk;
-    template <typename T>
-    class IFileChunker;
+    namespace Repository
+    {
+        template <typename T>
+        class IRepository;
+    } // namespace Repository
+    namespace Cache
+    {
+        class TUSFile;
+    } // namespace Cache
+
+    namespace Chunk
+    {
+        template <typename T>
+        class IFileChunker;
+        class TUSChunk;
+    } // namespace Chunk
+
+    namespace Http
+    {
+        class IHttpClient;
+    } // namespace Http
     /*
      * @brief The ITusClient class represents an interface for a client for uploading files using the TUS protocol.
      */
@@ -69,9 +81,7 @@ namespace TUS
         string m_url;
         path m_filePath;
         std::atomic<TusStatus> m_status;
-        
 
-        
         int m_chunkNumber = 0;
         int m_uploadedChunks = 0;
         string m_tusLocation;
@@ -81,11 +91,9 @@ namespace TUS
 
         std::atomic<float> m_progress{0};
         std::unique_ptr<Http::IHttpClient> m_httpClient;
-        std::shared_ptr<TUSFile> m_tusFile;
-        std::unique_ptr<IRepository<TUSFile>> m_cacheManager;
-        std::unique_ptr<IFileChunker<TUSChunk>> m_fileChunker;
-
-        
+        std::shared_ptr<Cache::TUSFile> m_tusFile;
+        std::unique_ptr<Repository::IRepository<Cache::TUSFile>> m_cacheManager;
+        std::unique_ptr<Chunk::IFileChunker<Chunk::TUSChunk>> m_fileChunker;
 
         std::string m_appName;
 
@@ -94,7 +102,6 @@ namespace TUS
         void createTusFile();
 
         void wait(std::chrono::milliseconds ms, std::function<bool()> condition, std::string message);
-
 
         boost::uuids::uuid m_uuid;
 
@@ -155,7 +162,6 @@ namespace TUS
          */
 
         std::map<string, string> getTusServerInformation();
-      
 
         path getFilePath() const override;
         string getUrl() const override;

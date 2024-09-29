@@ -8,40 +8,40 @@
 #include <vector>
 #include <filesystem>
 
-#include "FileChunker.h"
-#include "model/TUSChunk.h"
-#include "utility/ChunkUtility.h"
+#include "chunk/FileChunker.h"
+#include "chunk/TUSChunk.h"
+#include "chunk/utility/ChunkUtility.h"
 
-using TUS::FileChunker;
-using TUS::TUSChunk;
+using TUS::Chunk::FileChunker;
+using TUS::Chunk::TUSChunk;
 
 void FileChunker::calculateChunkSize()
 {
     
     auto fileSize = std::filesystem::file_size(m_filePath);
-    if (fileSize >= Utility::ChunkUtility::getChunkSizeFromGB(1))
+    if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromGB(1))
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(10); //>1GB chunk size 10MB
+        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(10); //>1GB chunk size 10MB
     }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(100)) //>100MB chunk size 5MB
+    else if (fileSize >= Chunk::Utility::ChunkUtility::ChunkUtility::getChunkSizeFromMB(100)) //>100MB chunk size 5MB
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(5);
+        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(5);
     }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(50)) //>50MB chunk size 2MB
+    else if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromMB(50)) //>50MB chunk size 2MB
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(2);
+        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(2);
     }
-    else if (fileSize >= Utility::ChunkUtility::getChunkSizeFromMB(10)) //>10MB chunk size 1MB
+    else if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromMB(10)) //>10MB chunk size 1MB
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromMB(1);
+        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(1);
     }
-    else if (fileSize < Utility::ChunkUtility::getChunkSizeFromMB(5)) // <5MB chunk size 100KB
+    else if (fileSize < Chunk::Utility::ChunkUtility::getChunkSizeFromMB(5)) // <5MB chunk size 100KB
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(100);
+        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromKB(100);
     }
     else // <5MB chunk size 32KB
     {
-        m_chunkSize = Utility::ChunkUtility::getChunkSizeFromKB(32);
+        m_chunkSize = Chunk::Utility::ChunkUtility::ChunkUtility::getChunkSizeFromKB(32);
     }
 }
 FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize)
@@ -57,7 +57,7 @@ FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem:
     }
     std::cout<<"Temporarily directory: "<<m_tempDir<<std::endl;
 }
-std::filesystem::path FileChunker::getTUSTempDir() const
+std::filesystem::path FileChunker::getTemporaryDir() const
 {
     std::filesystem::path filesTempDir = m_tempDir / m_appName / "files" / m_uuid;
 
@@ -75,7 +75,7 @@ std::string FileChunker::getChunkFilename(int chunkNumber) const
 
 std::filesystem::path FileChunker::getChunkFilePath(int chunkNumber) const
 {
-    return getTUSTempDir() / getChunkFilename(chunkNumber);
+    return getTemporaryDir() / getChunkFilename(chunkNumber);
 }
 
 bool FileChunker::loadChunks()
@@ -84,7 +84,7 @@ bool FileChunker::loadChunks()
 
     for (int i = 0; i < m_chunkNumber; i++)
     {
-        std::filesystem::path chunkFilePath = getTUSTempDir() / getChunkFilename(i);
+        std::filesystem::path chunkFilePath = getTemporaryDir() / getChunkFilename(i);
 
         std::ifstream chunkFile(chunkFilePath, std::ios::binary);
         if (!chunkFile)
@@ -130,7 +130,7 @@ int FileChunker::chunkFile()
 
     for (int i = 0; i < m_chunkNumber; ++i)
     {
-        std::filesystem::path outputFilePath = getTUSTempDir() / getChunkFilename(i);
+        std::filesystem::path outputFilePath = getTemporaryDir() / getChunkFilename(i);
         std::ofstream outputFile(outputFilePath, std::ios::binary); // Open output file in binary mode
 
         if (!outputFile)
@@ -152,7 +152,7 @@ int FileChunker::chunkFile()
 
 bool FileChunker::removeChunkFiles()
 {
-    std::filesystem::path filesTempDir = getTUSTempDir();
+    std::filesystem::path filesTempDir = getTemporaryDir();
     if (std::filesystem::exists(filesTempDir))
     {
         for (const auto& entry : std::filesystem::directory_iterator(filesTempDir))

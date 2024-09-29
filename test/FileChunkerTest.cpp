@@ -8,9 +8,9 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include "IFileChunker.h"
-#include "FileChunker.h"
-#include "model/TUSChunk.h"
+#include "chunk/IFileChunker.h"
+#include "chunk/FileChunker.h"
+#include "chunk/TUSChunk.h"
 
 class FileChunkerTest : public ::testing::Test
 {
@@ -35,11 +35,11 @@ protected:
 
 TEST_F(FileChunkerTest, ChunkFile)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     int chunkCount = chunker->chunkFile();
     EXPECT_GT(chunkCount, 0);
 
-    auto tempDir = chunker->getTUSTempDir();
+    auto tempDir = chunker->getTemporaryDir();
     for (int i = 0; i < chunkCount; ++i)
     {
         std::filesystem::path chunkFilePath = tempDir / chunker->getChunkFilename(i);
@@ -51,22 +51,22 @@ TEST_F(FileChunkerTest, ChunkFile)
 
 TEST_F(FileChunkerTest, GetChunkFilename)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     std::string chunkFilename = chunker->getChunkFilename(0);
     EXPECT_EQ(chunkFilename, "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e_chunk_0.bin");
 }
 
 TEST_F(FileChunkerTest, GetTUSTempDir)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
-    std::filesystem::path tempDir = chunker->getTUSTempDir();
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::filesystem::path tempDir = chunker->getTemporaryDir();
     EXPECT_TRUE(std::filesystem::exists(tempDir));
     EXPECT_TRUE(tempDir.string().find("TUS") != std::string::npos);
 }
 
 TEST_F(FileChunkerTest, LoadChunks)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     int number = chunker->chunkFile();
     EXPECT_TRUE(chunker->loadChunks());
 
@@ -79,17 +79,17 @@ TEST_F(FileChunkerTest, LoadChunks)
 
 TEST_F(FileChunkerTest, RemoveChunkFiles)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     chunker->chunkFile();
     EXPECT_TRUE(chunker->removeChunkFiles());
 
-    auto tempDir = chunker->getTUSTempDir();
+    auto tempDir = chunker->getTemporaryDir();
     EXPECT_TRUE(std::filesystem::is_empty(tempDir));
 }
 
 TEST_F(FileChunkerTest, ClearChunks)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     chunker->chunkFile();
     chunker->loadChunks();
     chunker->clearChunks();
@@ -102,7 +102,7 @@ TEST_F(FileChunkerTest, ClearChunks)
 
 TEST_F(FileChunkerTest, GetChunks)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     chunker->chunkFile();
     chunker->loadChunks();
     auto chunks = chunker->getChunks();
@@ -113,9 +113,9 @@ TEST_F(FileChunkerTest, GetChunks)
 
 TEST_F(FileChunkerTest, GetChunkFilePath)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     chunker->chunkFile();
-    auto tempDir = chunker->getTUSTempDir();
+    auto tempDir = chunker->getTemporaryDir();
     std::filesystem::path chunkFilePath = chunker->getChunkFilePath(0);
     EXPECT_EQ(chunkFilePath, tempDir / "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e_chunk_0.bin");
 
@@ -126,20 +126,20 @@ TEST_F(FileChunkerTest, GetChunkFilePath)
 
 TEST_F(FileChunkerTest, CalculateChunkSize)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
    
     EXPECT_GT(chunker->getChunkSize(), 0);
 }
 
 TEST_F(FileChunkerTest, ConstructorWithChunkSize)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath, 512 * 1024); // 512KB
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath, 512 * 1024); // 512KB
     EXPECT_EQ(chunker->getChunkSize(), 512 * 1024);
 }
 
 TEST_F(FileChunkerTest, ConstructorWithoutChunkSize)
 {
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", testFilePath);
     EXPECT_GT(chunker->getChunkSize(), 0);
 }
 
@@ -151,11 +151,11 @@ TEST_F(FileChunkerTest, ChunkFileWithSmallFile)
     smallFile << std::string(1024 * 1024 * 4, 'B'); // 4MB file filled with 'B'
     smallFile.close();
 
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", smallFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", smallFilePath);
     int chunkCount = chunker->chunkFile();
     EXPECT_GT(chunkCount, 0);
 
-    auto tempDir = chunker->getTUSTempDir();
+    auto tempDir = chunker->getTemporaryDir();
     for (int i = 0; i < chunkCount; ++i)
     {
         std::filesystem::path chunkFilePath = tempDir / chunker->getChunkFilename(i);
@@ -174,11 +174,11 @@ TEST_F(FileChunkerTest, ChunkFileWithLargeFile)
     largeFile << std::string(1024 * 1024 * 1024, 'C'); // 1GB file filled with 'C'
     largeFile.close();
 
-    std::unique_ptr<TUS::IFileChunker<TUS::TUSChunk>> chunker = std::make_unique<TUS::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", largeFilePath);
+    std::unique_ptr<TUS::Chunk::IFileChunker<TUS::Chunk::TUSChunk>> chunker = std::make_unique<TUS::Chunk::FileChunker>("TestApp", "c52cb3d0-2ac4-4eb4-8d3a-2b9919389a2e", largeFilePath);
     int chunkCount = chunker->chunkFile();
     EXPECT_GT(chunkCount, 0);
 
-    auto tempDir = chunker->getTUSTempDir();
+    auto tempDir = chunker->getTemporaryDir();
     for (int i = 0; i < chunkCount; ++i)
     {
         std::filesystem::path chunkFilePath = tempDir / chunker->getChunkFilename(i);

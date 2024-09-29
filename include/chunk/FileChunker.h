@@ -3,8 +3,8 @@
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
-#ifndef INCLUDE_FILECHUNKER_H_
-#define INCLUDE_FILECHUNKER_H_
+#ifndef INCLUDE_CHUNK_FILECHUNKER_H_
+#define INCLUDE_CHUNK_FILECHUNKER_H_
 
 #include <string>
 #include <filesystem>
@@ -17,6 +17,9 @@ using std::string;
 using std::filesystem::path;
 namespace TUS
 {
+    namespace Chunk
+    {
+      
     class TUSChunk;
     class LIBTUSAPI_EXPORT FileChunker : public IFileChunker<TUSChunk>
     {
@@ -38,7 +41,7 @@ namespace TUS
         virtual ~FileChunker();
         bool loadChunks() override;
         bool removeChunkFiles() override;
-        path getTUSTempDir() const override;
+        path getTemporaryDir() const override;
         string getChunkFilename(int chunkNumber) const override;
         int chunkFile() override;
         void clearChunks() override;
@@ -49,6 +52,7 @@ namespace TUS
         size_t getChunkSize() const override;
     };
 
+    } // namespace Chunk
 } // namespace TUS
 
-#endif // INCLUDE_FILECHUNKER_H_
+#endif // INCLUDE_CHUNK_FILECHUNKER_H_
