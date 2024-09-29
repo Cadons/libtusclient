@@ -251,7 +251,7 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-            ctest --test-dir ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }} --output-on-failure --no-tests=error --output-junit ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+            ctest --test-dir ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test --output-on-failure --no-tests=error --output-junit ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
@@ -269,7 +269,7 @@ jobs:
         with:
           name: build-artifacts
   release-linux:
-    needs: build-linux
+    needs: test
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
