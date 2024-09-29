@@ -261,7 +261,7 @@ jobs:
         run: |
           chmod +x ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test
           export LD_LIBRARY_PATH=${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}:$LD_LIBRARY_PATH
-          ./${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test-results.xml
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
