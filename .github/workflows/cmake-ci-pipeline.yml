@@ -314,7 +314,7 @@ jobs:
           path: ${{ github.workspace }}/build/Debug/test-results.xml
     
   release-mac:
-    needs: build-mac
+    needs: test-mac
     if: github.event_name == 'release'
     runs-on: macos-latest
     steps:
@@ -325,7 +325,7 @@ jobs:
         with:
           name: build-artifacts
   release-linux:
-    needs: test
+    needs: test-linux
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
