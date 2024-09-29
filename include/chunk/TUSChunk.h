@@ -29,14 +29,14 @@ namespace TUS {
          * @param data The data of the chunk.
          * @param offset The offset of the chunk in the file.
          */
-        TUSChunk(std::vector<char> data, size_t offset);
+        TUSChunk(std::vector<uint8_t> data, size_t offset);
 
         /**
          * @brief Get the data of the chunk.
          *
          * @return The data of the chunk.
          */
-        std::vector<char> getData() const;
+        std::vector<uint8_t> getData() const;
 
         /**
          * @brief Get the offset of the chunk in the file.
@@ -46,7 +46,7 @@ namespace TUS {
         size_t getChunkSize() const;
 
     private:
-        std::vector<char> m_data;
+        std::vector<uint8_t> m_data;
         size_t m_chunkSize;
     };
     } // namespace Model

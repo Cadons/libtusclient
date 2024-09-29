@@ -107,8 +107,8 @@ bool FileChunker::loadChunks()
         std::streamsize chunkSize = chunkFile.tellg(); // Get the current position in the file, which is the size of the file
         chunkFile.seekg(0, std::ios::beg);             // Seek back to the beginning of the file
 
-        std::vector<char> chunkData(chunkSize);
-        chunkFile.read(chunkData.data(), chunkSize);
+        std::vector<uint8_t> chunkData(chunkSize);
+        chunkFile.read(reinterpret_cast<char*>(chunkData.data()), chunkSize);
         chunkFile.close();
 
         TUSChunk chunk(chunkData, chunkSize);
@@ -207,7 +207,7 @@ FileChunker::~FileChunker()
 
 std::string FileChunker::hash(const std::vector<uint8_t> &buffer) const
 {
-    
+
    return m_verifier->hash(buffer);
 }
 
