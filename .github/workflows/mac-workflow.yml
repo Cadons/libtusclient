@@ -75,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-mac
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dylib
+          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.dylib
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
