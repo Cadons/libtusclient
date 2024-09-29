@@ -11,13 +11,14 @@
 #include "chunk/FileChunker.h"
 #include "chunk/TUSChunk.h"
 #include "chunk/utility/ChunkUtility.h"
+#include "verifiers/Md5Verifier.h"
 
 using TUS::Chunk::FileChunker;
 using TUS::Chunk::TUSChunk;
 
 void FileChunker::calculateChunkSize()
 {
-    
+
     auto fileSize = std::filesystem::file_size(m_filePath);
     if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromGB(1))
     {
@@ -44,10 +45,11 @@ void FileChunker::calculateChunkSize()
         m_chunkSize = Chunk::Utility::ChunkUtility::ChunkUtility::getChunkSizeFromKB(32);
     }
 }
-FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize)
-    : CHUNK_FILE_NAME_PREFIX("_chunk_"), CHUNK_FILE_EXTENSION(".bin"), m_appName(appName), m_uuid(uuid), m_tempDir(std::filesystem::temp_directory_path()/"TUS"), m_filePath(filepath)
+FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize, std::unique_ptr<FileVerifier::IFileVerifier> verifier)
+    : CHUNK_FILE_NAME_PREFIX("_chunk_"), CHUNK_FILE_EXTENSION(".bin"), m_appName(appName), m_uuid(uuid), m_tempDir(std::filesystem::temp_directory_path() / "TUS"), m_filePath(filepath)
+
 {
-    if (chunkSize >0)
+    if (chunkSize > 0)
     {
         m_chunkSize = chunkSize;
     }
@@ -55,7 +57,15 @@ FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem:
     {
         calculateChunkSize();
     }
-    std::cout<<"Temporarily directory: "<<m_tempDir<<std::endl;
+
+    if (verifier == nullptr)
+    {
+        m_verifier = std::make_unique<FileVerifier::Md5Verifier>();
+    }
+    else
+    {
+        m_verifier = std::move(verifier);
+    }
 }
 std::filesystem::path FileChunker::getTemporaryDir() const
 {
@@ -155,7 +165,7 @@ bool FileChunker::removeChunkFiles()
     std::filesystem::path filesTempDir = getTemporaryDir();
     if (std::filesystem::exists(filesTempDir))
     {
-        for (const auto& entry : std::filesystem::directory_iterator(filesTempDir))
+        for (const auto &entry : std::filesystem::directory_iterator(filesTempDir))
         {
             std::filesystem::remove(entry.path());
         }
@@ -171,11 +181,19 @@ void FileChunker::clearChunks()
 
 std::vector<TUSChunk> FileChunker::getChunks() const
 {
-    if(m_chunks.empty())
+    if (m_chunks.empty())
     {
         throw std::runtime_error("Chunks are empty. Call loadChunks() first.");
     }
     return m_chunks;
+}
+int FileChunker::getChunkNumber() const
+{
+    if (m_chunks.size() == 0)
+    {
+        return 0;
+    }
+    return m_chunkNumber;
 }
 
 size_t FileChunker::getChunkSize() const
@@ -185,5 +203,15 @@ size_t FileChunker::getChunkSize() const
 
 FileChunker::~FileChunker()
 {
-   
+}
+
+std::string FileChunker::hash(const std::vector<uint8_t> &buffer) const
+{
+    
+   return m_verifier->hash(buffer);
+}
+
+bool FileChunker::verify(const std::vector<uint8_t> &buffer, const std::string &hash) const
+{
+    return m_verifier->verify(buffer, hash);
 }

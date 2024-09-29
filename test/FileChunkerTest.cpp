@@ -94,8 +94,8 @@ TEST_F(FileChunkerTest, ClearChunks)
     chunker->loadChunks();
     chunker->clearChunks();
 
-    auto chunks = chunker->getChunks();
-    EXPECT_EQ(chunks.size(), 0);
+    auto chunks = chunker->getChunkNumber();
+    EXPECT_EQ(chunks, 0);
 
     chunker->removeChunkFiles();
 }

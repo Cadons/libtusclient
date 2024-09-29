@@ -81,6 +81,8 @@ namespace TUS
             virtual path getChunkFilePath(int chunkNumber) const = 0;
 
             virtual size_t getChunkSize() const = 0;
+
+            virtual int getChunkNumber() const = 0;
         };
 
     } // namespace Chunk

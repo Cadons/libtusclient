@@ -138,9 +138,13 @@ bool TusClient::uploadChunks()
 
     int i = m_uploadedChunks;
     m_status.store(TusStatus::UPLOADING);
-    if (m_fileChunker->getChunks().empty())
+    if (m_fileChunker->getChunkNumber() == 0)
     {
-        m_fileChunker->loadChunks();
+       if(!m_fileChunker->loadChunks())
+       {
+            m_status.store(TusStatus::FAILED);
+            return false;
+       }
     }
 
     if (m_uploadLength == 0)

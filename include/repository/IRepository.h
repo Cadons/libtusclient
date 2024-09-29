@@ -1,5 +1,10 @@
-#ifndef _INCLUDE_REPOSITORY_IREPOSITORY_H_
-#define _INCLUDE_REPOSITORY_IREPOSITORY_H_
+/*
+ * Copyright (c) 2024 Matteo Cadoni
+ * This file is part of libtusclient, licensed under the MIT License.
+ * See the LICENSE file in the project root for more information.
+ */
+#ifndef INCLUDE_REPOSITORY_IREPOSITORY_H_
+#define INCLUDE_REPOSITORY_IREPOSITORY_H_
 
 #include <string>
 #include <vector>
@@ -27,4 +32,4 @@ namespace TUS
     } // namespace Repository
 
 } // namespace TUS
-#endif // _INCLUDE_REPOSITORY_IREPOSITORY_H_
+#endif // INCLUDE_REPOSITORY_IREPOSITORY_H_
