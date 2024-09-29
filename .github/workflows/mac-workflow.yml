@@ -97,9 +97,6 @@ jobs:
         run: mkdir -p ${{ github.workspace }}/build/Debug
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
@@ -114,7 +111,10 @@ jobs:
           port: 3000
 
       - name: Docker TUSD
-        run: docker run -d -p 8080:8080 tuspro
+        run: |
+          brew install docker
+          colima start
+          docker run -d -p 8080:8080 tuspro
 
       - name: Test Project
         if: ${{ matrix.os == 'macos-latest' }}
