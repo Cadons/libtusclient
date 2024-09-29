@@ -121,7 +121,6 @@ jobs:
           nohup ./tusd/tusd -host 0.0.0.0 -port 8080 &
 
       - name: Test Project
-        if: ${{ matrix.os == 'macos-latest' }}
         run: |
           chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
           export DYLD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$DYLD_LIBRARY_PATH
