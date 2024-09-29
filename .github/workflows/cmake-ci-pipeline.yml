@@ -84,7 +84,7 @@ jobs:
         with:
           name: build-artifacts-for-test
           path: |
-            ${{ github.workspace }}/build/Debug/libtusclient.so
+            ${{ github.workspace }}/build/Debug/liblibtusclient.so
             ${{ github.workspace }}/build/Debug/test/libtusclient_test
 
 
@@ -261,7 +261,6 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          ls ${{ github.workspace }}/build/Debug
           chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
           export LD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$LD_LIBRARY_PATH
           ldd ${{ github.workspace }}/build/Debug/test/libtusclient_test
