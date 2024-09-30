@@ -119,8 +119,7 @@ jobs:
           mkdir ${{ github.workspace }}\tusd
           tar -xf tusd_windows_amd64.zip -C ${{ github.workspace }}\tusd
       - name: Start tusd server
-        run: ${{ github.workspace }}\tusd\tusd_windows_amd64\tusd.exe -port 8080 -host 0.0.0.0 
-
+        run:  start /B ${github.workspace}\tusd\tusd_windows_amd64\tusd.exe -port 8080 -host 0.0.0.0
       - name: Test Project
         run: |
           cp ${{ github.workspace }}/build/Debug/libtusclient.dll ${{ github.workspace }}/build/Debug/test/
