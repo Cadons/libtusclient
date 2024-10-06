@@ -208,7 +208,7 @@ IHttpClient *HttpClient::abortAll()
     return (IHttpClient *)this;
 }
 
-IHttpClient *HttpClient::execute()
+IHttpClient* HttpClient::execute()
 {
     // Lock the mutex to prevent concurrent access to m_requestsQueue and m_abort
     std::lock_guard<std::mutex> lock(m_queueMutex);
@@ -216,36 +216,44 @@ IHttpClient *HttpClient::execute()
     while (!m_requestsQueue.empty()) {
         if (m_abort) {
             // Clean up the curl handle for the aborted request
-            curl_easy_cleanup(m_requestsQueue.front().curl);
-            m_requestsQueue.pop();
+            CURL* curl = m_requestsQueue.front().curl;
+            curl_easy_cleanup(curl);
+            m_requestsQueue.pop();  // Pop the aborted request
 
             // Reset the abort flag
             m_abort = false;
-            return (IHttpClient *)this;
+            return (IHttpClient*)this;
         }
 
-        CURL *curl = m_requestsQueue.front().curl;
+        // Extract request details before cleanup
+        CURL* curl = m_requestsQueue.front().curl;
         std::string url = m_requestsQueue.front().getUrl();
+        std::string responseHeader = "";
+        std::string buffer = "";
 
-        std::string responseHeader;
-        std::string buffer;
+        // Set curl options for writing the response and header data
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
 
+        // Perform the request
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
+            // Invoke the error callback with the response details
             m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
-            return (IHttpClient *)this;
-        } else {
+        }
+        else {
+            // Invoke the success callback with the response details
             m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
         }
 
-        // Cleanup the curl handle for the completed request
+        // Clean up the curl handle after completing the request
         curl_easy_cleanup(curl);
+        // Now safely pop the completed request from the queue
         m_requestsQueue.pop();
     }
 
-    return (IHttpClient *)this;
+    return (IHttpClient*)this;
 }
+
 

@@ -236,7 +236,10 @@ void TusClient::uploadChunk(int chunkNumber)
     OnErrorCallback onPatchError = [this](std::string header, std::string data)
     {
         std::cerr << "Error: Unable to upload chunk" << std::endl;
-        m_status.store(TusStatus::FAILED);
+        if (m_status.load() != TusStatus::CANCELED && m_status.load() != TusStatus::PAUSED)//in this case is not a problem if request fails
+        {
+            m_status.store(TusStatus::FAILED);
+        }
     };
 
     m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation,
