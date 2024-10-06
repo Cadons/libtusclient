@@ -213,13 +213,10 @@ namespace TUS::Test
         TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
         client.setRequestTimeout(std::chrono::milliseconds(10));
 
-        std::thread uploadThread([&]()
-                                 { client.upload(); });
+        std::thread uploadThread([&](){ client.upload(); });
         waitUpload(client, 10);
 
         client.cancel();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for the thread to finish
-
         uploadThread.join();
 
         EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);

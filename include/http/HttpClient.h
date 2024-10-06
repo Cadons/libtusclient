@@ -59,6 +59,8 @@ namespace TUS
             IHttpClient *sendRequest(HttpMethod method, Request request);
             std::queue<RequestTask> m_requestsQueue;
             bool m_abort = false;
+                std::mutex m_queueMutex;  // Mutex to protect shared resources
+
             /**
              * @brief Callback function for the write data of the request
              * @param ptr is the pointer to the data

@@ -127,7 +127,7 @@ jobs:
         shell: pwsh
       - name: "Run tests"
         run: |
-          & "${{ github.workspace }}\build\Debug\libtusclient_test.exe" --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
+          & "${{ github.workspace }}\build\Debug\test\libtusclient_test.exe" --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'

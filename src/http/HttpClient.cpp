@@ -210,37 +210,39 @@ IHttpClient *HttpClient::abortAll()
 
 IHttpClient *HttpClient::execute()
 {
+    // Lock the mutex to prevent concurrent access to m_requestsQueue and m_abort
+    std::lock_guard<std::mutex> lock(m_queueMutex);
 
     while (!m_requestsQueue.empty()) {
         if (m_abort) {
+            // Clean up the curl handle for the aborted request
             curl_easy_cleanup(m_requestsQueue.front().curl);
             m_requestsQueue.pop();
 
+            // Reset the abort flag
             m_abort = false;
             return (IHttpClient *)this;
         }
 
         CURL *curl = m_requestsQueue.front().curl;
-        string url = m_requestsQueue.front().getUrl();
+        std::string url = m_requestsQueue.front().getUrl();
 
-        string responseHeader;
-        string buffer;
+        std::string responseHeader;
+        std::string buffer;
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
         curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
 
         CURLcode res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             std::cerr << "Error: " << curl_easy_strerror(res) << std::endl;
-            m_requestsQueue.front().getOnErrorCallback()(responseHeader,
-                                                         buffer);
+            m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
             return (IHttpClient *)this;
         } else {
-
-            m_requestsQueue.front().getOnSuccessCallback()(responseHeader,
-                                                           buffer);
+            m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
         }
-        curl_easy_cleanup(curl); // cleanup the curl handle
 
+        // Cleanup the curl handle for the completed request
+        curl_easy_cleanup(curl);
         m_requestsQueue.pop();
     }
 
