@@ -66,9 +66,19 @@ namespace TUS
         virtual float progress() = 0;
         virtual TusStatus status() = 0;
         virtual bool retry() = 0;
+        /**
+         * @brief set the time that TUS library have to wait between 2 chunk upload
+         * @param ms
+         */
+        virtual void setRequestTimeout(std::chrono::milliseconds ms)=0;
         // Getters
         virtual path getFilePath() const = 0;
         virtual string getUrl() const = 0;
+        /**
+         * @brief get the time that TUS library have to wait between 2 chunk upload
+         * @return The time in ms
+         */
+        virtual std::chrono::milliseconds getRequestTimeout() const=0;
     };
     /**
      * @brief The TusClient class represents a client for uploading files using the TUS protocol.
@@ -88,6 +98,7 @@ namespace TUS
         int m_uploadOffset = 0;
         bool m_nextChunk = false;
         size_t m_uploadLength = 0;
+        std::chrono::milliseconds m_requestTimeout = std::chrono::milliseconds(0); /*This timeout is the time waited between one requests, it is in ms and it can be changed by the user*/
 
         std::atomic<float> m_progress{0};
         std::unique_ptr<Http::IHttpClient> m_httpClient;
@@ -165,6 +176,9 @@ namespace TUS
 
         path getFilePath() const override;
         string getUrl() const override;
+        void setRequestTimeout(std::chrono::milliseconds ms) override;
+
+        std::chrono::milliseconds getRequestTimeout() const override;
     };
 } // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

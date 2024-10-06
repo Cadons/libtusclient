@@ -224,6 +224,8 @@ void TusClient::uploadChunk(int chunkNumber)
                           << header << std::endl;
                 m_status.store(TusStatus::FAILED);
             }
+                std::this_thread::sleep_for(m_requestTimeout);//wait a bit before the other request
+
         }
         else
         {
@@ -385,4 +387,13 @@ std::string TusClient::getUrl() const
 std::string TusClient::getUUIDString()
 {
     return boost::uuids::to_string(m_uuid);
+}
+std::chrono::milliseconds TusClient::getRequestTimeout()const{
+
+    return m_requestTimeout;
+    
+}
+
+void TusClient::setRequestTimeout(std::chrono::milliseconds ms){
+    m_requestTimeout=ms;
 }
