@@ -104,7 +104,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: ${{ github.workspace }}/build/Debug
+          path: ${{ github.workspace }}/build/
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
