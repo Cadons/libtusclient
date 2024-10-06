@@ -122,11 +122,11 @@ jobs:
         run:  Start-Process -FilePath "${env:GITHUB_WORKSPACE}\tusd\tusd_windows_amd64\tusd.exe" -ArgumentList "-port 8080 -host 0.0.0.0"
       - name: Test Project
         run: |
-          Copy-Item "${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll" "${{ github.workspace }}/build/test/${{ steps.strings.outputs.test-folder }}/libtusclient.dll"
+          Copy-Item "${{ github.workspace }}/build/Debug/libtusclient.dll" "${{ github.workspace }}/build/test/Debug/libtusclient.dll"
         shell: pwsh
       - name: "Run tests"
         run: |
-          & "${{ github.workspace }}/build/test/${{ steps.strings.outputs.test-folder }}/libtusclient_test.exe" --gtest_output=xml:test-results.xml
+          & "${{ github.workspace }}/build/test/Debug/libtusclient_test.exe" --gtest_output=xml:test-results.xml
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'
