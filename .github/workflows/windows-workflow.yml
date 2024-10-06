@@ -10,7 +10,7 @@ on:
 jobs:
  
   build-windows:
-    runs-on: windows-latest
+    runs-on: windows-2019
    
 
     strategy:
@@ -89,11 +89,11 @@ jobs:
             ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test.exe
   test-windows:
     needs: build-windows
-    runs-on: windows-latest
+    runs-on: windows-2019
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
+        os: [windows-2019]
 
     steps:
       - name: "Create folder for test results"
@@ -133,7 +133,7 @@ jobs:
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
       - uses: actions/checkout@v4
 
