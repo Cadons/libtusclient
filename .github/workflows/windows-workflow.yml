@@ -124,14 +124,8 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\build\Debug\test"
           Copy-Item "${{ github.workspace }}\build\Debug\libtusclient.dll" "${{ github.workspace }}\build\Debug\test\libtusclient.dll"
-          "${{ github.workspace }}\build\Debug\libtusclient_test.exe" --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
+          "${{ github.workspace }}\build\Debug\libtusclient_test.exe"
         shell: pwsh
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: ${{ github.workspace }}\build\Debug\test-results.xml
-
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'
