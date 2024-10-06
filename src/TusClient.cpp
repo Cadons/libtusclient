@@ -309,7 +309,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
 
 bool TusClient::resume()
 {
-
+    
     getUploadInfo();
     m_status.store(TusStatus::READY);
 
@@ -344,7 +344,7 @@ void TusClient::stop()
     m_cacheManager->save();
 }
 
-float TusClient::progress()
+float TusClient::progress() const
 {
     return m_progress.load();
 }

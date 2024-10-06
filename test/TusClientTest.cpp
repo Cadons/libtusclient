@@ -43,6 +43,18 @@ namespace TUS::Test
         }
     };
 
+    void waitUpload(const TusClient& client, float perc)
+    {
+        if(perc>100){
+            perc=100;
+        }else if(perc<=0){
+            perc=1;
+        }
+        while (client.progress() <= perc)
+        {
+        }
+    }
+
     std::filesystem::path TusClientTest::generateTestFile(int size)
     {
         // generate random .dat files 10MB each
@@ -134,8 +146,7 @@ namespace TUS::Test
 
         std::thread uploadThread([&]()
                                  { client.upload(); });
-        // wait 10 seconds
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        waitUpload(client, 10);
         client.pause();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
         uploadThread.join();
@@ -149,25 +160,19 @@ namespace TUS::Test
         client.setRequestTimeout(std::chrono::milliseconds(10));
         std::thread uploadThread([&]()
                                  { client.upload(); });
-
-        while (client.progress() < 10)
-        {
-        }
+        waitUpload(client, 10);
 
         client.pause();
         std::cout << "Pause" << std::endl;
-   
+
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
-     uploadThread.join();
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        uploadThread.join();
         std::cout << "Resuming" << std::endl;
         float progress = client.progress();
         std::thread resumeThread([&]()
                                  { client.resume(); });
 
-        while (client.progress() == progress)
-        {
-        }
+        waitUpload(client, progress);
 
         EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
 
@@ -210,15 +215,15 @@ namespace TUS::Test
 
         std::thread uploadThread([&]()
                                  { client.upload(); });
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        waitUpload(client, 10);
+
         client.cancel();
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));//wait for the thread to finish
+        std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for the thread to finish
 
         uploadThread.join();
 
         EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
         client.retry();
-        
 
         EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
     }
