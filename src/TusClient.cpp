@@ -224,6 +224,8 @@ void TusClient::uploadChunk(int chunkNumber)
                           << header << std::endl;
                 m_status.store(TusStatus::FAILED);
             }
+                std::this_thread::sleep_for(m_requestTimeout);//wait a bit before the other request
+
         }
         else
         {
@@ -316,7 +318,7 @@ bool TusClient::resume()
 
 void TusClient::pause()
 {
-    if (m_status == TusStatus::UPLOADING)
+    if (m_status.load() == TusStatus::UPLOADING)
     {
         m_status.store(TusStatus::PAUSED);
         std::cout << "Upload paused" << std::endl;
@@ -329,7 +331,7 @@ void TusClient::pause()
 
 void TusClient::stop()
 {
-    if (m_uploadOffset == m_uploadLength && m_status != TusStatus::CANCELED && m_status != TusStatus::FAILED)
+    if (m_uploadOffset == m_uploadLength && m_status.load() != TusStatus::CANCELED && m_status.load() != TusStatus::FAILED)
     {
         m_status.store(TusStatus::FINISHED);
     }
@@ -344,7 +346,7 @@ void TusClient::stop()
 
 float TusClient::progress()
 {
-    return m_progress;
+    return m_progress.load();
 }
 
 TusStatus TusClient::status()
@@ -354,7 +356,7 @@ TusStatus TusClient::status()
 
 bool TusClient::retry()
 {
-    if (m_status == TusStatus::FAILED || m_status == TusStatus::CANCELED)
+    if (m_status.load() == TusStatus::FAILED || m_status.load() == TusStatus::CANCELED)
     {
         std::cout << "Retrying upload" << std::endl;
         m_status.store(TusStatus::READY);
@@ -385,4 +387,13 @@ std::string TusClient::getUrl() const
 std::string TusClient::getUUIDString()
 {
     return boost::uuids::to_string(m_uuid);
+}
+std::chrono::milliseconds TusClient::getRequestTimeout()const{
+
+    return m_requestTimeout;
+    
+}
+
+void TusClient::setRequestTimeout(std::chrono::milliseconds ms){
+    m_requestTimeout=ms;
 }

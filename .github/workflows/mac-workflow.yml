@@ -42,7 +42,7 @@ jobs:
           conan --version
 
       - name: Cache .conan
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ matrix.conan_home }}
           key: ${{ runner.os }}-conan-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
