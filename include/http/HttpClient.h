@@ -9,6 +9,7 @@
 #include <queue>
 #include <functional>
 #include <curl/curl.h>
+#include <mutex>
 
 #include "libtusclient.h"
 #include "IHttpClient.h"
