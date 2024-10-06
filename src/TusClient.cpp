@@ -253,10 +253,10 @@ void TusClient::cancel()
         std::cerr << "No upload to cancel" << std::endl;
         return;
     }
-
+    m_status.store(TusStatus::CANCELED);
     function<void(string, string)> onSuccess = [this](string header, string data)
     {
-        m_status.store(TusStatus::CANCELED);
+        
         m_cacheManager->remove(m_tusFile);
         m_cacheManager->save();
         std::cout << "Upload canceled" << std::endl;
