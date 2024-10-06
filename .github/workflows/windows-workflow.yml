@@ -122,8 +122,8 @@ jobs:
         run:  Start-Process -FilePath "${env:GITHUB_WORKSPACE}\tusd\tusd_windows_amd64\tusd.exe" -ArgumentList "-port 8080 -host 0.0.0.0"
       - name: Test Project
         run: |
-          cp ${{ github.workspace }}\build\Debug\libtusclient.dll ${{ github.workspace }}\build\Debug\test\libtusclient.dll
-          ${{ github.workspace }}\build\Debug\libtusclient_test.exe --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
+          cp ${{ github.workspace }}/build/Debug/libtusclient.dll ${{ github.workspace }}/build/Debug/test/libtusclient.dll
+          ${{ github.workspace }}/build/Debug/libtusclient_test.exe --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml      
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
