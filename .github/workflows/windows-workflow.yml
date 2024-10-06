@@ -86,7 +86,7 @@ jobs:
           name: build-artifacts-for-test
           path: |
             ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
-            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test.exe
+            ${{ github.workspace }}/build/test/${{ steps.strings.outputs.test-folder }}/libtusclient_test.exe
   test-windows:
     needs: build-windows
     runs-on: windows-latest
@@ -123,11 +123,11 @@ jobs:
       - name: Test Project
         run: |
           New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\build\Debug\test"
-          Copy-Item "${{ github.workspace }}\build\Debug\libtusclient.dll" "${{ github.workspace }}\build\Debug\test\libtusclient.dll"
+          Copy-Item "${{ github.workspace }}\build\Debug\libtusclient.dll" "${{ github.workspace }}\build\test\Debug\libtusclient.dll"
         shell: pwsh
       - name: "Run tests"
         run: |
-          & "${{ github.workspace }}\build\Debug\test\libtusclient_test.exe" --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
+          & "${{ github.workspace }}\build\test\${{ steps.strings.outputs.test-folder }}\libtusclient_test.exe" --gtest_output=xml:${{ github.workspace }}\build\Debug\test-results.xml
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'
