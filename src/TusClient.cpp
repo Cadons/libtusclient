@@ -243,7 +243,7 @@ void TusClient::uploadChunk(int chunkNumber)
     };
 
     m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation,
-                                      std::string(reinterpret_cast<char *>(chunk.getData().data()), chunk.getChunkSize()),
+        std::string(reinterpret_cast<char *>(chunk.getData().data()), chunk.getChunkSize()),
                                       Http::HttpMethod::_PATCH, patchHeaders,
                                       onPatchSuccess, onPatchError));
     m_httpClient->execute();
