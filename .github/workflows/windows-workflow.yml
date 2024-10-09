@@ -90,6 +90,7 @@ jobs:
   test-windows:
     needs: build-windows
     runs-on: windows-latest
+    if: github.ref_name == 'main'
     strategy:
       fail-fast: false
       matrix:
