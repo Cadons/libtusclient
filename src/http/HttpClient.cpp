@@ -105,7 +105,7 @@ IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
 	CURLcode res;
 
 	curl = curl_easy_init();
-	if (curl)
+	if (curl!=NULL)
 	{
 		setupCURLRequest(curl, method, request);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeDataCallback);
@@ -134,6 +134,9 @@ IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
 		}
 		RequestTask requestTask(request, curl);
 		m_requestsQueue.push(requestTask);
+	}else
+	{
+		throw std::runtime_error("CURL initialization failed");
 	}
 	return (IHttpClient*)this;
 }
@@ -248,12 +251,12 @@ IHttpClient* HttpClient::execute() {
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
 		curl_easy_setopt(curl, CURLOPT_HEADERDATA, &responseHeader);
 
-		// Perform the CURL request
-		CURLcode res = curl_easy_perform(curl);
-
 		// Lock the mutex again before accessing the queue
 		{
 			std::lock_guard<std::mutex> lock(m_queueMutex);
+
+		// Perform the CURL request
+		CURLcode res = curl_easy_perform(curl);
 
 			if (res != CURLE_OK) {
 				// Log the error and invoke the error callback
