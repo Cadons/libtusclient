@@ -265,7 +265,7 @@ void TusClient::cancel()
     std::map<std::string, std::string> headers;
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     headers["accept"] = "*/*";
-
+    m_httpClient->abortAll();
     m_httpClient->del(Http::Request(m_url + "/files/" + m_tusLocation, "", Http::HttpMethod::_DELETE, headers, onSuccess));
     m_httpClient->execute();
 }
