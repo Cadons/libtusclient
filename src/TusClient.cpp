@@ -42,8 +42,8 @@ void TusClient::initialize(int chunkSize)
 }
 
 TusClient::TusClient(std::string appName, std::string url, path filePath, int chunkSize) : m_appName(appName),
-m_status(TusStatus::READY),
-m_httpClient(std::make_unique<TUS::Http::HttpClient>())
+                                                                                           m_status(TusStatus::READY),
+                                                                                           m_httpClient(std::make_unique<TUS::Http::HttpClient>())
 {
 
     initialize(chunkSize);
@@ -140,11 +140,11 @@ bool TusClient::uploadChunks()
     m_status.store(TusStatus::UPLOADING);
     if (m_fileChunker->getChunkNumber() == 0)
     {
-       if(!m_fileChunker->loadChunks())
-       {
+        if (!m_fileChunker->loadChunks())
+        {
             m_status.store(TusStatus::FAILED);
             return false;
-       }
+        }
     }
 
     if (m_uploadLength == 0)
@@ -177,7 +177,6 @@ bool TusClient::uploadChunks()
             i++;
         }
     }
-    m_status.store(TusStatus::FINISHED);
     stop();
     return true;
 }
@@ -224,8 +223,7 @@ void TusClient::uploadChunk(int chunkNumber)
                           << header << std::endl;
                 m_status.store(TusStatus::FAILED);
             }
-                std::this_thread::sleep_for(m_requestTimeout);//wait a bit before the other request
-
+            std::this_thread::sleep_for(m_requestTimeout); // wait a bit before the other request
         }
         else
         {
@@ -238,11 +236,14 @@ void TusClient::uploadChunk(int chunkNumber)
     OnErrorCallback onPatchError = [this](std::string header, std::string data)
     {
         std::cerr << "Error: Unable to upload chunk" << std::endl;
-        m_status.store(TusStatus::FAILED);
+        if (m_status.load() != TusStatus::CANCELED && m_status.load() != TusStatus::PAUSED)//in this case is not a problem if request fails
+        {
+            m_status.store(TusStatus::FAILED);
+        }
     };
 
     m_httpClient->patch(Http::Request(m_url + "/files/" + m_tusLocation,
-                                      std::string(reinterpret_cast<char*>(chunk.getData().data()), chunk.getChunkSize()),
+        std::string(reinterpret_cast<char *>(chunk.getData().data()), chunk.getChunkSize()),
                                       Http::HttpMethod::_PATCH, patchHeaders,
                                       onPatchSuccess, onPatchError));
     m_httpClient->execute();
@@ -255,9 +256,10 @@ void TusClient::cancel()
         std::cerr << "No upload to cancel" << std::endl;
         return;
     }
+    m_status.store(TusStatus::CANCELED);
     function<void(string, string)> onSuccess = [this](string header, string data)
     {
-        m_status.store(TusStatus::CANCELED);
+        
         m_cacheManager->remove(m_tusFile);
         m_cacheManager->save();
         std::cout << "Upload canceled" << std::endl;
@@ -331,20 +333,16 @@ void TusClient::pause()
 
 void TusClient::stop()
 {
-    if (m_uploadOffset == m_uploadLength && m_status.load() != TusStatus::CANCELED && m_status.load() != TusStatus::FAILED)
+    if (m_uploadOffset == m_uploadLength && (m_status.load() != TusStatus::CANCELED && m_status.load() != TusStatus::FAILED))
     {
         m_status.store(TusStatus::FINISHED);
     }
-    else
-    {
-        return;
-    }
-
+  
     m_cacheManager->remove(m_tusFile);
     m_cacheManager->save();
 }
 
-float TusClient::progress()
+float TusClient::progress() const
 {
     return m_progress.load();
 }
@@ -388,12 +386,13 @@ std::string TusClient::getUUIDString()
 {
     return boost::uuids::to_string(m_uuid);
 }
-std::chrono::milliseconds TusClient::getRequestTimeout()const{
+std::chrono::milliseconds TusClient::getRequestTimeout() const
+{
 
     return m_requestTimeout;
-    
 }
 
-void TusClient::setRequestTimeout(std::chrono::milliseconds ms){
-    m_requestTimeout=ms;
+void TusClient::setRequestTimeout(std::chrono::milliseconds ms)
+{
+    m_requestTimeout = ms;
 }
