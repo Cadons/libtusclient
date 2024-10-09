@@ -85,8 +85,8 @@ jobs:
         with:
           name: build-artifacts-for-test
           path: |
-            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
-            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test.exe
+            ${{ github.workspace }}/build/Debug/libtusclient.dll
+            ${{ github.workspace }}/build/test/Debug/libtusclient_test.exe
   test-windows:
     needs: build-windows
     runs-on: windows-latest
@@ -104,7 +104,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: ${{ github.workspace }}/build/Debug
+          path: ${{ github.workspace }}/build/
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -122,10 +122,11 @@ jobs:
         run:  Start-Process -FilePath "${env:GITHUB_WORKSPACE}\tusd\tusd_windows_amd64\tusd.exe" -ArgumentList "-port 8080 -host 0.0.0.0"
       - name: Test Project
         run: |
-          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\build\Debug\test"
-          Copy-Item "${{ github.workspace }}\build\Debug\libtusclient.dll" "${{ github.workspace }}\build\Debug\test\libtusclient.dll"
-          "${{ github.workspace }}\build\Debug\libtusclient_test.exe"
+          Copy-Item "${{ github.workspace }}/build/Debug/libtusclient.dll" "${{ github.workspace }}/build/test/Debug/libtusclient.dll"
         shell: pwsh
+      - name: "Run tests"
+        run: |
+          & "${{ github.workspace }}/build/test/Debug/libtusclient_test.exe" --gtest_output=xml:test-results.xml
   release-windows:
     needs: test-windows
     if: github.event_name == 'release'

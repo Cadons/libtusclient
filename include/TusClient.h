@@ -63,7 +63,7 @@ namespace TUS
         virtual void stop() = 0;
         virtual void pause() = 0;
 
-        virtual float progress() = 0;
+        virtual float progress() const = 0;
         virtual TusStatus status() = 0;
         virtual bool retry() = 0;
         /**
@@ -149,7 +149,7 @@ namespace TUS
          *
          * @return The progress of the upload as a percentage.
          */
-        float progress() override;
+        float progress() const override;
         /**
          * @brief Returns the status of the upload.
          *
