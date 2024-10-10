@@ -24,7 +24,7 @@ class LIBTUSAPI_EXPORT EasyLoggingService : public ILogger {
     void init(LogLevel level) override;
 
   private:
-    LogLevel m_level=LogLevel::INFO;
+    LogLevel m_level=LogLevel::_INFO_;
 };
 
 } // namespace Logging

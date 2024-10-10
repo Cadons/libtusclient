@@ -47,7 +47,7 @@ namespace TUS::Test
 					std::filesystem::remove(std::to_string(i) + ".dat");
 			}
 		}
-		Logging::LogLevel logLevel = Logging::LogLevel::DEBUG;
+		Logging::LogLevel logLevel = Logging::LogLevel::_DEBUG_;
 	};
 
     void waitUpload(const TusClient &client, float perc) {

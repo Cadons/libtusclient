@@ -135,8 +135,8 @@ namespace TUS
         void initialize(int chunkSize);
 
     public:
-        TusClient(string appName, string url, path filePath, int chunkSize,Logging::LogLevel logLevel=Logging::LogLevel::INFO);
-        TusClient(string appName, string url, path filePath,Logging::LogLevel logLevel=Logging::LogLevel::INFO);
+        TusClient(string appName, string url, path filePath, int chunkSize,Logging::LogLevel logLevel=Logging::LogLevel::_INFO_);
+        TusClient(string appName, string url, path filePath,Logging::LogLevel logLevel=Logging::LogLevel::_INFO_);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
