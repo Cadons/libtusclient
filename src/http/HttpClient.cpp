@@ -20,7 +20,7 @@ HttpClient::HttpClient()
 {
 }
 
-HttpClient::HttpClient(std::unique_ptr<Logging::ILogger> logger) : m_logger(std::move(logger))
+HttpClient::HttpClient(std::unique_ptr<TUS::Logging::ILogger> logger) : m_logger(std::move(logger))
 {
 }
 
