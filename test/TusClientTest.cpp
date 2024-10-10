@@ -47,6 +47,7 @@ namespace TUS::Test
 					std::filesystem::remove(std::to_string(i) + ".dat");
 			}
 		}
+		Logging::LogLevel logLevel = Logging::LogLevel::DEBUG;
 	};
 
     void waitUpload(const TusClient &client, float perc) {
@@ -136,7 +137,7 @@ namespace TUS::Test
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath,logLevel);
 
 		client.upload();
 
@@ -148,7 +149,7 @@ namespace TUS::Test
 
 		std::filesystem::path testFilePath = generateTestFile(100);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, logLevel);
 
 		client.upload();
 
@@ -160,7 +161,7 @@ namespace TUS::Test
 		
 		std::filesystem::path testFilePath = generateTestFile(10);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, logLevel);
 		client.setRequestTimeout(std::chrono::milliseconds(100));
 
 		std::thread uploadThread([&]()
@@ -175,7 +176,7 @@ namespace TUS::Test
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, logLevel);
 		client.setRequestTimeout(std::chrono::milliseconds(10));
 		std::thread uploadThread([&]()
 			{ client.upload(); });
@@ -211,7 +212,7 @@ namespace TUS::Test
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, logLevel);
 		client.setRequestTimeout(std::chrono::milliseconds(10));
 
 		std::thread uploadThread([&]()
@@ -229,7 +230,7 @@ namespace TUS::Test
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
 		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath);
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath, logLevel);
 		client.setRequestTimeout(std::chrono::milliseconds(10));
 
 		std::thread uploadThread([&]() { client.upload(); });

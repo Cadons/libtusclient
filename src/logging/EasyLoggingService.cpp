@@ -28,7 +28,7 @@ void EasyLoggingService::log(const std::string &message, LogLevel level) {
         LOG(FATAL) << message;
         break;
     default:
-        LOG(INFO) << message;
+
         break;
     }
 }
@@ -38,22 +38,38 @@ void EasyLoggingService::setLevel(LogLevel level) { m_level = level; }
 void EasyLoggingService::init(LogLevel level) { setLevel(level); }
 
 void EasyLoggingService::debug(const std::string &message) {
-    log(message, LogLevel::DEBUG);
+    if (m_level == LogLevel::DEBUG) {
+        log(message, LogLevel::DEBUG);
+        return;
+    }
 }
 
 void EasyLoggingService::info(const std::string &message) {
-    log(message, LogLevel::INFO);
+
+    if (m_level <= LogLevel::INFO || m_level == LogLevel::DEBUG) {
+        log(message, LogLevel::INFO);
+        return;
+    }
 }
 
 void EasyLoggingService::warning(const std::string &message) {
-    log(message, LogLevel::WARNING);
+    if (m_level <= LogLevel::WARNING || m_level == LogLevel::DEBUG) {
+        log(message, LogLevel::WARNING);
+        return;
+    }
 }
 
 void EasyLoggingService::error(const std::string &message) {
-    log(message, LogLevel::ERROR);
+    if (m_level <= LogLevel::ERROR || m_level == LogLevel::DEBUG) {
+        log(message, LogLevel::ERROR);
+        return;
+    }
 }
 void EasyLoggingService::critical(const std::string &message) {
-    log(message, LogLevel::CRITICAL);
+    if (m_level <= LogLevel::CRITICAL || m_level == LogLevel::DEBUG) {
+        log(message, LogLevel::CRITICAL);
+        return;
+    }
 }
 
 } // namespace TUS::Logging

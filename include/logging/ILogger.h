@@ -10,11 +10,14 @@
 namespace TUS {
     namespace Logging {
         enum class LogLevel {
-            DEBUG = 0,
-            INFO = 1,
-            WARNING = 2,
-            ERROR = 3,
-            CRITICAL = 4
+            
+            
+            WARNING = 0,
+            ERROR = 1,
+            CRITICAL = 2,
+            INFO = 3,
+            DEBUG = 4,
+            NONE = 5
         };
         /**
          * @brief Interface for logging

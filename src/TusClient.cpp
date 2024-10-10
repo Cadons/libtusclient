@@ -137,15 +137,18 @@ bool TusClient::upload()
         m_tusLocation.replace(0, getUrl().length() + 7,
                               ""); // remove the url from the location
     };
+        m_logger->debug("Starting new upload");
     m_httpClient->post(Http::Request(m_url + "/files", "",
                                      TUS::Http::HttpMethod::_POST, headers,
                                      onPostSuccess));
     m_httpClient->execute();
+    m_logger->debug("Getting information about the upload");
 
     getUploadInfo();
-
+    m_logger->debug("Saving tusFile to cache");
     m_cacheManager->add(m_tusFile);
     m_cacheManager->save();
+    m_logger->debug("Uploading");
     m_logger->info("Upload started");
     // patch chunks of the file to the server while chunk is not the last one
     return uploadChunks();
@@ -167,7 +170,7 @@ bool TusClient::uploadChunks()
 
     if (m_uploadLength == 0)
     {
-        m_logger->info("No file to upload");
+        m_logger->warning("No file to upload");
         m_status.store(TusStatus::FINISHED);
         return true;
     }
@@ -177,6 +180,7 @@ bool TusClient::uploadChunks()
 
         if (m_status.load() == TusStatus::CANCELED)
         {
+            m_logger->info("Upload canceled");
             stop();
             return false;
         }
@@ -187,6 +191,7 @@ bool TusClient::uploadChunks()
         }
         else if (m_status.load() == TusStatus::PAUSED)
         {
+            m_logger->debug("Upload paused");
             m_logger->info("Upload paused");
             return true;
         }
@@ -236,7 +241,7 @@ void TusClient::uploadChunk(int chunkNumber)
             if (retry < 3)
             {
                 retry++;
-                m_logger->info("Conflict detected, retrying the upload");
+                m_logger->warning("Conflict detected, retrying the upload");
                 getUploadInfo();
             }
             else
@@ -269,6 +274,7 @@ void TusClient::uploadChunk(int chunkNumber)
             m_status.store(TusStatus::FAILED);
         }
     };
+    m_logger->debug("Uploading chunk " + std::to_string(chunkNumber));
 
     m_httpClient->patch(Http::Request(
         m_url + "/files/" + m_tusLocation,
@@ -280,6 +286,7 @@ void TusClient::uploadChunk(int chunkNumber)
 
 void TusClient::cancel()
 {
+    m_logger->debug("Cancelling upload");
     if (m_tusLocation.empty())
     {
         m_logger->error("No upload to cancel");
@@ -343,6 +350,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
             extractHeaderValue(header, "Tus-Extension");
         serverInfo["Tus-Max-Size"] = extractHeaderValue(header, "Tus-Max-Size");
     };
+    m_logger->debug("Getting server information");
     m_httpClient->options(Http::Request(
         m_url + "/files", "", Http::HttpMethod::_OPTIONS, headers, onSuccess));
     m_httpClient->execute();
@@ -351,7 +359,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
 
 bool TusClient::resume()
 {
-
+  m_logger->debug("Resuming the upload");
     getUploadInfo();
     m_status.store(TusStatus::READY);
 
@@ -360,6 +368,7 @@ bool TusClient::resume()
 
 void TusClient::pause()
 {
+      m_logger->debug("Pausing the upload");
     if (m_status.load() == TusStatus::UPLOADING)
     {
         m_status.store(TusStatus::PAUSED);
@@ -373,10 +382,12 @@ void TusClient::pause()
 
 void TusClient::stop()
 {
+      m_logger->debug("Stopping the upload");
     if (m_uploadOffset == m_uploadLength &&
         (m_status.load() != TusStatus::CANCELED &&
          m_status.load() != TusStatus::FAILED))
     {
+          m_logger->debug("Upload completed");
         m_status.store(TusStatus::FINISHED);
     }
 
@@ -393,7 +404,7 @@ bool TusClient::retry()
     if (m_status.load() == TusStatus::FAILED ||
         m_status.load() == TusStatus::CANCELED)
     {
-        m_logger->info("Retrying upload");
+        m_logger->debug("Retrying upload");
         m_status.store(TusStatus::READY);
         m_fileChunker->clearChunks();
         m_uploadedChunks = 0;
@@ -404,7 +415,7 @@ bool TusClient::retry()
     }
     else
     {
-        m_logger->error("Nothing to retry");
+        m_logger->warning("Nothing to retry");
         return false;
     }
 }
