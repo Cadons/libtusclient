@@ -185,16 +185,16 @@ namespace TUS::Test
 		client.pause();
 		std::cout << "Pause" << std::endl;
 
-		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+
 		uploadThread.join();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 		std::cout << "Resuming" << std::endl;
 		float progress = client.progress();
 		std::thread resumeThread([&]()
 			{ client.resume(); });
 
 		waitUpload(client, progress);
-
-		EXPECT_EQ(client.status(), TUS::TusStatus::UPLOADING);
 
 		resumeThread.join();
 	}

@@ -31,14 +31,12 @@ void TusClient::initialize(int chunkSize)
 
     createTusFile();
     m_cacheManager = std::make_unique<TUS::Cache::CacheRepository>(m_appName);
-    m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(
-        m_appName, getUUIDString(), m_filePath, chunkSize);
+    m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
     // update the tusFile with the data from the cache
     if (m_cacheManager->findByHash(m_tusFile->getIdentificationHash()) !=
         nullptr)
     {
-        auto tusFile =
-            m_cacheManager->findByHash(m_tusFile->getIdentificationHash());
+        auto tusFile = m_cacheManager->findByHash(m_tusFile->getIdentificationHash());
         m_tusFile->setUploadOffset(tusFile->getUploadOffset());
         m_tusFile->setLastEdit(tusFile->getLastEdit());
         m_tusFile->setTusIdentifier(tusFile->getTusIdentifier());
@@ -59,12 +57,12 @@ TusClient::TusClient(std::string appName, std::string url, path filePath,
 }
 
 TusClient::TusClient(std::string appName, std::string url, path filePath,
-                     Logging::LogLevel logLevel)
+                     TUS::Logging::LogLevel logLevel)
     : m_appName(std::move(appName)), m_url(std::move(url)),
       m_filePath(std::move(filePath)), m_status(TusStatus::READY),
       m_httpClient(std::make_unique<TUS::Http::HttpClient>(
           std::make_unique<TUS::Logging::EasyLoggingService>(logLevel))),
-      m_logger(std::make_unique<Logging::EasyLoggingService>(logLevel))
+      m_logger(std::make_unique<TUS::Logging::EasyLoggingService>(logLevel))
 {
     initialize(0);
 }
