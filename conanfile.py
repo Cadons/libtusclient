@@ -71,4 +71,5 @@ class libtusclientRecipe(ConanFile):
         self.requires("libzippp/7.1-1.10.1")
         self.requires("gtest/1.15.0")
         self.requires("nlohmann_json/3.11.3")
+        self.requires("easyloggingpp/9.97.1")
 

@@ -12,10 +12,11 @@ file(GLOB_RECURSE HEADERS include/*.h)
 find_package(CURL REQUIRED)
 find_package(Boost REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(easyloggingpp REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} CURL::libcurl Boost::boost nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} CURL::libcurl Boost::boost nlohmann_json::nlohmann_json easyloggingpp::easyloggingpp)
 
 target_include_directories(libtusclient 
     PUBLIC 

@@ -99,8 +99,7 @@ bool FileChunker::loadChunks()
         std::ifstream chunkFile(chunkFilePath, std::ios::binary);
         if (!chunkFile)
         {
-            std::cerr << "Error: Unable to open chunk file " << chunkFilePath << std::endl;
-            return false;
+            throw std::runtime_error("Failed to open chunk file: " + chunkFilePath.string());
         }
 
         chunkFile.seekg(0, std::ios::end);             // Seek to the end of the file to get the size
@@ -123,9 +122,8 @@ int FileChunker::chunkFile()
 
     if (!inputFile)
     {
-        std::cerr << "Error: Unable to open input file " << m_filePath << std::endl;
-        return -1;
-    }
+       throw std::runtime_error("Failed to open input file: " + m_filePath.string());
+       }
 
     // Get the size of the file
     std::streamsize fileSize = inputFile.tellg(); // Get the current position in the input file, which is the size of the file
