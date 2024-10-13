@@ -20,6 +20,10 @@ HttpClient::HttpClient()
 {
 }
 
+HttpClient::HttpClient(std::unique_ptr<TUS::Logging::ILogger> logger) : m_logger(std::move(logger))
+{
+}
+
 HttpClient::~HttpClient()
 {
 }
@@ -264,14 +268,21 @@ IHttpClient *HttpClient::execute()
         // Lock the mutex again before accessing the queue
         {
             std::lock_guard<std::mutex> lock(m_queueMutex);
-
+            if(curl==nullptr)
+            {
+                continue;
+            }
             // Perform the CURL request
             CURLcode res = curl_easy_perform(curl);
 
             if (res != CURLE_OK)
             {
                 // Log the error and invoke the error callback
-                std::cerr << "CURL error: " << curl_easy_strerror(res) << std::endl;
+                if(m_logger!=nullptr)
+                {
+                          m_logger->error( "CURL error: " +std::string(curl_easy_strerror(res))); 
+                }
+         
                 m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
             }
             else

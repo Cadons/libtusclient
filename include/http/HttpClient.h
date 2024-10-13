@@ -9,13 +9,15 @@
 #include <queue>
 #include <functional>
 #include <curl/curl.h>
+#include <memory>
 #include <mutex>
 
 #include "libtusclient.h"
 #include "IHttpClient.h"
 #include "http/RequestTask.h"
-
+#include "logging/ILogger.h"
 #include "Request.h"
+
 namespace TUS
 {
     namespace Http
@@ -35,6 +37,7 @@ namespace TUS
 
         public:
             HttpClient();
+            HttpClient(std::unique_ptr<TUS::Logging::ILogger> logger);
             virtual ~HttpClient();
             IHttpClient *get(Request request) override;
             IHttpClient *post(Request request) override;
@@ -60,7 +63,8 @@ namespace TUS
             IHttpClient *sendRequest(HttpMethod method, Request request);
             std::queue<RequestTask> m_requestsQueue;
             bool m_abort = false;
-                std::mutex m_queueMutex;  // Mutex to protect shared resources
+            std::mutex m_queueMutex;  // Mutex to protect shared resources
+            std::shared_ptr<TUS::Logging::ILogger> m_logger;
 
             /**
              * @brief Callback function for the write data of the request

@@ -1,0 +1,25 @@
+version: "3.0"
+
+services:
+  mockoon:
+    image: mockoon/cli
+    container_name: mockoon
+    volumes:
+      - ./mockoon-data.json:/data/mockoon-data.json
+    environment:
+      - MOCKOON_DATA=/data/mockoon-data.json
+    command: --data /data/mockoon-data.json
+    ports:
+      - "3000:3000"
+
+  tusd:
+    image: tusproject/tusd
+    container_name: tusd
+    ports:
+      - "8080:8080"
+    command: |
+      -host=0.0.0.0 \
+      -port=8080 \
+      -upload-dir=/data
+    volumes:
+      - ./data:/data
