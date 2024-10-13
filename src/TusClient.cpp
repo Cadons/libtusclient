@@ -175,29 +175,14 @@ bool TusClient::uploadChunks()
     for (; (m_uploadOffset < m_uploadLength) &&
            m_status == TusStatus::UPLOADING;)
     {
-
-        if (m_status.load() == TusStatus::CANCELED)
-        {
-            m_logger->info("Upload canceled");
-            stop();
-            return false;
-        }
-        else if (m_status.load() == TusStatus::FAILED)
+        uploadChunk(i);
+        if (m_status.load() == TusStatus::FAILED)
         {
             m_logger->error("Upload failed");
             return false;
         }
-        else if (m_status.load() == TusStatus::PAUSED)
-        {
-            m_logger->debug("Upload paused");
-            m_logger->info("Upload paused");
-            return true;
-        }
-        else
-        {
-            uploadChunk(i);
-            i++;
-        }
+
+        i++;
     }
     stop();
     return true;
@@ -254,8 +239,7 @@ void TusClient::uploadChunk(int chunkNumber)
         }
         else
         {
-            m_logger->error("Error: Unable to upload chunk " +
-                            m_uploadedChunks);
+            m_logger->error("Error: Unable to upload chunk " + m_uploadedChunks);
             m_logger->error(header);
             m_status.store(TusStatus::FAILED);
         }
@@ -380,6 +364,11 @@ void TusClient::pause()
 
 void TusClient::stop()
 {
+    if(m_status.load()==TusStatus::PAUSED)
+    {
+        m_logger->debug("upload paused");
+        return;
+    }
       m_logger->debug("Stopping the upload");
     if (m_uploadOffset == m_uploadLength &&
         (m_status.load() != TusStatus::CANCELED &&
