@@ -168,8 +168,9 @@ namespace TUS::Test
 			{ client.upload(); });
 		waitUpload(client, 10);
 		client.pause();
+        uploadThread.join();
 		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
-		uploadThread.join();
+		
 	}
 
 	TEST_F(TusClientTest, pauseResumeTest)
@@ -187,8 +188,9 @@ namespace TUS::Test
 
 
 		uploadThread.join();
+        EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 		std::cout << "Resuming" << std::endl;
 		float progress = client.progress();
 		std::thread resumeThread([&]()
