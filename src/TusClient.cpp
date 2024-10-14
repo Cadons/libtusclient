@@ -173,7 +173,7 @@ bool TusClient::uploadChunks()
         return true;
     }
     for (; (m_uploadOffset < m_uploadLength) &&
-           m_status == TusStatus::UPLOADING;)
+           m_status.load() == TusStatus::UPLOADING;)
     {
         uploadChunk(i);
         if (m_status.load() == TusStatus::FAILED)
@@ -229,8 +229,8 @@ void TusClient::uploadChunk(int chunkNumber)
             }
             else
             {
-                m_logger->error("Error: Too many conflicts " +
-                                m_uploadedChunks);
+                m_logger->error("Error: Too many conflicts " +std::to_string(
+                                m_uploadedChunks));
                 m_logger->error(header);
                 m_status.store(TusStatus::FAILED);
             }
@@ -239,7 +239,7 @@ void TusClient::uploadChunk(int chunkNumber)
         }
         else
         {
-            m_logger->error("Error: Unable to upload chunk " + m_uploadedChunks);
+            m_logger->error("Error: Unable to upload chunk " +std::to_string(m_uploadedChunks));
             m_logger->error(header);
             m_status.store(TusStatus::FAILED);
         }
@@ -355,6 +355,8 @@ void TusClient::pause()
     {
         m_status.store(TusStatus::PAUSED);
         m_logger->info("Upload paused");
+        m_httpClient->abortAll();
+
     }
     else
     {
