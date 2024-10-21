@@ -21,15 +21,21 @@ class libtusclientRecipe(ConanFile):
     default_options = {"shared": False, "fPIC": True}
 
     # Sources are located in the same place as this recipe, copy them to the recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "config.h"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "test/*", "config.h","config.h.in"
 
     def get_version(self):
         git = Git(self)
-        tag=git.run("tag")
-        branch=git.run("branch --show-current")
-        if tag:
-            return tag
-        return branch+"-"+ self.version
+
+        try:
+            branch=git.run("branch --show-current")
+
+            tag=git.run("tag")
+            if tag:
+                return tag
+            
+            return branch+"-"+ self.version
+        except:
+            return "main-"+ self.version
     
     def config_options(self):
         if self.settings.os == "Windows":
@@ -64,6 +70,7 @@ class libtusclientRecipe(ConanFile):
 
     def package_info(self):
         self.cpp_info.libs = ["libtusclient"]
+        
     
     def requirements(self):
         self.requires("libcurl/8.9.1")

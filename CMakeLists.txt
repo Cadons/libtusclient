@@ -27,9 +27,14 @@ target_include_directories(libtusclient
 
 
 set_target_properties(libtusclient PROPERTIES PUBLIC_HEADER "include/libtusclient.h")
-install(TARGETS libtusclient)
-message("You are working on: "+${PROJECT_NAME} " - " ${CONAN_VERSION})
+install(TARGETS libtusclient
+        EXPORT libtusclient
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        PUBLIC_HEADER DESTINATION include)
 
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
 
 
 enable_testing()
