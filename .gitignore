@@ -57,3 +57,5 @@ conanbuildinfo.txt
 conaninfo.txt
 .env
 .venv
+
+vcpkg_installed/
