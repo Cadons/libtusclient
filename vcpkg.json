@@ -1,0 +1,34 @@
+{
+    "name": "libtusclient",
+    "version-string": "1.0",
+    "license": "MIT",
+    "description": "Library implementing the tus protocol for resumable uploads",
+    "homepage": "https://github.com/Cadons/libtusclient",
+    "dependencies": [
+      {
+        "name": "curl"
+      },
+      {
+        "name": "boost"
+      },
+      {
+        "name": "libzippp"
+      },
+      {
+        "name": "gtest",
+        "default-features": true
+      },
+      {
+        "name": "nlohmann-json"
+      },
+      {
+        "name": "easyloggingpp"
+      }
+    ],
+    "features": {
+      "shared": {
+        "description": "Build shared libraries"
+      }
+    }
+  }
+  

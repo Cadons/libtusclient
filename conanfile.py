@@ -5,7 +5,7 @@ from conan.tools.scm import Git
 
 class libtusclientRecipe(ConanFile):
     name = "libtusclient"
-    version = "0.1"
+    version = "1.0"
     package_type = "library"
 
     # Optional metadata
