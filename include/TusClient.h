@@ -133,6 +133,11 @@ namespace TUS
         void uploadChunk(int chunkNumber);
 
         void initialize(int chunkSize);
+        /**
+         * @brief check if the requests are failed
+         * @return true if the requests are  failed, false otherwise
+         */
+        bool checkIfRequestsFailed();
 
     public:
         TusClient(string appName, string url, path filePath, int chunkSize,Logging::LogLevel logLevel=Logging::LogLevel::_NONE_);

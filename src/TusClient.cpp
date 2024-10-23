@@ -101,7 +101,15 @@ std::string extractHeaderValue(const std::string &header,
 
     return "";
 }
-
+bool TusClient::checkIfRequestsFailed(){
+    if(m_status.load()==TusStatus::FAILED)
+    {
+        return false;
+    }
+    else{
+        return true;
+    }
+}
 bool TusClient::upload()
 {
 
@@ -135,14 +143,26 @@ bool TusClient::upload()
         m_tusLocation.replace(0, getUrl().length() + 7,
                               ""); // remove the url from the location
     };
-        m_logger->debug("Starting new upload");
+    OnErrorCallback onError = [this](std::string header, std::string data)
+    {
+        m_logger->error(data);
+        m_status.store(TusStatus::FAILED);
+    };
+    m_logger->debug("Starting new upload");
     m_httpClient->post(Http::Request(m_url + "/files", "",
                                      TUS::Http::HttpMethod::_POST, headers,
-                                     onPostSuccess));
+                                     onPostSuccess,onError));
     m_httpClient->execute();
     m_logger->debug("Getting information about the upload");
-
+    if(!checkIfRequestsFailed())
+    {
+        return false;
+    }
     getUploadInfo();
+    if(!checkIfRequestsFailed())
+    {
+        return false;
+    }
     m_logger->debug("Saving tusFile to cache");
     m_cacheManager->add(m_tusFile);
     m_cacheManager->save();
@@ -176,7 +196,7 @@ bool TusClient::uploadChunks()
            m_status.load() == TusStatus::UPLOADING;)
     {
         uploadChunk(i);
-        if (m_status.load() == TusStatus::FAILED)
+        if(!checkIfRequestsFailed())
         {
             m_logger->error("Upload failed");
             return false;
@@ -303,13 +323,23 @@ void TusClient::getUploadInfo()
         m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
     };
 
+    OnErrorCallback onError = [this](std::string header, std::string data)
+    {
+        m_logger->error(data);
+        m_status.store(TusStatus::FAILED);
+    };
+
     headers.clear();
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "",
                                      Http::HttpMethod::_HEAD, headers,
-                                     headSuccess));
+                                     headSuccess,onError));
 
     m_httpClient->execute();
+    if(m_status.load()==TusStatus::FAILED)
+    {
+        return;
+    }
 }
 
 std::map<std::string, std::string> TusClient::getTusServerInformation()

@@ -171,7 +171,7 @@ Request::SuccessCallback Request::defaultSuccessCallback()
     {
         std::cout << header << std::endl;
         std::cout << data << std::endl;
-        std::cout << "not implemented" << std::endl;
+        std::cout << "Successful callback not implemented" << std::endl;
     };
 }
 
@@ -179,6 +179,6 @@ Request::ErrorCallback Request::defaultErrorCallback()
 {
     return [](string header, string data)
     {
-        std::cout << "not implemented" << std::endl;
+        std::cout << "Failed callback not implemented" << std::endl;
     };
 }
