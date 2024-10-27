@@ -134,6 +134,7 @@ namespace TUS
 
         void initialize(int chunkSize);
 
+
     public:
         TusClient(string appName, string url, path filePath, int chunkSize,Logging::LogLevel logLevel=Logging::LogLevel::_NONE_);
         TusClient(string appName, string url, path filePath,Logging::LogLevel logLevel=Logging::LogLevel::_NONE_);

@@ -19,7 +19,7 @@
 #include "chunk/utility/ChunkUtility.h"
 #include "http/HttpClient.h"
 #include "logging/EasyLoggingService.h"
-
+#include "exceptions/TUSException.h"
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
@@ -135,14 +135,21 @@ bool TusClient::upload()
         m_tusLocation.replace(0, getUrl().length() + 7,
                               ""); // remove the url from the location
     };
-        m_logger->debug("Starting new upload");
+    OnErrorCallback onError = [this](std::string header, std::string data)
+    {
+        m_logger->error(data);
+        m_status.store(TusStatus::FAILED);
+        throw TUS::Exceptions::TUSException(data);
+    };
+    m_logger->debug("Starting new upload");
     m_httpClient->post(Http::Request(m_url + "/files", "",
                                      TUS::Http::HttpMethod::_POST, headers,
-                                     onPostSuccess));
+                                     onPostSuccess, onError));
     m_httpClient->execute();
     m_logger->debug("Getting information about the upload");
 
     getUploadInfo();
+
     m_logger->debug("Saving tusFile to cache");
     m_cacheManager->add(m_tusFile);
     m_cacheManager->save();
@@ -162,7 +169,7 @@ bool TusClient::uploadChunks()
         if (!m_fileChunker->loadChunks())
         {
             m_status.store(TusStatus::FAILED);
-            return false;
+            throw TUS::Exceptions::TUSException("Error: Unable to load chunks");
         }
     }
 
@@ -175,13 +182,16 @@ bool TusClient::uploadChunks()
     for (; (m_uploadOffset < m_uploadLength) &&
            m_status.load() == TusStatus::UPLOADING;)
     {
-        uploadChunk(i);
-        if (m_status.load() == TusStatus::FAILED)
+        try
         {
-            m_logger->error("Upload failed");
+            uploadChunk(i);
+        }
+        catch (TUS::Exceptions::TUSException &e)
+        {
+            m_logger->error(e.what());
+            m_status.store(TusStatus::FAILED);
             return false;
         }
-
         i++;
     }
     stop();
@@ -229,19 +239,22 @@ void TusClient::uploadChunk(int chunkNumber)
             }
             else
             {
-                m_logger->error("Error: Too many conflicts " +std::to_string(
-                                m_uploadedChunks));
+                m_logger->error("Error: Too many conflicts " + std::to_string(
+                                                                   m_uploadedChunks));
                 m_logger->error(header);
                 m_status.store(TusStatus::FAILED);
+                throw TUS::Exceptions::TUSException(
+                    "Error: Too many conflicts");
             }
             std::this_thread::sleep_for(
                 m_requestTimeout); // wait a bit before the other request
         }
         else
         {
-            m_logger->error("Error: Unable to upload chunk " +std::to_string(m_uploadedChunks));
+            m_logger->error("Error: Unable to upload chunk " + std::to_string(m_uploadedChunks));
             m_logger->error(header);
             m_status.store(TusStatus::FAILED);
+            throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
         }
     };
 
@@ -254,6 +267,7 @@ void TusClient::uploadChunk(int chunkNumber)
                                                   // problem if request fails
         {
             m_status.store(TusStatus::FAILED);
+            throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
         }
     };
     m_logger->debug("Uploading chunk " + std::to_string(chunkNumber));
@@ -303,13 +317,24 @@ void TusClient::getUploadInfo()
         m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
     };
 
+    OnErrorCallback onError = [this](std::string header, std::string data)
+    {
+        m_logger->error(data);
+        m_status.store(TusStatus::FAILED);
+        throw TUS::Exceptions::TUSException("Error: Unable to get upload information");
+    };
+
     headers.clear();
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "",
                                      Http::HttpMethod::_HEAD, headers,
-                                     headSuccess));
+                                     headSuccess, onError));
 
     m_httpClient->execute();
+    if (m_status.load() == TusStatus::FAILED)
+    {
+        return;
+    }
 }
 
 std::map<std::string, std::string> TusClient::getTusServerInformation()
@@ -341,7 +366,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
 
 bool TusClient::resume()
 {
-  m_logger->debug("Resuming the upload");
+    m_logger->debug("Resuming the upload");
     getUploadInfo();
     m_status.store(TusStatus::READY);
 
@@ -350,13 +375,12 @@ bool TusClient::resume()
 
 void TusClient::pause()
 {
-      m_logger->debug("Pausing the upload");
+    m_logger->debug("Pausing the upload");
     if (m_status.load() == TusStatus::UPLOADING)
     {
         m_status.store(TusStatus::PAUSED);
         m_logger->info("Upload paused");
         m_httpClient->abortAll();
-
     }
     else
     {
@@ -366,17 +390,17 @@ void TusClient::pause()
 
 void TusClient::stop()
 {
-    if(m_status.load()==TusStatus::PAUSED)
+    if (m_status.load() == TusStatus::PAUSED)
     {
         m_logger->debug("upload paused");
         return;
     }
-      m_logger->debug("Stopping the upload");
+    m_logger->debug("Stopping the upload");
     if (m_uploadOffset == m_uploadLength &&
         (m_status.load() != TusStatus::CANCELED &&
          m_status.load() != TusStatus::FAILED))
     {
-          m_logger->debug("Upload completed");
+        m_logger->debug("Upload completed");
         m_status.store(TusStatus::FINISHED);
     }
 

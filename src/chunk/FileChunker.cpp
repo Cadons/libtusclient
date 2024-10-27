@@ -15,34 +15,29 @@
 
 using TUS::Chunk::FileChunker;
 using TUS::Chunk::TUSChunk;
-
+using TUS::Chunk::Utility::ChunkUtility;
 void FileChunker::calculateChunkSize()
 {
 
     auto fileSize = std::filesystem::file_size(m_filePath);
-    if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromGB(1))
+    if (fileSize >= ChunkUtility::getChunkSizeFromGB(1))
     {
-        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(10); //>1GB chunk size 10MB
+        m_chunkSize = ChunkUtility::getChunkSizeFromMB(10);
     }
-    else if (fileSize >= Chunk::Utility::ChunkUtility::ChunkUtility::getChunkSizeFromMB(100)) //>100MB chunk size 5MB
+        else if (fileSize >= ChunkUtility::getChunkSizeFromMB(100))
     {
-        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(5);
+        m_chunkSize = ChunkUtility::getChunkSizeFromMB(5);
     }
-    else if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromMB(50)) //>50MB chunk size 2MB
+    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(50))
     {
-        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(2);
+        m_chunkSize = ChunkUtility::getChunkSizeFromMB(2);
     }
-    else if (fileSize >= Chunk::Utility::ChunkUtility::getChunkSizeFromMB(10)) //>10MB chunk size 1MB
+    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(10)) 
     {
-        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromMB(1);
+        m_chunkSize = ChunkUtility::getChunkSizeFromMB(1);
     }
-    else if (fileSize < Chunk::Utility::ChunkUtility::getChunkSizeFromMB(5)) // <5MB chunk size 100KB
-    {
-        m_chunkSize = Chunk::Utility::ChunkUtility::getChunkSizeFromKB(100);
-    }
-    else // <5MB chunk size 32KB
-    {
-        m_chunkSize = Chunk::Utility::ChunkUtility::ChunkUtility::getChunkSizeFromKB(32);
+    else{
+        m_chunkSize = std::filesystem::file_size(m_filePath);//no chunking, upload the whole file
     }
 }
 FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize, std::unique_ptr<FileVerifier::IFileVerifier> verifier)
