@@ -56,20 +56,9 @@ namespace TUS::Test
         } else if (perc <= 0) {
             perc = 1;
         }
-
-        auto start = std::chrono::steady_clock::now(); 
-        const std::chrono::seconds timeout(30); //30s of timeout
-
-        while (client.progress() <= perc) {
-            
-            auto now = std::chrono::steady_clock::now();
-            if (now - start >= timeout) {
-                break;
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(
-                100));
-        }
+		while (client.progress() < perc) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
     }
 
     std::filesystem::path TusClientTest::generateTestFile(int size)
@@ -190,7 +179,6 @@ namespace TUS::Test
 		uploadThread.join();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		std::cout << "Resuming" << std::endl;
 		float progress = client.progress();
 		std::thread resumeThread([&]()
@@ -219,10 +207,8 @@ namespace TUS::Test
 
 		std::thread uploadThread([&]()
 			{ client.upload(); });
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
+		waitUpload(client, 10);
 		client.cancel();
-		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for the thread to finish
 
 		EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
 		uploadThread.join();
