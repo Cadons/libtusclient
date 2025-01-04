@@ -122,5 +122,25 @@ TEST_F(HttpClientParameterizedTest, AbortAll)
     m_httpClient->abortAll();
     m_httpClient->execute();
 }
+TEST_F(HttpClientParameterizedTest, HttpsRequest)
+{
+    Request request("https://www.google.com", "", HttpMethod::_GET);
+    request.setOnSuccessCallback( [this](std::string header,
+                                             std::string data)
+    {
+        std::cout << data << std::endl;
+        std::cout << header << std::endl;
+        ASSERT_TRUE(data.size() > 0);
+    });
+    request.setOnErrorCallback( [this](std::string header,
+                                             std::string data)
+    {
+        ASSERT_TRUE(false);
+    });
+    m_httpClient->get(request);
+    m_httpClient->execute();
+
+
+}
 
 } // namespace TUS::Test::Http
