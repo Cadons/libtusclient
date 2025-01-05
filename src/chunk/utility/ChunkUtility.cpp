@@ -5,20 +5,21 @@
  */
 
 #include "chunk/utility/ChunkUtility.h"
+#define KB 1000
 
 using TUS::Chunk::Utility::ChunkUtility;
 
-int ChunkUtility::getChunkSizeFromGB(int size)
+std::int64_t ChunkUtility::getChunkSizeFromGB(int size)
 {
-    return size * 1024 * 1024 * 1024;
+      return static_cast<std::int64_t>( size * KB * KB * KB);
 }
 
-int ChunkUtility::getChunkSizeFromMB(int size)
+std::int64_t ChunkUtility::getChunkSizeFromMB(int size)
 {
-    return size * 1024 * 1024;
+      return static_cast<std::int64_t>( size * KB * KB);
 }
 
-int ChunkUtility::getChunkSizeFromKB(int size)
+std::int64_t ChunkUtility::getChunkSizeFromKB(int size)
 {
-    return size * 1024;
+      return static_cast<std::int64_t>( size * KB);
 }

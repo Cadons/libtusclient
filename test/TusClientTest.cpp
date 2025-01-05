@@ -30,7 +30,7 @@ namespace TUS::Test
 #ifdef WIN32
 			//Windows has some problems with file generation, it crashes when it uploads the generated file, with correct files it works
 			//TODO: investigate on windows and fix the problem, library should work on windows with no particular issues
-			GTEST_SKIP();
+		//	GTEST_SKIP();
 #endif
 		}
 
@@ -121,7 +121,16 @@ namespace TUS::Test
 		EXPECT_EQ(client.status(), TUS::TusStatus::READY);
 		std::filesystem::remove("test.txt");
 	}
+	TEST_F(TusClientTest, uploadSimpleTest)
+	{
+		std::filesystem::path testFilePath = generateTestFile(1);
+		std::cout << "Test file path: " << testFilePath << std::endl;
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath,logLevel);
 
+		client.upload();
+
+		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+	}
 	TEST_F(TusClientTest, uploadTest)
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
