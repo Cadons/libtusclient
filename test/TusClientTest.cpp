@@ -27,11 +27,6 @@ namespace TUS::Test
 		void SetUp() override
 		{
 			// Set up code here.
-#ifdef WIN32
-			//Windows has some problems with file generation, it crashes when it uploads the generated file, with correct files it works
-			//TODO: investigate on windows and fix the problem, library should work on windows with no particular issues
-		//	GTEST_SKIP();
-#endif
 		}
 
 		void TearDown() override
