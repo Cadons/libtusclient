@@ -27,11 +27,6 @@ namespace TUS::Test
 		void SetUp() override
 		{
 			// Set up code here.
-#ifdef WIN32
-			//Windows has some problems with file generation, it crashes when it uploads the generated file, with correct files it works
-			//TODO: investigate on windows and fix the problem, library should work on windows with no particular issues
-			GTEST_SKIP();
-#endif
 		}
 
 		void TearDown() override
@@ -56,20 +51,9 @@ namespace TUS::Test
         } else if (perc <= 0) {
             perc = 1;
         }
-
-        auto start = std::chrono::steady_clock::now(); 
-        const std::chrono::seconds timeout(30); //30s of timeout
-
-        while (client.progress() <= perc) {
-            
-            auto now = std::chrono::steady_clock::now();
-            if (now - start >= timeout) {
-                break;
-            }
-
-            std::this_thread::sleep_for(std::chrono::milliseconds(
-                100));
-        }
+		while (client.progress() < perc) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
     }
 
     std::filesystem::path TusClientTest::generateTestFile(int size)
@@ -132,7 +116,16 @@ namespace TUS::Test
 		EXPECT_EQ(client.status(), TUS::TusStatus::READY);
 		std::filesystem::remove("test.txt");
 	}
+	TEST_F(TusClientTest, uploadSimpleTest)
+	{
+		std::filesystem::path testFilePath = generateTestFile(1);
+		std::cout << "Test file path: " << testFilePath << std::endl;
+		TUS::TusClient client("testapp", "http://localhost:8080", testFilePath,logLevel);
 
+		client.upload();
+
+		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+	}
 	TEST_F(TusClientTest, uploadTest)
 	{
 		std::filesystem::path testFilePath = generateTestFile(10);
@@ -190,7 +183,6 @@ namespace TUS::Test
 		uploadThread.join();
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		std::cout << "Resuming" << std::endl;
 		float progress = client.progress();
 		std::thread resumeThread([&]()
@@ -219,10 +211,8 @@ namespace TUS::Test
 
 		std::thread uploadThread([&]()
 			{ client.upload(); });
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-
+		waitUpload(client, 10);
 		client.cancel();
-		std::this_thread::sleep_for(std::chrono::milliseconds(100)); // wait for the thread to finish
 
 		EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
 		uploadThread.join();

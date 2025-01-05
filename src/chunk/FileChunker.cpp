@@ -18,13 +18,13 @@ using TUS::Chunk::TUSChunk;
 using TUS::Chunk::Utility::ChunkUtility;
 void FileChunker::calculateChunkSize()
 {
-
+    m_chunkNumber = 0;
     auto fileSize = std::filesystem::file_size(m_filePath);
     if (fileSize >= ChunkUtility::getChunkSizeFromGB(1))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(10);
     }
-        else if (fileSize >= ChunkUtility::getChunkSizeFromMB(100))
+    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(100))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(5);
     }
@@ -32,13 +32,18 @@ void FileChunker::calculateChunkSize()
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(2);
     }
-    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(10)) 
+    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(10))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(1);
     }
-    else{
-        m_chunkSize = std::filesystem::file_size(m_filePath);//no chunking, upload the whole file
+    else
+    {
+        m_chunkSize = std::filesystem::file_size(m_filePath); // no chunking, upload the whole file
+        m_chunkNumber = 1;
+        return;
     }
+
+    m_chunkNumber = (fileSize + m_chunkSize - 1) / m_chunkSize;
 }
 FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize, std::unique_ptr<FileVerifier::IFileVerifier> verifier)
     : CHUNK_FILE_NAME_PREFIX("_chunk_"), CHUNK_FILE_EXTENSION(".bin"), m_appName(appName), m_uuid(uuid), m_tempDir(std::filesystem::temp_directory_path() / "TUS"), m_filePath(filepath)
@@ -102,7 +107,7 @@ bool FileChunker::loadChunks()
         chunkFile.seekg(0, std::ios::beg);             // Seek back to the beginning of the file
 
         std::vector<uint8_t> chunkData(chunkSize);
-        chunkFile.read(reinterpret_cast<char*>(chunkData.data()), chunkSize);
+        chunkFile.read(reinterpret_cast<char *>(chunkData.data()), chunkSize);
         chunkFile.close();
 
         TUSChunk chunk(chunkData, chunkSize);
@@ -117,15 +122,12 @@ int FileChunker::chunkFile()
 
     if (!inputFile)
     {
-       throw std::runtime_error("Failed to open input file: " + m_filePath.string());
-       }
+        throw std::runtime_error("Failed to open input file: " + m_filePath.string());
+    }
 
     // Get the size of the file
     std::streamsize fileSize = inputFile.tellg(); // Get the current position in the input file, which is the size of the file
     inputFile.seekg(0, std::ios::beg);            // Seek back to the beginning of the file
-
-    // Calculate the number of chunks
-    m_chunkNumber = (fileSize + m_chunkSize - 1) / m_chunkSize;
 
     // Create a buffer to store the chunk data
     std::vector<char> buffer(m_chunkSize);
@@ -201,7 +203,7 @@ FileChunker::~FileChunker()
 std::string FileChunker::hash(const std::vector<uint8_t> &buffer) const
 {
 
-   return m_verifier->hash(buffer);
+    return m_verifier->hash(buffer);
 }
 
 bool FileChunker::verify(const std::vector<uint8_t> &buffer, const std::string &hash) const

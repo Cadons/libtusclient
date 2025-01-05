@@ -6,6 +6,7 @@
 
 #ifndef INCLUDE_CHUNK_UTILITY_CHUNKUTILITY_H_
 #define INCLUDE_CHUNK_UTILITY_CHUNKUTILITY_H_
+#include <cstdint>
 #include "libtusclient.h"
 namespace TUS
 {
@@ -24,13 +25,13 @@ namespace TUS
                  * @param size The size of the chunk in GB
                  * @return The size of the chunk in byte
                  */
-                static int getChunkSizeFromGB(int size);
+                static std::int64_t getChunkSizeFromGB(int size);
                 /**
                  * @brief Get the chunk size in MB.
                  * @param size The size of the chunk in MB
                  * @return The size of the chunk in byte
                  */
-                static int getChunkSizeFromMB(int size);
+                static std::int64_t getChunkSizeFromMB(int size);
 
                 /**
                  * @brief Get the chunk size in KB.
@@ -39,7 +40,7 @@ namespace TUS
                  *
                  * @return The size of the chunk in byte
                  */
-                static int getChunkSizeFromKB(int size);
+                static std::int64_t getChunkSizeFromKB(int size);
             };
 
         } // namespace Utility

@@ -67,7 +67,9 @@ TusClient::TusClient(std::string appName, std::string url, path filePath,
     initialize(0);
 }
 
-TusClient::~TusClient() {}
+TusClient::~TusClient() {
+    m_httpClient->abortAll();
+}
 
 void TusClient::createTusFile()
 {
