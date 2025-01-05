@@ -127,7 +127,8 @@ IHttpClient* HttpClient::sendRequest(HttpMethod method, Request request)
             }
             else
             {
-                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request.getBody().c_str());
+                m_buffer = std::make_shared<std::string>(request.getBody());
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS,m_buffer->c_str());
                 curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, request.getBody().size()); // set the size of the data
             }
             break;

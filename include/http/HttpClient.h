@@ -85,6 +85,7 @@ namespace TUS
              * @return int (0=ok, 1=abort)
              */
             static int progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+            std::shared_ptr<string> m_buffer;
         };
     }
 }
