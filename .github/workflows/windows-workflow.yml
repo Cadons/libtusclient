@@ -36,9 +36,10 @@ jobs:
      
       - name: Setup vcpkg
         run: |
-            git clone https://github.com/microsoft/vcpkg.git 
-            & "vcpkg\bootstrap-vcpkg.bat"
-            & env:vcpkg_root=$GITHUB_WORKSPACE\vcpkg
+          git clone https://github.com/microsoft/vcpkg.git
+          & "vcpkg\bootstrap-vcpkg.bat"
+          $env:PATH = "$env:PATH;$(pwd)\vcpkg"
+          echo "vcpkg is now available"
         
 
       - name: Cache vcpkg dependencies
