@@ -54,7 +54,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
 
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
