@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-linux
-          path: build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
+          path: build/debug/lib/liblibtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
@@ -94,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: build/Debug
+          path: build/debug
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2

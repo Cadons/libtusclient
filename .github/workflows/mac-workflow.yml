@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-mac
-          path: build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.dylib
+          path: build/debug/lib/liblibtusclient.dylib
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
@@ -94,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test-mac
-          path: build/Debug
+          path: build/debug
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -115,15 +115,15 @@ jobs:
 
       - name: Test Project
         run: |
-          chmod +x build/Debug/test/libtusclient_test
-          export DYLD_LIBRARY_PATH=build/Debug:$DYLD_LIBRARY_PATH
-          build/Debug/test/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
+          chmod +x build/debug/bin/libtusclient_test
+          export DYLD_LIBRARY_PATH=build/debug:$DYLD_LIBRARY_PATH
+          build/debug/test/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: build/Debug/test-results.xml
+          path: build/debug/test-results.xml
 
   release-mac:
     needs: test-mac

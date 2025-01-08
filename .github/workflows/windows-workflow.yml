@@ -17,7 +17,7 @@ jobs:
         include:
           - c_compiler: cl
             cpp_compiler: cl
-            vcpkg_root: C:\vcpkg
+            vcpkg_root: ${pwd}\vcpkg
 
     steps:
       - uses: actions/checkout@v4
@@ -36,10 +36,8 @@ jobs:
      
       - name: Setup vcpkg
         run: |
-          git clone https://github.com/microsoft/vcpkg.git
-          & "vcpkg\bootstrap-vcpkg.bat"
-          $env:PATH = "$env:PATH;$(pwd)\vcpkg"
-          echo "vcpkg is now available"
+            git clone https://github.com/microsoft/vcpkg.git
+            & "${{ matrix.vcpkg_root }}\bootstrap-vcpkg.bat"
         
 
       - name: Cache vcpkg dependencies
