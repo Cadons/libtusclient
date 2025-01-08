@@ -43,7 +43,7 @@ jobs:
       - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ matrix.vcpkg_root }}\installed
+          path: build/vcpkg-installed
           key: ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
           restore-keys: |
             ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-
@@ -54,7 +54,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
 
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
