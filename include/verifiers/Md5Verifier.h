@@ -11,7 +11,7 @@
 
 namespace TUS{
     namespace FileVerifier{
-        class LIBTUSAPI_EXPORT Md5Verifier : public IFileVerifier
+        class EXPORT_LIBTUSCLIENT Md5Verifier : public IFileVerifier
         {
         public:
             Md5Verifier();

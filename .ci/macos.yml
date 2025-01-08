@@ -1,0 +1,25 @@
+build-macos:
+  stage: build
+  tags:
+    - mss
+  script:
+    - echo "Not yet implemented"
+test-macos:
+  stage: test
+  needs:
+    - build-macos
+  tags:
+    - mss
+  script:
+    - echo "Not yet implemented"
+deploy-macos:
+  stage: deploy
+  needs:
+    - build-macos
+    - test-macos
+  tags:
+    - mss
+  only:
+    - master
+  script:
+    - echo "Not yet implemented"

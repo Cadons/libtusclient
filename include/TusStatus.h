@@ -11,7 +11,7 @@
 namespace TUS
 {
 
-    enum class LIBTUSAPI_EXPORT TusStatus
+    enum class EXPORT_LIBTUSCLIENT TusStatus
     {
         READY,
         UPLOADING,

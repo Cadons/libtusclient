@@ -1,0 +1,26 @@
+# Doxyfile configuration file
+
+# Set the project name
+PROJECT_NAME = "<PROJECT_NAME>"
+
+# Enable dot (graphviz) to generate graphical class diagrams
+HAVE_DOT = YES
+
+# Set the path to dot executable (if not in PATH)
+DOT_PATH = /path/to/dot
+
+# Enable inheritance diagrams
+CLASS_DIAGRAMS = YES
+
+# Enable collaboration diagrams (associations/relationships)
+COLLABORATION_GRAPH = YES
+
+# Set the source directories
+INPUT = .
+# Set the header directories
+INCLUDE_PATH = .
+# Enable recursive directory scanning
+RECURSIVE = YES
+INPUT += README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+OUTPUT_DIRECTORY = build/docs/

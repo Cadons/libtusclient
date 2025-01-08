@@ -20,7 +20,7 @@ namespace TUS {
      * This class represents a chunk of a TUS file. A chunk is a part of a file
      * that is uploaded to the server in a single request.
      */
-    class LIBTUSAPI_EXPORT TUSChunk
+    class EXPORT_LIBTUSCLIENT TUSChunk
     {
     public:
         /**

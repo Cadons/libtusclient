@@ -20,7 +20,7 @@ namespace TUS
          * The repository stores TUSFile objects in a cache file.
          */
 
-        class LIBTUSAPI_EXPORT CacheRepository : public Repository::IRepository<TUSFile>
+        class EXPORT_LIBTUSCLIENT CacheRepository : public Repository::IRepository<TUSFile>
         {
 
         public:

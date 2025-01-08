@@ -31,7 +31,7 @@ namespace TUS
          * To get the chunks, the loadChunks method must be called and you can get the chunks with the getChunks method,
          * which returns a vector of TUSChunk objects.
          */
-        class LIBTUSAPI_EXPORT FileChunker : public IFileChunker<TUSChunk>, public FileVerifier::IFileVerifier
+        class EXPORT_LIBTUSCLIENT FileChunker : public IFileChunker<TUSChunk>, public FileVerifier::IFileVerifier
         {
         private:
             const string CHUNK_FILE_NAME_PREFIX = "_chunk_";

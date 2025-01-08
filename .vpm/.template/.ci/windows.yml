@@ -1,0 +1,51 @@
+build-windows:
+  stage: build
+  tags:
+    - devops-win
+  script:
+    - $env:VCPKG_ROOT="D:\vcpkg"
+    - $env:PATH="$env:VCPKG_ROOT;$env:PATH"
+    - vcpkg integrate install
+    - $env:VCPKG_BINARY_SOURCES="clear;files,D:\vcpkg-cache,readwrite"
+    - Copy-Item .vpm/.template/CMakePresetForWindowsCI.json -Destination CMakeUserPresets.json
+    - echo "Building project ..."
+    - cmake --preset CI
+    - cmake --build --preset Release
+  artifacts:
+    paths:
+      - build/Release
+      - build/test
+    expire_in: 1 hour
+test-windows:
+  image: my.local.registry/vcpkg_builder
+  stage: test
+  needs:
+    - build-windows
+  tags:
+    - devops-win
+  script:
+    - echo "Running tests..."
+    - cd build/test
+    - ctest --output-junit test_report.xml --output-on-failure -C Release
+  artifacts:
+    reports:
+      junit: build/test/test_report.xml
+    expire_in: 1 hour
+
+deploy-windows:
+  stage: deploy
+  needs:
+    - build-windows
+    - test-windows
+  only:
+    - master
+  tags:
+    - devops-win
+  when: manual  # Manual trigger for the deployment stage
+  script:
+    - echo "Deploying... (this is just a placeholder, no actual deployment steps)"
+  artifacts:
+    paths:
+      - build/Release/bin
+      - build/Release/lib
+    expire_in: 1 week

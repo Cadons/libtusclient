@@ -22,7 +22,7 @@ namespace TUS {
         /**
          * @brief Interface for logging
          */
-        class LIBTUSAPI_EXPORT ILogger {
+        class EXPORT_LIBTUSCLIENT ILogger {
         public:
             virtual void setLevel(LogLevel level) = 0;
             virtual void log(const std::string &message, LogLevel level) = 0;

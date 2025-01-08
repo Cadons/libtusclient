@@ -1,0 +1,40 @@
+stages:
+  - build
+  - test
+  - deploy 
+  - publish
+
+variables:
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+before_script:
+  - git submodule sync
+  - git submodule update --init --recursive
+  
+include:
+  - .ci/linux.yml
+  - .ci/windows.yml
+  - .ci/macos.yml
+
+publish:
+  stage: publish
+  image: my.local.registry/vcpkg_builder
+  needs:
+    - build-linux
+    - test-linux
+  tags:
+    - devops-linux
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    - if: '$CI_COMMIT_TAG && $CI_DEFAULT_BRANCH == "master"'
+      when: always
+    - when: never
+  script:
+    - echo "Sending POST request to vcpkg-deployer.medacta.locale"
+    - |
+      curl -X POST http://vcpkg-deployer.medacta.locale/deploy \
+           -H "Content-Type: application/json" \
+           -d '{
+                 "tag": "'"$CI_COMMIT_TAG"'",
+                 "repo": "'https://github.com/Cadons/libtusclient.git'"
+               }'

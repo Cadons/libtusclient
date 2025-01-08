@@ -23,7 +23,7 @@ namespace TUS
     namespace Http
     {
 
-        struct LIBTUSAPI_EXPORT Progress
+        struct EXPORT_LIBTUSCLIENT Progress
         {
             char * data;
             size_t size;
@@ -32,7 +32,7 @@ namespace TUS
         /**
          * @brief Represents a HTTP client
          */
-        class LIBTUSAPI_EXPORT HttpClient : public IHttpClient
+        class EXPORT_LIBTUSCLIENT HttpClient : public IHttpClient
         {
 
         public:

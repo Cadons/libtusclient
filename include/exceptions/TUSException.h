@@ -17,7 +17,7 @@ namespace TUS
          * @brief Exception class for TUS client errors.
          */
 
-        class LIBTUSAPI_EXPORT TUSException : public std::runtime_error
+        class EXPORT_LIBTUSCLIENT TUSException : public std::runtime_error
         {
         public:
             TUSException(const std::string &message) : std::runtime_error(message) {}

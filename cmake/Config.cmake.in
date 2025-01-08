@@ -1,0 +1,10 @@
+# Config.cmake.in
+
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/libtusclientTargets.cmake")
+
+check_required_components(libtusclient)
+
+include(CMakeFindDependencyMacro)
+

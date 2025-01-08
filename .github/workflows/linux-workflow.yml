@@ -17,8 +17,7 @@ jobs:
         include:
           - c_compiler: gcc
             cpp_compiler: g++
-            conan_home: /home/runner/.conan2
-            conan_profile: /home/runner/.conan2/profiles/default
+            vcpkg_root: $HOME/vcpkg
 
     steps:
       - uses: actions/checkout@v4
@@ -35,53 +34,48 @@ jobs:
             echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Install conan package manager
+      - name: Setup vcpkg
         run: |
-          pip install conan
-          conan --version
+          if [ ! -d "${{ matrix.vcpkg_root }}" ]; then
+            git clone https://github.com/microsoft/vcpkg.git "${{ matrix.vcpkg_root }}"
+            "${{ matrix.vcpkg_root }}/bootstrap-vcpkg.sh"
+          fi
 
-      - name: Cache .conan
+      - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
-          path: ${{ matrix.conan_home }}
-          key: ${{ runner.os }}-conan-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
+          path: ${{ matrix.vcpkg_root }}/installed
+          key: ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
           restore-keys: |
-            ${{ runner.os }}-conan-${{ matrix.c_compiler }}-
+            ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-
 
-      - name: Create Conan profiles
-        continue-on-error: true
+      - name: Install dependencies with vcpkg
         run: |
-          conan profile detect
-
-      - name: Conan profile setup
-        run: |
-          sed -i 's/^build_type=.*/build_type=${{ steps.strings.outputs.test-folder }}/g' ${{ matrix.conan_profile }}
-
-      - name: Install dependencies
-        run: |
-          conan install . --build=missing --profile=default
+          "${{ matrix.vcpkg_root }}/vcpkg" install --triplet x64-linux
 
       - name: Configure CMake
-        run: cmake --preset conan-${{ steps.strings.outputs.build-type }}
+        run: |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
 
       - name: Build Library
-        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient
+        run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
 
       - name: Build Tests
-        run: cmake --build --preset conan-${{ steps.strings.outputs.build-type }} --target libtusclient_test
+        run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-linux
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
+          path: build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
+
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-for-test
           path: |
-            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
-            ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test
+            build/${{ steps.strings.outputs.test-folder }}/liblibtusclient.so
+            build/${{ steps.strings.outputs.test-folder }}/test/libtusclient_test
 
   test-linux:
     needs: build-linux
@@ -100,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: ${{ github.workspace }}/build/Debug
+          path: build/Debug
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -116,16 +110,16 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          chmod +x ${{ github.workspace }}/build/Debug/test/libtusclient_test
-          export LD_LIBRARY_PATH=${{ github.workspace }}/build/Debug:$LD_LIBRARY_PATH
-          ${{ github.workspace }}/build/Debug/test/libtusclient_test --gtest_output=xml:${{ github.workspace }}/build/Debug/test-results.xml
+          chmod +x build/Debug/test/libtusclient_test
+          export LD_LIBRARY_PATH=build/Debug:$LD_LIBRARY_PATH
+          build/Debug/test/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
+
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: ${{ github.workspace }}/build/Debug/test-results.xml
+          path: build/Debug/test-results.xml
 
- 
   release-linux:
     needs: test-linux
     if: github.event_name == 'release'
@@ -136,13 +130,13 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
-          name: build-artifacts
-          path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          name: build-artifacts-linux
+          path: build/${{ steps.strings.outputs.test-folder }}
 
       - name: Upload Release Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
+          asset_path: build/${{ steps.strings.outputs.test-folder }}
           asset_name: libtusclient-${{ steps.strings.outputs.build-type }}.zip
           asset_content_type: application/zip

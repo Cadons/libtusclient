@@ -18,7 +18,7 @@ namespace TUS
 {
     namespace Http
     {
-        enum class LIBTUSAPI_EXPORT HttpMethod
+        enum class EXPORT_LIBTUSCLIENT HttpMethod
         {
             _GET,
             _POST,
@@ -31,7 +31,7 @@ namespace TUS
         /**
          * @brief Represents a HTTP request
          */
-        class LIBTUSAPI_EXPORT Request
+        class EXPORT_LIBTUSCLIENT Request
         {
         public:
             using SuccessCallback = std::function<void(std::string header, std::string data)>;

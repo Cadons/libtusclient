@@ -28,7 +28,7 @@ namespace TUS
          * and retrieve the total number of chunks.
          */
         template <typename T>
-        class LIBTUSAPI_EXPORT IFileChunker
+        class EXPORT_LIBTUSCLIENT IFileChunker
         {
         public:
             virtual ~IFileChunker() = default;

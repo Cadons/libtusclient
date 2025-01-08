@@ -14,7 +14,7 @@ namespace TUS
 {
     namespace Http
     {
-       struct LIBTUSAPI_EXPORT RequestTask: public Request
+       struct EXPORT_LIBTUSCLIENT RequestTask: public Request
         {
             CURL *curl;
             RequestTask(Request request, CURL *curl);
