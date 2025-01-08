@@ -6,7 +6,6 @@
 
 #ifndef INCLUDE_LIBTUSCLIENT_H_
 #define INCLUDE_LIBTUSCLIENT_H_
- 
 #define TUS_PROTOCOL_VERSION "1.0.0"
 #ifdef _WINDOWS
 #include <windows.h>

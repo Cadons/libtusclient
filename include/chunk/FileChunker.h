@@ -40,7 +40,7 @@ namespace TUS
             const string m_uuid;
             const path m_tempDir;
             const path m_filePath;
-            int m_chunkSize;
+            int64_t m_chunkSize;
             std::vector<TUSChunk> m_chunks;
             int m_chunkNumber;
             std::unique_ptr<FileVerifier::IFileVerifier> m_verifier;

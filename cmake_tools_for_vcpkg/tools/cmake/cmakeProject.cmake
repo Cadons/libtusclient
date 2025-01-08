@@ -70,5 +70,5 @@ configure_output_directories()
 collect_source_files()
 
 # Debugging: print project name and source files
-message("Configuring Qt project.....")
+message("Configuring Project.....")
 message("Project Name: ${CMAKE_PROJECT_NAME}")
