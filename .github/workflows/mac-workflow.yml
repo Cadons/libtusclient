@@ -74,8 +74,8 @@ jobs:
         with:
           name: build-artifacts-for-test-mac
           path: |
-            build/Debug/liblibtusclient.dylib
-            build/test/libtusclient_test
+            build/debug/lib/liblibtusclient.dylib
+            build/test/bin/libtusclient_test
 
   test-mac:
     needs: build-mac
