@@ -36,11 +36,11 @@ jobs:
 
       - name: Setup vcpkg
         run: |
-          if [ ! -d "${{ matrix.vcpkg_root }}" ]; then
-            git clone https://github.com/microsoft/vcpkg.git "${{ matrix.vcpkg_root }}"
-            "${{ matrix.vcpkg_root }}\bootstrap-vcpkg.bat"
-          fi
-
+          if not exist "%vcpkg_root%" (
+            git clone https://github.com/microsoft/vcpkg.git "%vcpkg_root%"
+            "%vcpkg_root%\bootstrap-vcpkg.bat"
+          )
+          
       - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
