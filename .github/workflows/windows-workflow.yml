@@ -33,14 +33,14 @@ jobs:
             echo "build-type=debug" >> "$GITHUB_OUTPUT"
             echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
           fi
-
+     
       - name: Setup vcpkg
         run: |
-          if not exist "%vcpkg_root%" (
-            git clone https://github.com/microsoft/vcpkg.git "%vcpkg_root%"
-            "%vcpkg_root%\bootstrap-vcpkg.bat"
-          )
-          
+          if (-not (Test-Path -Path $env:vcpkg_root)) {
+            git clone https://github.com/microsoft/vcpkg.git $env:vcpkg_root
+            & "$env:vcpkg_root\bootstrap-vcpkg.bat"
+          }
+
       - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
