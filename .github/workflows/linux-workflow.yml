@@ -110,9 +110,9 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          chmod +x build/debug/libtusclient_test
+          chmod +x build/debug/bin/libtusclient_test
           export LD_LIBRARY_PATH=build/debug:$LD_LIBRARY_PATH
-          build/debug/libtusclient_test --gtest_output=xml:build/debug/test-results.xml
+          build/debug/bin/libtusclient_test --gtest_output=xml:build/debug/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3

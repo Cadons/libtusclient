@@ -66,15 +66,15 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-windows
-          path: build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
+          path: build/${{ steps.strings.outputs.test-folder }}/bin/*.dll
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-for-test
           path: |
-            build/${{ steps.strings.outputs.test-folder }}/libtusclient.dll
-            build/${{ steps.strings.outputs.test-folder }}/libtusclient_test.exe
+            build/${{ steps.strings.outputs.test-folder }}/bin/*.dll
+            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test.exe
 
   test-windows:
     needs: build-windows
