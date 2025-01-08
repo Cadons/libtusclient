@@ -31,7 +31,7 @@ jobs:
             echo "test-folder=Release" >> "$GITHUB_OUTPUT"
           else
             echo "build-type=debug" >> "$GITHUB_OUTPUT"
-            echo "test-folder=Debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=debug" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup vcpkg
@@ -87,7 +87,7 @@ jobs:
 
     steps:
       - name: "Create folder for test results"
-        run: mkdir -p ${{ github.workspace }}/build/Debug
+        run: mkdir -p ${{ github.workspace }}/build/debug
       - uses: actions/checkout@v4
 
       - name: Download build artifacts
@@ -110,15 +110,15 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          chmod +x build/Debug/test/libtusclient_test
-          export LD_LIBRARY_PATH=build/Debug:$LD_LIBRARY_PATH
-          build/Debug/test/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
+          chmod +x build/debug/test/libtusclient_test
+          export LD_LIBRARY_PATH=build/debug:$LD_LIBRARY_PATH
+          build/debug/test/libtusclient_test --gtest_output=xml:build/debug/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: build/Debug/test-results.xml
+          path: build/debug/test-results.xml
 
   release-linux:
     needs: test-linux
