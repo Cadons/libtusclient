@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies with vcpkg
         run: |
-          "${{ matrix.vcpkg_root }}\vcpkg.exe" install --triplet x64-windows
+          ${{ matrix.vcpkg_root }}\vcpkg.exe install --triplet x64-windows
 
       - name: Configure CMake
         run: |

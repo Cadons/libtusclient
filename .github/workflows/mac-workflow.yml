@@ -51,7 +51,7 @@ jobs:
 
       - name: Install dependencies with vcpkg
         run: |
-          ${{ matrix.vcpkg_root }}/vcpkg install --triplet x64-osx
+          "${{ matrix.vcpkg_root }}/vcpkg" install --triplet x64-osx
 
       - name: Configure CMake
         run: |
