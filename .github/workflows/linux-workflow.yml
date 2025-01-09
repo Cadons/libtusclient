@@ -34,24 +34,29 @@ jobs:
             echo "test-folder=debug" >> "$GITHUB_OUTPUT"
           fi
       
-      - name: create and setup vcpkg cache
-        run: |
-          mkdir vcpkg-cache
-          & VCPKG_BINARY_SOURCES="clear;files,$PWD\vcpkg-cache,readwrite"
-      - name: Cache vcpkg dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            vcpkg-cache
-          key: vcpkg-cache
-
+     
       - name: Setup vcpkg
         run: |
           if [ ! -d "${{ matrix.vcpkg_root }}" ]; then
             git clone https://github.com/microsoft/vcpkg.git "${{ matrix.vcpkg_root }}"
             "${{ matrix.vcpkg_root }}/bootstrap-vcpkg.sh"
           fi
+      - name: Setup vcpkg cache
+        shell: bash
+        run: |
+          mkdir -p "${{ github.workspace }}/vcpkg_cache"
+          export VCPKG_DEFAULT_BINARY_CACHE="${{ github.workspace }}/vcpkg_cache"
+          export VCPKG_BINARY_SOURCES="clear;x-gha,readwrite;files,${{ github.workspace }}/vcpkg_cache,readwrite"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=$VCPKG_DEFAULT_BINARY_CACHE" >> $GITHUB_ENV
+          echo "VCPKG_BINARY_SOURCES=$VCPKG_BINARY_SOURCES" >> $GITHUB_ENV
 
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}

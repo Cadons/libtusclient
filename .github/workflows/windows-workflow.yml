@@ -38,22 +38,26 @@ jobs:
         run: |
             git clone https://github.com/microsoft/vcpkg.git
             & "${{ matrix.vcpkg_root }}\bootstrap-vcpkg.bat"
-      - name: create and setup vcpkg cache
+      - name: Setup vcpkg cache
+        shell: pwsh
         run: |
-          mkdir vcpkg-cache
-          & $env:VCPKG_BINARY_SOURCES="clear;files,$PWD\vcpkg-cache,readwrite"
-      - name: Cache vcpkg dependencies
+          New-Item -Path "${{ github.workspace }}/vcpkg_cache" -ItemType Directory -Force
+          $env:VCPKG_DEFAULT_BINARY_CACHE="${{ github.workspace }}/vcpkg_cache"
+          $env:VCPKG_BINARY_SOURCES="clear;x-gha,readwrite;files,${{ github.workspace }}/vcpkg_cache,readwrite"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg_cache" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "VCPKG_BINARY_SOURCES=$env:VCPKG_BINARY_SOURCES" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Cache vcpkg
         uses: actions/cache@v4
         with:
-          path: |
-            vcpkg-cache
-          key: vcpkg-cache
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}
+
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
-      
-
-
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
 
