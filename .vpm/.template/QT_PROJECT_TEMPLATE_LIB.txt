@@ -1,0 +1,9 @@
+# Find Qt packages
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
+#Enable modules
+set(PROJECT_LIBRARIES Qt6::Core)
+
+#Qt Resources
+set(RESOURCES "")
+

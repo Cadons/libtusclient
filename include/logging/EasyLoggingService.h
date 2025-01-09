@@ -10,7 +10,7 @@
 
 namespace TUS {
 namespace Logging {
-class LIBTUSAPI_EXPORT EasyLoggingService : public ILogger {
+class EXPORT_LIBTUSCLIENT EasyLoggingService : public ILogger {
   public:
     EasyLoggingService(LogLevel level);
     ~EasyLoggingService();

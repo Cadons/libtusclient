@@ -17,7 +17,7 @@ namespace TUS
             /**
              * @brief The ChunkUtility class provides utility methods for working with chunks.
              */
-            class LIBTUSAPI_EXPORT ChunkUtility
+            class EXPORT_LIBTUSCLIENT ChunkUtility
             {
             public:
                 /**

@@ -22,7 +22,7 @@ namespace TUS{
      * from the cache.
      */
 
-    class LIBTUSAPI_EXPORT ICacheManager
+    class EXPORT_LIBTUSCLIENT ICacheManager
     {
     public:
         /**

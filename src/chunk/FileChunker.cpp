@@ -20,21 +20,21 @@ void FileChunker::calculateChunkSize()
 {
     m_chunkNumber = 0;
     auto fileSize = std::filesystem::file_size(m_filePath);
-    if (fileSize >= ChunkUtility::getChunkSizeFromGB(1))
+    if (static_cast<int64_t>(fileSize) >= ChunkUtility::getChunkSizeFromGB(1))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(10);
     }
-    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(100))
+    else if (static_cast<int64_t>(fileSize) >= ChunkUtility::getChunkSizeFromMB(100))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(5);
     }
-    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(50))
+    else if (static_cast<int64_t>(fileSize) >= ChunkUtility::getChunkSizeFromMB(50))
     {
         m_chunkSize = ChunkUtility::getChunkSizeFromMB(2);
     }
-    else if (fileSize >= ChunkUtility::getChunkSizeFromMB(10))
+    else if (static_cast<int64_t>(fileSize) >= ChunkUtility::getChunkSizeFromMB(10))
     {
-        m_chunkSize = ChunkUtility::getChunkSizeFromMB(1);
+        m_chunkSize = static_cast<int>(ChunkUtility::getChunkSizeFromMB(1));
     }
     else
     {
@@ -43,7 +43,7 @@ void FileChunker::calculateChunkSize()
         return;
     }
 
-    m_chunkNumber = (fileSize + m_chunkSize - 1) / m_chunkSize;
+    m_chunkNumber = static_cast<int>((fileSize + m_chunkSize - 1) / m_chunkSize);
 }
 FileChunker::FileChunker(std::string appName, std::string uuid, std::filesystem::path filepath, int chunkSize, std::unique_ptr<FileVerifier::IFileVerifier> verifier)
     : CHUNK_FILE_NAME_PREFIX("_chunk_"), CHUNK_FILE_EXTENSION(".bin"), m_appName(appName), m_uuid(uuid), m_tempDir(std::filesystem::temp_directory_path() / "TUS"), m_filePath(filepath)
@@ -131,7 +131,7 @@ int FileChunker::chunkFile()
 
     // Create a buffer to store the chunk data
     std::vector<char> buffer(m_chunkSize);
-    int totalBytesRead = 0;
+    std::streamsize totalBytesRead = 0;
 
     for (int i = 0; i < m_chunkNumber; ++i)
     {

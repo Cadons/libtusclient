@@ -1,0 +1,6 @@
+venv/
+.venv
+.idea
+.vs
+.vscode
+cmake/config.cmake

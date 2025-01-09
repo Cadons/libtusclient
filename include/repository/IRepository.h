@@ -17,7 +17,7 @@ namespace TUS
     namespace Repository
     {
         template <typename T>
-        class LIBTUSAPI_EXPORT IRepository
+        class EXPORT_LIBTUSCLIENT IRepository
         {
         public:
             virtual ~IRepository() = default;

@@ -1,0 +1,3 @@
+GitPython
+coloredlogs
+colorama

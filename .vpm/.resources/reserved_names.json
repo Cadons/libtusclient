@@ -1,0 +1,24 @@
+[
+    
+    "CMAKE_*", "BUILD_*", "CMAKE_SOURCE_DIR", "CMAKE_BINARY_DIR", 
+    "CMAKE_CACHE_FILE", "CMAKE_C_FLAGS", "CMAKE_CXX_FLAGS", 
+    "CMAKE_BUILD_TYPE", "CMAKE_INSTALL_PREFIX", "CMAKE_CXX_COMPILER", 
+    "CMAKE_LINKER", "CMAKE_INSTALL_PREFIX",
+
+
+    "all", "install", "clean", "test", "run", "check", 
+    "package", "install_manifest", "cmake",
+
+
+    "add_custom_target", "add_dependencies", "add_executable", 
+    "add_library", "target_link_libraries", "target_include_directories", 
+    "target_compile_definitions", "target_compile_options", "include", 
+    "find_package", "install", "execute_process", "set", "foreach", 
+    "if", "else", "endif", "function", "macro", "project", 
+
+
+    "CMakeLists.txt", "CMakePresets.json", "CMakeUserPresets.json", 
+    "CMakeCache.txt", "CMakeFiles",
+
+    "install_manifest", "export", "install_files", "package_files"
+]

@@ -1,0 +1,55 @@
+# Build Stage
+build-linux:
+  image: my.local.registry/vcpkg_builder
+  stage: build
+
+  tags:
+    - devops-linux
+  script:
+    - cp .vpm/.template/CMakePresetForLinuxCI.json CMakeUserPresets.json
+    - echo "Building project ..."
+    - cmake --preset CI
+    - cmake --build --preset Release
+  artifacts:
+    paths:
+      - build/bin
+      - build/lib
+      - build/test
+    expire_in: 1 hour
+
+# Test Stage
+test-linux:
+  image: my.local.registry/vcpkg_builder
+  stage: test
+  needs:
+    - build-linux
+  tags:
+    - devops-linux
+  script:
+    - echo "Running tests..."
+    - cd build/test
+    - ctest --output-junit test_report.xml --output-on-failure
+  artifacts:
+    reports:
+      junit: build/test/test_report.xml
+    expire_in: 1 hour
+# Deploy Stage
+deploy-linux:
+  image: my.local.registry/vcpkg_builder
+  stage: deploy
+  needs:
+    - build-linux
+    - test-linux
+  only:
+    - master
+  tags:
+    - devops-linux
+  when: manual  # Manual trigger for the deployment stage
+  script:
+    - echo "Deploying... (this is just a placeholder, no actual deployment steps)"
+  artifacts:
+    paths:
+
+      - build/bin
+      - build/lib
+    expire_in: 1 week

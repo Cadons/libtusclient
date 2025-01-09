@@ -24,7 +24,7 @@ namespace Cache{
      * the size of the full file and the application name that created the record.
      * This class provides methods for storing and retrieving data from the cache.
      */
-    class LIBTUSAPI_EXPORT TUSFile
+    class EXPORT_LIBTUSCLIENT TUSFile
     {
     public:
         /**

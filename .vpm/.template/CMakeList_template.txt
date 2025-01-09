@@ -1,0 +1,29 @@
+<LOGO>
+cmake_minimum_required(VERSION 3.12)
+project(<PROJECT_NAME> CXX)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake_tools_for_vcpkg/tools/cmake/cmakeProject.cmake)
+
+message(STATUS "${PROJECT_NAME} Build")
+
+# Find required packages
+<QT_PROJECT_SECTION>
+# Configure file for headers
+configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_CURRENT_LIST_DIR}/include/config.h)
+
+
+set(PROJECT_LIBRARIES "")
+
+<ARTIFACT_TYPE>
+
+setup_install(${CMAKE_PROJECT_NAME})
+setup_package(${CMAKE_PROJECT_NAME})
+# Option to build tests
+option(BUILD_TEST "Build the test suite" ON)
+if(BUILD_TEST)
+    # Enable testing
+    enable_testing()
+    
+    <TEST_LIB>
+    <PROJECT_LIB>
+    add_subdirectory(test)
+endif()
