@@ -64,13 +64,13 @@ jobs:
         run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-mac
           path: build/debug/lib/liblibtusclient.dylib
 
       - name: Upload artifacts for test
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test-mac
           path: |
@@ -119,7 +119,7 @@ jobs:
           build/debug/test/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: build/debug/test-results.xml
