@@ -49,20 +49,13 @@ jobs:
         env: 
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
-      - name: Cache vcpkg dependencies
-        uses: actions/cache@v4
-        with:
-          path: build/vcpkg-installed
-          key: ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-
-
+ 
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       
       - name: Cache vcpkg dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             vcpkg

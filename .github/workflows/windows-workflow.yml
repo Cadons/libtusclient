@@ -43,7 +43,7 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       - name: Cache vcpkg dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             vcpkg
