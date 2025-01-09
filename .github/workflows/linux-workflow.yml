@@ -75,13 +75,13 @@ jobs:
         run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-linux
           path: build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
 
       - name: Upload artifacts for test
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
@@ -113,7 +113,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
           path: build/${{ steps.strings.outputs.test-folder }}
@@ -137,7 +137,7 @@ jobs:
           build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-results
           path: build/${{ steps.strings.outputs.test-folder }}/test-results.xml
