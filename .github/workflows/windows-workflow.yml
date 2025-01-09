@@ -71,13 +71,13 @@ jobs:
         run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-windows
           path: build/${{ steps.strings.outputs.test-folder }}/bin/*.dll
 
       - name: Upload artifacts for test
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
@@ -91,7 +91,7 @@ jobs:
       - uses: actions/checkout@v4
      
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
           path: build/
