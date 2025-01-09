@@ -44,13 +44,17 @@ jobs:
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
+      - name: create and setup vcpkg cache
+        run: |
+          mkdir vcpkg-cache
+          & VCPKG_BINARY_SOURCES="clear;files,$PWD\vcpkg-cache,readwrite"
+
       - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ${{ matrix.vcpkg_root }}
-          key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ hashFiles('**/vcpkg.json') }}
-
+            vcpkg-cache
+          key: vcpkg-cache
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
 

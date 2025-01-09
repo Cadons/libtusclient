@@ -33,6 +33,17 @@ jobs:
             echo "build-type=debug" >> "$GITHUB_OUTPUT"
             echo "test-folder=debug" >> "$GITHUB_OUTPUT"
           fi
+      
+      - name: create and setup vcpkg cache
+        run: |
+          mkdir vcpkg-cache
+          & VCPKG_BINARY_SOURCES="clear;files,$PWD\vcpkg-cache,readwrite"
+      - name: Cache vcpkg dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg-cache
+          key: vcpkg-cache
 
       - name: Setup vcpkg
         run: |
@@ -45,13 +56,7 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       
-      - name: Cache vcpkg dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ matrix.vcpkg_root }}
-          key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ hashFiles('**/vcpkg.json') }}
-
+   
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
 
