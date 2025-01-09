@@ -87,10 +87,9 @@ jobs:
   test-windows:
     needs: build-windows
     runs-on: windows-latest
-    if: github.ref_name != 'main'
     steps:
       - uses: actions/checkout@v4
-
+     
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:

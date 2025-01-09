@@ -78,15 +78,15 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-linux
-          path: build/debug/lib/liblibtusclient.so
+          path: build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts-for-test
           path: |
-            build/debug/lib/liblibtusclient.so
-            build/debug/bin/libtusclient_test
+            build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
+            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
 
   test-linux:
     needs: build-linux
@@ -97,15 +97,26 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "build-type=release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "build-type=debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=debug" >> "$GITHUB_OUTPUT"
+          fi
       - name: "Create folder for test results"
-        run: mkdir -p ${{ github.workspace }}/build/debug
+        run: mkdir -p ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
       - uses: actions/checkout@v4
 
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
           name: build-artifacts-for-test
-          path: build/debug
+          path: build/${{ steps.strings.outputs.test-folder }}
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -121,15 +132,15 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          chmod +x build/debug/bin/libtusclient_test
-          export LD_LIBRARY_PATH=build/debug:$LD_LIBRARY_PATH
-          build/debug/bin/libtusclient_test --gtest_output=xml:build/debug/test-results.xml
+          chmod +x build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
+          export LD_LIBRARY_PATH=build/${{ steps.strings.outputs.test-folder }}:$LD_LIBRARY_PATH
+          build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: build/debug/test-results.xml
+          path: build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
   release-linux:
     needs: test-linux
