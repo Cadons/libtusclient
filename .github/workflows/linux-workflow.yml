@@ -75,7 +75,7 @@ jobs:
           name: build-artifacts-for-test
           path: |
             build/debug/lib/liblibtusclient.so
-            build/test/bin/libtusclient_test
+            build/debug/bin/libtusclient_test
 
   test-linux:
     needs: build-linux

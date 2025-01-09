@@ -105,7 +105,7 @@ jobs:
 
       - name: Download and unzip tusd
         run: |
-          curl -L -o tusd.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_darwin_amd64.zip
+          curl -L -o tusd.zip https://github.com/tus/tusd/releases/download/v2.5.0/tusd_darwin_arm64.zip
           unzip tusd.zip -d tusd
           chmod +x tusd/tusd_darwin_arm64/tusd
       - name: Run tusd in background
