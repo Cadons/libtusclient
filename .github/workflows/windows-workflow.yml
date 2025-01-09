@@ -38,16 +38,16 @@ jobs:
         run: |
             git clone https://github.com/microsoft/vcpkg.git
             & "${{ matrix.vcpkg_root }}\bootstrap-vcpkg.bat"
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       - name: Cache vcpkg dependencies
         uses: actions/cache@v4
         with:
           path: |
-            vcpkg
+            ${{ matrix.vcpkg_root }}
           key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ hashFiles('**/vcpkg.json') }}
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
 
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
