@@ -87,7 +87,6 @@ jobs:
   test-windows:
     needs: build-windows
     runs-on: windows-latest
-    if: github.ref_name != 'main'
     steps:
       - uses: actions/checkout@v4
 

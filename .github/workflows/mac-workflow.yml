@@ -76,15 +76,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-mac
-          path: build/debug/lib/liblibtusclient.dylib
+          path: build/${{ steps.strings.outputs.build-type }}/lib/liblibtusclient.dylib
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test-mac
           path: |
-            build/debug/lib/liblibtusclient.dylib
-            build/debug/bin/libtusclient_test
+            build/${{ steps.strings.outputs.build-type }}/lib/liblibtusclient.dylib
+            build/${{ steps.strings.outputs.build-type }}/bin/libtusclient_test
 
   test-mac:
     needs: build-mac
@@ -96,14 +96,14 @@ jobs:
 
     steps:
       - name: "Create folder for test results"
-        run: mkdir -p ${{ github.workspace }}/build/Debug
+        run: mkdir -p ${{ github.workspace }}/build/${{ steps.strings.outputs.build-type }}
       - uses: actions/checkout@v4
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test-mac
-          path: build/debug
+          path: build/${{ steps.strings.outputs.build-type }}
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -123,15 +123,15 @@ jobs:
 
       - name: Test Project
         run: |
-          chmod +x build/debug/bin/libtusclient_test
-          export DYLD_LIBRARY_PATH=build/debug:$DYLD_LIBRARY_PATH
-          build/debug/bin/libtusclient_test --gtest_output=xml:build/Debug/test-results.xml
+          chmod +x build/${{ steps.strings.outputs.build-type }}/bin/libtusclient_test
+          export DYLD_LIBRARY_PATH=build/${{ steps.strings.outputs.build-type }}:$DYLD_LIBRARY_PATH
+          build/${{ steps.strings.outputs.build-type }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.build-type }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: test-results
-          path: build/debug/test-results.xml
+          path: build/${{ steps.strings.outputs.build-type }}/test-results.xml
 
   release-mac:
     needs: test-mac
