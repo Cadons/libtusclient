@@ -89,17 +89,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set reusable strings
-        id: strings
-        shell: bash
-        run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "build-type=release" >> "$GITHUB_OUTPUT"
-            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
-          else
-            echo "build-type=debug" >> "$GITHUB_OUTPUT"
-            echo "test-folder=debug" >> "$GITHUB_OUTPUT"
-          fi
+     
       - name: Download build artifacts
         uses: actions/download-artifact@v3
         with:
