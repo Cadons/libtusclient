@@ -95,6 +95,17 @@ jobs:
         os: [macos-latest]
 
     steps:
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "build-type=release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+          else
+            echo "build-type=debug" >> "$GITHUB_OUTPUT"
+            echo "test-folder=debug" >> "$GITHUB_OUTPUT"
+          fi
       - name: "Create folder for test results"
         run: mkdir -p ${{ github.workspace }}/build/${{ steps.strings.outputs.test-folder }}
       - uses: actions/checkout@v4
