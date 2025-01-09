@@ -57,13 +57,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-
 
-      - name: Install dependencies with vcpkg
-        run: |
-          "${{ matrix.vcpkg_root }}/vcpkg" install --triplet x64-linux
-
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
+      
+      - name: Cache vcpkg dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            vcpkg
+          key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ hashFiles('**/vcpkg.json') }}
 
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}

@@ -49,21 +49,15 @@ jobs:
         env: 
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
 
-      - name: Cache vcpkg dependencies
-        uses: actions/cache@v4
-        with:
-          path: build/vcpkg-installed
-          key: ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-${{ matrix.c_compiler }}-
-
-      - name: Install dependencies with vcpkg
-        run: |
-          "${{ matrix.vcpkg_root }}/vcpkg" install --triplet x64-osx
-
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
+      - name: Cache vcpkg dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            vcpkg
+          key: ${{ runner.os }}-${{ matrix.c_compiler }}-${{ matrix.cpp_compiler }}-${{ hashFiles('**/vcpkg.json') }}
 
       - name: Build Library
         run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
@@ -118,7 +112,7 @@ jobs:
           chmod +x tusd/tusd_darwin_arm64/tusd
       - name: Run tusd in background
         run: |
-          nohup ./tusd/tusd -host 0.0.0.0 -port 8080 &
+          nohup ./tusd/tusd_darwin_arm64/tusd -host 0.0.0.0 -port 8080 &
 
       - name: Test Project
         run: |
