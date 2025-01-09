@@ -42,6 +42,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -Path "${{ github.workspace }}/vcpkg_cache" -ItemType Directory -Force
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
           $env:VCPKG_DEFAULT_BINARY_CACHE="${{ github.workspace }}/vcpkg_cache"
           $env:VCPKG_BINARY_SOURCES="clear;x-gha,readwrite;files,${{ github.workspace }}/vcpkg_cache,readwrite"
           echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg_cache" | Out-File -FilePath $env:GITHUB_ENV -Append

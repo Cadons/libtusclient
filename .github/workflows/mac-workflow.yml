@@ -45,6 +45,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p "${{ github.workspace }}/vcpkg_cache"
+          core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
           export VCPKG_DEFAULT_BINARY_CACHE="${{ github.workspace }}/vcpkg_cache"
           export VCPKG_BINARY_SOURCES="clear;x-gha,readwrite;files,${{ github.workspace }}/vcpkg_cache,readwrite"
           echo "VCPKG_DEFAULT_BINARY_CACHE=$VCPKG_DEFAULT_BINARY_CACHE" >> $GITHUB_ENV
