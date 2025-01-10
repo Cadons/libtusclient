@@ -28,7 +28,8 @@ using TUS::Logging::LogLevel;
 
 void TusClient::initialize(int chunkSize)
 {
-
+    sanitizeUrl();
+    sanitizeEndpoint();
     createTusFile();
     m_cacheManager = std::make_unique<TUS::Cache::CacheRepository>(m_appName);
     m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
@@ -49,6 +50,7 @@ void TusClient::initialize(int chunkSize)
 TusClient::TusClient(std::string appName, std::string url, path filePath,
                      int chunkSize, Logging::LogLevel logLevel)
     : m_appName(appName), m_status(TusStatus::READY),
+      m_url(std::move(url)), m_filePath(std::move(filePath)),
       m_logger(std::make_unique<Logging::EasyLoggingService>(logLevel)),
       m_httpClient(std::make_unique<TUS::Http::HttpClient>(
           std::make_unique<TUS::Logging::EasyLoggingService>(logLevel)))
@@ -275,7 +277,7 @@ void TusClient::uploadChunk(int chunkNumber)
     m_logger->debug("Uploading chunk " + std::to_string(chunkNumber));
 
     m_httpClient->patch(Http::Request(
-        m_url + "/files/" + m_tusLocation,
+        m_url + m_endpoint+ m_tusLocation,
         std::string(reinterpret_cast<char *>(chunk.getData().data()),
                     chunk.getChunkSize()),
         Http::HttpMethod::_PATCH, patchHeaders, onPatchSuccess, onPatchError));
@@ -302,7 +304,7 @@ void TusClient::cancel()
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     headers["accept"] = "*/*";
     m_httpClient->abortAll();
-    m_httpClient->del(Http::Request(m_url + "/files/" + m_tusLocation, "",
+    m_httpClient->del(Http::Request(m_url + m_endpoint + m_tusLocation, "",
                                     Http::HttpMethod::_DELETE, headers,
                                     onSuccess));
     m_httpClient->execute();
@@ -328,7 +330,7 @@ void TusClient::getUploadInfo()
 
     headers.clear();
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
-    m_httpClient->head(Http::Request(m_url + "/files/" + m_tusLocation, "",
+    m_httpClient->head(Http::Request(m_url + m_endpoint + m_tusLocation, "",
                                      Http::HttpMethod::_HEAD, headers,
                                      headSuccess, onError));
 
@@ -452,4 +454,40 @@ std::chrono::milliseconds TusClient::getRequestTimeout() const
 void TusClient::setRequestTimeout(std::chrono::milliseconds ms)
 {
     m_requestTimeout = ms;
+}
+
+void TusClient::setEndpoint(std::string endpoint)
+{
+    if(endpoint.empty())
+    {
+        m_endpoint = "/files/";
+        return;
+    }
+    m_endpoint = endpoint;
+    sanitizeEndpoint();
+}
+
+std::string TusClient::getEndpoint() const
+{
+    return m_endpoint;
+}
+
+void TusClient::sanitizeUrl()
+{
+    if (m_url.back() == '/')
+    {
+        m_url.pop_back();
+    }
+}
+
+void TusClient::sanitizeEndpoint()
+{
+    if(m_endpoint.front()!='/')
+    {
+        m_endpoint = "/" + m_endpoint;
+    }
+    if (m_endpoint.back() != '/')
+    {
+        m_endpoint += "/";
+    }
 }

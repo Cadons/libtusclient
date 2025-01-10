@@ -237,4 +237,22 @@ namespace TUS::Test
 		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
 	}
 
+	TEST_F(TusClientTest, sanitizeUrl)
+	{
+		TUS::TusClient client("testapp", "http://test.com/", generateSimpleFile());
+		EXPECT_EQ(client.getUrl(), "http://test.com");
+	}
+	TEST_F(TusClientTest, sanitizeEndpoint)
+	{
+		TUS::TusClient client("testapp", "http://test.com/", generateSimpleFile());
+		EXPECT_EQ(client.getEndpoint(), "/files/");
+		client.setEndpoint("tus/upload");
+		EXPECT_EQ(client.getEndpoint(), "/tus/upload/");
+		client.setEndpoint("");
+		EXPECT_EQ(client.getEndpoint(), "/files/");
+		client.setEndpoint("/tus/upload");
+		EXPECT_EQ(client.getEndpoint(), "/tus/upload/");
+	}
+
+
 }
