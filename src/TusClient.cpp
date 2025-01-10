@@ -146,7 +146,7 @@ bool TusClient::upload()
         throw TUS::Exceptions::TUSException(data);
     };
     m_logger->debug("Starting new upload");
-    m_httpClient->post(Http::Request(m_url + "/files", "",
+    m_httpClient->post(Http::Request(m_url + m_endpoint, "",
                                      TUS::Http::HttpMethod::_POST, headers,
                                      onPostSuccess, onError));
     m_httpClient->execute();
