@@ -28,7 +28,7 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "build-type=release" >> "$GITHUB_OUTPUT"
-            echo "test-folder=Release" >> "$GITHUB_OUTPUT"
+            echo "test-folder=release" >> "$GITHUB_OUTPUT"
           else
             echo "build-type=debug" >> "$GITHUB_OUTPUT"
             echo "test-folder=debug" >> "$GITHUB_OUTPUT"
