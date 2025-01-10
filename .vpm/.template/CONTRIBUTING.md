@@ -1,4 +1,4 @@
-# Contributing to Medacta International SA's C++ Project 
+# Contributing to <COMPANY>'s C++ Project 
 
 Welcome! To ensure your contributions align with our workflow, please follow the steps below.
 
