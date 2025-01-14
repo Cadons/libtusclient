@@ -104,7 +104,6 @@ namespace TUS
         int m_uploadOffset = 0;
         bool m_nextChunk = false;
         size_t m_uploadLength = 0;
-        std::string m_endpoint="/files/";
         std::chrono::milliseconds m_requestTimeout = std::chrono::milliseconds(
             0); /*This timeout is the time waited between one requests, it is in ms
                    and it can be changed by the user*/
@@ -199,18 +198,7 @@ namespace TUS
 
         path getFilePath() const override;
         string getUrl() const override;
-        void setRequestTimeout(std::chrono::milliseconds ms) override;
-        /**
-         * @brief set the endpoint of the TUS server, default is /files/
-         * @param endpoint
-         * @return
-         */
-        void setEndpoint(string endpoint);
-        /**
-         * @brief get custom endpoint of the TUS server
-         * @return The endpoint
-         */
-        string getEndpoint() const;
+        void setRequestTimeout(std::chrono::milliseconds ms) override;     
         std::chrono::milliseconds getRequestTimeout() const override;
     };
 } // namespace TUS
