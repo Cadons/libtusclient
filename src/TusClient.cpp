@@ -29,7 +29,6 @@ using TUS::Logging::LogLevel;
 void TusClient::initialize(int chunkSize)
 {
     sanitizeUrl();
-    sanitizeEndpoint();
     createTusFile();
     m_cacheManager = std::make_unique<TUS::Cache::CacheRepository>(m_appName);
     m_fileChunker = std::make_unique<TUS::Chunk::FileChunker>(m_appName, getUUIDString(), m_filePath, chunkSize);
@@ -136,8 +135,16 @@ bool TusClient::upload()
                                              std::string data)
     {
         m_tusLocation = extractHeaderValue(header, "Location");
-        m_tusLocation.replace(0, getUrl().length() + 7,
-                              ""); // remove the url from the location
+        size_t lastSlashPosition = m_tusLocation.find_last_of('/');
+        if (lastSlashPosition != std::string::npos) {
+            // remove the url from the location
+            m_tusLocation.replace(0, lastSlashPosition+1,  "");
+            std::cout<<"slash position:"<<lastSlashPosition<<std::endl;
+        } else {
+            // Handle the case where '/' is not found in m_tusLocation
+            std::cerr << "Error: '/' not found in m_tusLocation" << std::endl;
+        }
+
     };
     OnErrorCallback onError = [this](std::string header, std::string data)
     {
@@ -146,7 +153,7 @@ bool TusClient::upload()
         throw TUS::Exceptions::TUSException(data);
     };
     m_logger->debug("Starting new upload");
-    m_httpClient->post(Http::Request(m_url + m_endpoint, "",
+    m_httpClient->post(Http::Request(m_url , "",
                                      TUS::Http::HttpMethod::_POST, headers,
                                      onPostSuccess, onError));
     m_httpClient->execute();
@@ -277,7 +284,7 @@ void TusClient::uploadChunk(int chunkNumber)
     m_logger->debug("Uploading chunk " + std::to_string(chunkNumber));
 
     m_httpClient->patch(Http::Request(
-        m_url + m_endpoint+ m_tusLocation,
+        m_url + m_tusLocation,
         std::string(reinterpret_cast<char *>(chunk.getData().data()),
                     chunk.getChunkSize()),
         Http::HttpMethod::_PATCH, patchHeaders, onPatchSuccess, onPatchError));
@@ -304,7 +311,7 @@ void TusClient::cancel()
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     headers["accept"] = "*/*";
     m_httpClient->abortAll();
-    m_httpClient->del(Http::Request(m_url + m_endpoint + m_tusLocation, "",
+    m_httpClient->del(Http::Request(m_url + m_tusLocation, "",
                                     Http::HttpMethod::_DELETE, headers,
                                     onSuccess));
     m_httpClient->execute();
@@ -330,7 +337,7 @@ void TusClient::getUploadInfo()
 
     headers.clear();
     headers["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
-    m_httpClient->head(Http::Request(m_url + m_endpoint + m_tusLocation, "",
+    m_httpClient->head(Http::Request(m_url + m_tusLocation, "",
                                      Http::HttpMethod::_HEAD, headers,
                                      headSuccess, onError));
 
@@ -363,7 +370,7 @@ std::map<std::string, std::string> TusClient::getTusServerInformation()
     };
     m_logger->debug("Getting server information");
     m_httpClient->options(Http::Request(
-        m_url + "/files", "", Http::HttpMethod::_OPTIONS, headers, onSuccess));
+        m_url , "", Http::HttpMethod::_OPTIONS, headers, onSuccess));
     m_httpClient->execute();
     return serverInfo;
 }
@@ -456,38 +463,13 @@ void TusClient::setRequestTimeout(std::chrono::milliseconds ms)
     m_requestTimeout = ms;
 }
 
-void TusClient::setEndpoint(std::string endpoint)
-{
-    if(endpoint.empty())
-    {
-        m_endpoint = "/files/";
-        return;
-    }
-    m_endpoint = endpoint;
-    sanitizeEndpoint();
-}
 
-std::string TusClient::getEndpoint() const
-{
-    return m_endpoint;
-}
+
 
 void TusClient::sanitizeUrl()
 {
-    if (m_url.back() == '/')
+    if (m_url.back() != '/')
     {
-        m_url.pop_back();
-    }
-}
-
-void TusClient::sanitizeEndpoint()
-{
-    if(m_endpoint.front()!='/')
-    {
-        m_endpoint = "/" + m_endpoint;
-    }
-    if (m_endpoint.back() != '/')
-    {
-        m_endpoint += "/";
+        m_url.push_back('/');
     }
 }
