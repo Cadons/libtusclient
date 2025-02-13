@@ -146,8 +146,8 @@ namespace TUS
         void sanitizeEndpoint();
 
     public:
-        TusClient(string appName, string url, path filePath, int chunkSize,Logging::LogLevel logLevel=Logging::LogLevel::_NONE_);
-        TusClient(string appName, string url, path filePath,Logging::LogLevel logLevel=Logging::LogLevel::_NONE_);
+        TusClient(string appName, string url, path filePath, int chunkSize, Logging::LogLevel logLevel = Logging::LogLevel::_NONE_);
+        TusClient(string appName, string url, path filePath, Logging::LogLevel logLevel = Logging::LogLevel::_NONE_);
         ~TusClient();
         /**
          * @brief Uploads the file to the server using the TUS protocol.
@@ -198,8 +198,18 @@ namespace TUS
 
         path getFilePath() const override;
         string getUrl() const override;
-        void setRequestTimeout(std::chrono::milliseconds ms) override;     
+        void setRequestTimeout(std::chrono::milliseconds ms) override;
         std::chrono::milliseconds getRequestTimeout() const override;
+        /**
+         * @brief set the authrorization token, verify that token is valid,
+         * if not update the token and pass the updated once
+         */
+        void setBearerToken(const std::string& token);
+        /**
+         * @brief This function return if token is set, 
+         * if token is set
+         */
+        bool isTokenSetted();
     };
 } // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

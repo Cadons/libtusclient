@@ -435,6 +435,91 @@
       ],
       "responseMode": null,
       "type": "http"
+    },
+    {
+      "uuid": "47e5363b-f2b5-4388-8f88-7369ef7f1750",
+      "documentation": "POST request for /files",
+      "method": "post",
+      "endpoint": "auth/files",
+      "responses": [
+        {
+          "uuid": "385230ce-b1f4-4da3-99b9-b45876df005b",
+          "body": "{\"test\":\"post passed\"}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Authorized",
+          "headers": [
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "OPTIONS, POST, PATCH, HEAD"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Tus-Resumable, Upload-Length, Upload-Offset, Origin, X-Requested-With, Content-Disposition"
+            },
+            {
+              "key": "Access-Control-Expose-Headers",
+              "value": "Location, Upload-Offset"
+            },
+            {
+              "key": "Tus-Resumable",
+              "value": "1.0.0"
+            },
+            {
+              "key": "Location",
+              "value": "http://localhost:3000/files/{fileId}"
+            },
+            {
+              "key": "Content-Length",
+              "value": "0"
+            }
+          ],
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "header",
+              "modifier": "Authorization",
+              "value": "Bearer WAmjPKLlw6287Ky9L8mVSvI0cwEu5gvd1Y0cj9uPioLlR0E6CJqmExeJOgaO6YV5YECMctqSYQPRR6eC9p3hag5rkBdMjA7Z6Y6zQfDofepIuOwdZ820qDpfljB",
+              "invert": false,
+              "operator": "equals"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "databucketID": "",
+          "bodyType": "INLINE",
+          "crudKey": "id",
+          "callbacks": [],
+          "filePath": ""
+        },
+        {
+          "uuid": "54f03162-6182-41c2-9782-199079c9371a",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Unauthorized",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "type": "http"
     }
   ],
   "proxyMode": false,
@@ -507,6 +592,10 @@
     {
       "type": "route",
       "uuid": "0d390305-5755-445e-9935-d6f9ce13d39b"
+    },
+    {
+      "type": "route",
+      "uuid": "47e5363b-f2b5-4388-8f88-7369ef7f1750"
     }
   ],
   "callbacks": []
