@@ -54,9 +54,11 @@ namespace TUS
              */
             IHttpClient* execute()override;
 
-         
+            void setAuthorization(const std::string& token) override;
+            bool isAuthenticated() override;
             
             static string convertHttpMethodToString(HttpMethod method);
+            static int getHttpReturnCode(const std::string& header);
 
         private:
             void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
@@ -65,6 +67,7 @@ namespace TUS
             bool m_abort = false;
             std::mutex m_queueMutex;  // Mutex to protect shared resources
             std::shared_ptr<TUS::Logging::ILogger> m_logger;
+            std::string m_token="";
 
             /**
              * @brief Callback function for the write data of the request

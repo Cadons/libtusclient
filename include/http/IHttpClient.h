@@ -77,6 +77,14 @@ namespace TUS
             virtual IHttpClient* execute() = 0;
           
             virtual ~IHttpClient() {};
+            /**
+             * @brief set the token for the authentication
+             */
+            virtual void setAuthorization(const std::string& token)=0;
+            /**
+             * @brief return if token is set
+             */
+            virtual bool isAuthenticated()=0;
 
 
         };

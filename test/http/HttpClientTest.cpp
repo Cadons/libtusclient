@@ -6,7 +6,7 @@
 #include <thread>
 #include <functional>
 #include <gtest/gtest.h>
-
+#include <iostream>
 #include "http/HttpClient.h"
 #include "http/Request.h"
 namespace TUS::Test::Http {
@@ -130,6 +130,7 @@ TEST_F(HttpClientParameterizedTest, HttpsRequest)
     {
         std::cout << data << std::endl;
         std::cout << header << std::endl;
+        
         ASSERT_TRUE(data.size() > 0);
     });
     request.setOnErrorCallback( [this](std::string header,
@@ -143,4 +144,44 @@ TEST_F(HttpClientParameterizedTest, HttpsRequest)
 
 }
 
+TEST_F(HttpClientParameterizedTest, AuthorizedRequestSuccess)
+{
+    Request request("http://localhost:3000/auth/files", "", HttpMethod::_POST);
+    request.setOnSuccessCallback( [this](std::string header,
+                                             std::string data)
+    {
+        ASSERT_EQ(HttpClient::getHttpReturnCode(header), 200);
+    });
+    request.setOnErrorCallback( [this](std::string header,
+                                             std::string data)
+    {
+        FAIL();
+    });
+    m_httpClient->setAuthorization("WAmjPKLlw6287Ky9L8mVSvI0cwEu5gvd1Y0cj9uPioLlR0E6CJqmExeJOgaO6YV5YECMctqSYQPRR6eC9p3hag5rkBdMjA7Z6Y6zQfDofepIuOwdZ820qDpfljB");
+    m_httpClient->post(request);
+    m_httpClient->execute();
+
+
+}
+
+TEST_F(HttpClientParameterizedTest, AuthorizedRequestFail)
+{
+    Request request("http://localhost:3000/auth/files", "", HttpMethod::_POST);
+    request.setOnSuccessCallback( [this](std::string header,
+                                             std::string data)
+    {
+        FAIL();
+    });
+    request.setOnErrorCallback( [this](std::string header,
+                                             std::string data)
+    {
+        ASSERT_EQ(HttpClient::getHttpReturnCode(header),401);
+
+    });
+    m_httpClient->setAuthorization("wrongToken");
+    m_httpClient->post(request);
+    m_httpClient->execute();
+
+
+}
 } // namespace TUS::Test::Http

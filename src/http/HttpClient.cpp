@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-
+#include <sstream>
 #include "http/HttpClient.h"
 #include "http/Request.h"
 
@@ -64,6 +64,16 @@ std::string HttpClient::convertHttpMethodToString(HttpMethod method)
     }
 }
 
+int TUS::Http::HttpClient::getHttpReturnCode(const std::string& header){
+    size_t pos = header.find("HTTP/1.1 ");
+    if (pos != std::string::npos) {
+        std::istringstream iss(header.substr(pos + 9));
+        int status_code;
+        iss >> status_code;
+        return status_code;
+    }
+    return -1;
+}
 void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
                                   Request request)
 {
@@ -96,6 +106,12 @@ void HttpClient::setupCURLRequest(CURL *curl, HttpMethod method,
         headers = curl_slist_append(headers, (header.first + ": " +
                                               header.second)
                                                  .c_str());
+    }
+    if(m_token.length()>0)
+    {
+        headers=        headers = curl_slist_append(headers, ( "Authorization: Bearer " +
+            m_token)
+               .c_str());
     }
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 }
@@ -286,8 +302,16 @@ IHttpClient *HttpClient::execute()
             }
             else
             {
-                // Success: invoke the success callback
-                m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
+                int returnCode=getHttpReturnCode(responseHeader);
+                if(returnCode>=400)
+                {
+                    std::cerr << "Http Error: "<<returnCode<<std::endl;
+                    m_requestsQueue.front().getOnErrorCallback()(responseHeader, buffer);
+                }else{
+                    // Success: invoke the success callback
+                    m_requestsQueue.front().getOnSuccessCallback()(responseHeader, buffer);
+                }
+
             }
 
             // Clean up the CURL handle after completing the request
@@ -297,4 +321,14 @@ IHttpClient *HttpClient::execute()
     }
 
     return this;
+}
+
+void TUS::Http::HttpClient::setAuthorization(const std::string &token)
+{
+    m_token=token;
+}
+
+bool TUS::Http::HttpClient::isAuthenticated()
+{
+    return !m_token.empty();
 }

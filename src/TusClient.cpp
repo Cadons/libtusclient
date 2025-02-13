@@ -458,13 +458,20 @@ std::chrono::milliseconds TusClient::getRequestTimeout() const
     return m_requestTimeout;
 }
 
+void TUS::TusClient::setBearerToken(const std::string& token)
+{
+    m_httpClient->setAuthorization(token);
+}
+
+bool TUS::TusClient::isTokenSetted()
+{
+   return m_httpClient->isAuthenticated();
+}
+
 void TusClient::setRequestTimeout(std::chrono::milliseconds ms)
 {
     m_requestTimeout = ms;
 }
-
-
-
 
 void TusClient::sanitizeUrl()
 {
