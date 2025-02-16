@@ -62,13 +62,15 @@ namespace TUS
     class EXPORT_LIBTUSCLIENT ITusClient
     {
     public:
+        virtual ~ITusClient() = default;
+
         virtual bool upload() = 0;
         virtual void cancel() = 0;
         virtual bool resume() = 0;
         virtual void stop() = 0;
         virtual void pause() = 0;
 
-        virtual float progress() const = 0;
+        [[nodiscard]] virtual float progress() const = 0;
         virtual TusStatus status() = 0;
         virtual bool retry() = 0;
         /**
@@ -77,13 +79,13 @@ namespace TUS
          */
         virtual void setRequestTimeout(std::chrono::milliseconds ms) = 0;
         // Getters
-        virtual path getFilePath() const = 0;
-        virtual string getUrl() const = 0;
+        [[nodiscard]] virtual path getFilePath() const = 0;
+        [[nodiscard]] virtual string getUrl() const = 0;
         /**
          * @brief get the time that TUS library have to wait between 2 chunk upload
          * @return The time in ms
          */
-        virtual std::chrono::milliseconds getRequestTimeout() const = 0;
+        [[nodiscard]] virtual std::chrono::milliseconds getRequestTimeout() const = 0;
     };
     /**
      * @brief The TusClient class represents a client for uploading files using the
@@ -105,7 +107,7 @@ namespace TUS
         bool m_nextChunk = false;
         size_t m_uploadLength = 0;
         std::chrono::milliseconds m_requestTimeout = std::chrono::milliseconds(
-            0); /*This timeout is the time waited between one requests, it is in ms
+            0); /*This timeout is the time waited between one requests, it is in ms,
                    and it can be changed by the user*/
 
         std::atomic<float> m_progress{0};
@@ -120,9 +122,6 @@ namespace TUS
         void getUploadInfo();
 
         void createTusFile();
-
-        void wait(std::chrono::milliseconds ms, std::function<bool()> condition,
-                  std::string message);
 
         boost::uuids::uuid m_uuid;
 
@@ -139,16 +138,12 @@ namespace TUS
          * @return
          */
         void sanitizeUrl();
-        /**
-         * @brief Sanitize the endpoint string
-         * @return
-         */
-        void sanitizeEndpoint();
+
 
     public:
         TusClient(string appName, string url, path filePath, int chunkSize, Logging::LogLevel logLevel = Logging::LogLevel::_NONE_);
         TusClient(string appName, string url, path filePath, Logging::LogLevel logLevel = Logging::LogLevel::_NONE_);
-        ~TusClient();
+        ~TusClient() override;
         /**
          * @brief Uploads the file to the server using the TUS protocol.
          */
@@ -201,7 +196,7 @@ namespace TUS
         void setRequestTimeout(std::chrono::milliseconds ms) override;
         std::chrono::milliseconds getRequestTimeout() const override;
         /**
-         * @brief set the authrorization token, verify that token is valid,
+         * @brief set the authorization token, verify that token is valid,
          * if not update the token and pass the updated once
          */
         void setBearerToken(const std::string& token);
@@ -209,7 +204,7 @@ namespace TUS
          * @brief This function return if token is set, 
          * if token is set
          */
-        bool isTokenSetted();
+        bool isTokenSet();
     };
 } // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

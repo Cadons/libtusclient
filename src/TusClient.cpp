@@ -463,7 +463,7 @@ void TUS::TusClient::setBearerToken(const std::string& token)
     m_httpClient->setAuthorization(token);
 }
 
-bool TUS::TusClient::isTokenSetted()
+bool TUS::TusClient::isTokenSet()
 {
    return m_httpClient->isAuthenticated();
 }
