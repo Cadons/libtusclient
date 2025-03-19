@@ -115,24 +115,3 @@ jobs:
       - name: Run Tests
         run: |
           build/${{ steps.strings.outputs.test-folder }}/libtusclient_test.exe --gtest_output=xml:test-results.xml
-
-  release-windows:
-    needs: test-windows
-    if: github.event_name == 'release'
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/${{ steps.strings.outputs.test-folder }}
-
-      - name: Upload Release Artifact
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: build/${{ steps.strings.outputs.test-folder }}
-          asset_name: libtusclient-${{ steps.strings.outputs.build-type }}.zip
-          asset_content_type: application/zip
