@@ -8,12 +8,12 @@
 #include "ILogger.h"
 #include <easylogging++.h>
 
-namespace TUS {
-namespace Logging {
+
+namespace TUS::Logging {
 class EXPORT_LIBTUSCLIENT EasyLoggingService : public ILogger {
   public:
-    EasyLoggingService(LogLevel level);
-    ~EasyLoggingService();
+    explicit EasyLoggingService(LogLevel level);
+    ~EasyLoggingService() override;
     void setLevel(LogLevel level) override;
     void log(const std::string &message, LogLevel level) override;
     void debug(const std::string &message) override;
@@ -27,6 +27,6 @@ class EXPORT_LIBTUSCLIENT EasyLoggingService : public ILogger {
     LogLevel m_level=LogLevel::_INFO_;
 };
 
-} // namespace Logging
-} // namespace TUS
+} // namespace TUS::Logging
+
 #endif // INCLUDE_EASYLOGGINGSERVICE_

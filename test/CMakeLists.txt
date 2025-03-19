@@ -12,7 +12,7 @@ find_package(libzippp REQUIRED)
 #-------------------------------------
 #linking here--------------------
 #set(TEST_LIBRARY_LINKING "")#comment this if you are using GoogleTest
-set(TEST_LIBRARY_LINKING GTest::GTest GTest::gmock libzippp::libzippp )#for GoogleTest
+set(TEST_LIBRARY_LINKING GTest::GTest GTest::gmock libzippp::libzippp)#for GoogleTest
 #-------------------------------------
 # Create the executable for the tests
 add_executable(${PROJECT_LIB}_test ${TEST_SOURCES})

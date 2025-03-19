@@ -1,0 +1,22 @@
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+UseTab: Never
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterStruct: true
+  BeforeElse: true
+  BeforeCatch: true
+  IndentBraces: false
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignTrailingComments: true
+AllowShortFunctionsOnASingleLine: InlineOnly
+BreakConstructorInitializers: BeforeComma
+SortIncludes: true
+IncludeBlocks: Regroup
+NamespaceIndentation: All
+PointerAlignment: Middle

@@ -9,21 +9,21 @@
 #define TUS_PROTOCOL_VERSION "1.0.0"
 #ifdef _WINDOWS
 #include <windows.h>
-    #ifndef EXPORT_ALL
+#ifndef EXPORT_ALL
 #        if defined(BUILD_SHARED)
-           
+
             // Building the DLL (exporting)
 #            define EXPORT_LIBTUSCLIENT __declspec(dllexport)
-        #else
+#else
             // Using the DLL (importing)
 #            define EXPORT_LIBTUSCLIENT __declspec(dllimport)
-        #endif
-    #else
-        #define EXPORT_LIBTUSCLIENT
-    #endif
+#endif
 #else
-    // Non-Windows platforms (optional, but typically use empty macro or other logic)
-    #define EXPORT_LIBTUSCLIENT
+        #define EXPORT_LIBTUSCLIENT
+#endif
+#else
+// Non-Windows platforms (optional, but typically use empty macro or other logic)
+#define EXPORT_LIBTUSCLIENT
 #endif
 
 #endif // INCLUDE_LIBTUSCLIENT_H_

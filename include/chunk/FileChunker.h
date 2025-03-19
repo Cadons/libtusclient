@@ -17,59 +17,64 @@
 
 using std::string;
 using std::filesystem::path;
-namespace TUS
-{
 
-    namespace Chunk
-    {
 
-        class TUSChunk;
-        /**
-         * @brief This class is responsible for chunking a file into multiple chunks.
-         * The chunks are stored in a temporary directory and can be loaded from there.
-         * The class also provides methods to remove the chunk files and to get the temporary directory.
-         * To get the chunks, the loadChunks method must be called and you can get the chunks with the getChunks method,
-         * which returns a vector of TUSChunk objects.
-         */
-        class EXPORT_LIBTUSCLIENT FileChunker : public IFileChunker<TUSChunk>, public FileVerifier::IFileVerifier
-        {
-        private:
-            const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
-            const string CHUNK_FILE_EXTENSION = ".bin";
-            const string m_appName;
-            const string m_uuid;
-            const path m_tempDir;
-            const path m_filePath;
-            int64_t m_chunkSize;
-            std::vector<TUSChunk> m_chunks;
-            int m_chunkNumber;
-            std::unique_ptr<FileVerifier::IFileVerifier> m_verifier;
+namespace TUS::Chunk {
+    class TUSChunk;
+    /**
+     * @brief This class is responsible for chunking a file into multiple chunks.
+     * The chunks are stored in a temporary directory and can be loaded from there.
+     * The class also provides methods to remove the chunk files and to get the temporary directory.
+     * To get the chunks, the loadChunks method must be called and you can get the chunks with the getChunks method,
+     * which returns a vector of TUSChunk objects.
+     */
+    class EXPORT_LIBTUSCLIENT FileChunker : public IFileChunker<TUSChunk>, public FileVerifier::IFileVerifier {
+    private:
+        const string CHUNK_FILE_NAME_PREFIX = "_chunk_";
+        const string CHUNK_FILE_EXTENSION = ".bin";
+        const string m_appName;
+        const string m_uuid;
+        const path m_tempDir;
+        const path m_filePath;
+        int64_t m_chunkSize;
+        std::vector<TUSChunk> m_chunks;
+        int m_chunkNumber{};
+        std::unique_ptr<FileVerifier::IFileVerifier> m_verifier;
 
-            void calculateChunkSize();
+        void calculateChunkSize();
 
-        public:
-            FileChunker(string appName, string uuid, path filepath, int chunkSize = 0, std::unique_ptr<FileVerifier::IFileVerifier> verifier = nullptr);
-            virtual ~FileChunker();
-            bool loadChunks() override;
-            bool removeChunkFiles() override;
-            path getTemporaryDir() const override;
-            string getChunkFilename(int chunkNumber) const override;
-            int chunkFile() override;
-            void clearChunks() override;
-            std::vector<TUSChunk> getChunks() const override;
+    public:
+        FileChunker(string appName, string uuid, path filepath, int chunkSize = 0,
+                    std::unique_ptr<FileVerifier::IFileVerifier> verifier = nullptr);
 
-            path getChunkFilePath(int chunkNumber) const override;
+        virtual ~FileChunker();
 
-            size_t getChunkSize() const override;
+        bool loadChunks() override;
 
-            int getChunkNumber() const override;
+        bool removeChunkFiles() override;
 
-        public:
-            string hash(const std::vector<uint8_t> &buffer) const override;
-            bool verify(const std::vector<uint8_t> &buffer, const string &hash) const override;
-        };
+        path getTemporaryDir() const override;
 
-    } // namespace Chunk
-} // namespace TUS
+        string getChunkFilename(int chunkNumber) const override;
+
+        int chunkFile() override;
+
+        void clearChunks() override;
+
+        std::vector<TUSChunk> getChunks() const override;
+
+        path getChunkFilePath(int chunkNumber) const override;
+
+        size_t getChunkSize() const override;
+
+        int getChunkNumber() const override;
+
+    public:
+        string hash(const std::vector<uint8_t> &buffer) const override;
+
+        bool verify(const std::vector<uint8_t> &buffer, const string &hash) const override;
+    };
+} // namespace TUS::Chunk
+
 
 #endif // INCLUDE_CHUNK_FILECHUNKER_H_

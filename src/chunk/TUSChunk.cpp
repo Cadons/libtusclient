@@ -6,20 +6,19 @@
 
 #include "chunk/TUSChunk.h"
 
+#include <utility>
+
 using TUS::Chunk::TUSChunk;
 
 TUSChunk::TUSChunk(std::vector<uint8_t> data, size_t offset)
-    : m_data(data), m_chunkSize(offset)
-{
+    : m_data(std::move(data)), m_chunkSize(offset) {
 }
 
-std::vector<uint8_t> TUSChunk::getData() const
-{
+std::vector<uint8_t> TUSChunk::getData() const {
     return m_data;
 }
 
-size_t TUSChunk::getChunkSize() const
-{
+size_t TUSChunk::getChunkSize() const {
     return m_chunkSize;
 }
 

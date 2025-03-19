@@ -10,17 +10,16 @@
 #include "Request.h"
 #include "libtusclient.h"
 
-namespace TUS
-{
-    namespace Http
-    {
-       struct EXPORT_LIBTUSCLIENT RequestTask: public Request
-        {
-            CURL *curl;
-            RequestTask(Request request, CURL *curl);
-            ~RequestTask();
-        };
-    }
+
+namespace TUS::Http {
+    struct EXPORT_LIBTUSCLIENT RequestTask : public Request {
+        CURL *curl;
+
+        RequestTask(const Request &request, CURL *curl);
+
+        ~RequestTask();
+    };
 }
+
 
 #endif // INCLUDE_HTTP_REQUESTTASK_H_

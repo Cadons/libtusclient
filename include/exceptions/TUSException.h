@@ -9,20 +9,18 @@
 #include <string>
 #include "libtusclient.h"
 
-namespace TUS
-{
-    namespace Exceptions
-    {
-        /**
-         * @brief Exception class for TUS client errors.
-         */
 
-        class EXPORT_LIBTUSCLIENT TUSException : public std::runtime_error
-        {
-        public:
-            TUSException(const std::string &message) : std::runtime_error(message) {}
-        };
-    } // namespace Exceptions
-} // namespace TUS
+namespace TUS::Exceptions {
+    /**
+     * @brief Exception class for TUS client errors.
+     */
+
+    class EXPORT_LIBTUSCLIENT TUSException : public std::runtime_error {
+    public:
+        explicit TUSException(const std::string &message) : std::runtime_error(message) {
+        }
+    };
+} // namespace TUS::Exceptions
+
 
 #endif // INCLUDE_EXCEPTIONS_TUSEXCEPTION_

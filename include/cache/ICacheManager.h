@@ -11,7 +11,7 @@
 
 #include "libtusclient.h"
 
-namespace TUS{
+namespace TUS {
     class TUSFile;
 
     /**
@@ -22,9 +22,10 @@ namespace TUS{
      * from the cache.
      */
 
-    class EXPORT_LIBTUSCLIENT ICacheManager
-    {
+    class EXPORT_LIBTUSCLIENT ICacheManager {
     public:
+        virtual ~ICacheManager() = default;
+
         /**
          * @brief Store a TUS file in the cache.
          *

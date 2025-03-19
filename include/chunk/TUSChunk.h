@@ -6,13 +6,12 @@
 #ifndef INCLUDE_CHUNK_TUSCHUNK_H_
 #define INCLUDE_CHUNK_TUSCHUNK_H_
 
-#include <string>
 #include <vector>
 #include <cstdint>
 #include "libtusclient.h"
 
-namespace TUS {
-    namespace Chunk{
+
+namespace TUS::Chunk {
     /**
      * @class TUSChunk
      * @brief Represents a chunk of a TUS file.
@@ -20,8 +19,7 @@ namespace TUS {
      * This class represents a chunk of a TUS file. A chunk is a part of a file
      * that is uploaded to the server in a single request.
      */
-    class EXPORT_LIBTUSCLIENT TUSChunk
-    {
+    class EXPORT_LIBTUSCLIENT TUSChunk {
     public:
         /**
          * @brief Construct a TUSChunk object.
@@ -36,21 +34,20 @@ namespace TUS {
          *
          * @return The data of the chunk.
          */
-        std::vector<uint8_t> getData() const;
+        [[nodiscard]] std::vector<uint8_t> getData() const;
 
         /**
          * @brief Get the offset of the chunk in the file.
          *
          * @return The offset of the chunk in the file.
          */
-        size_t getChunkSize() const;
+        [[nodiscard]] size_t getChunkSize() const;
 
     private:
         std::vector<uint8_t> m_data;
         size_t m_chunkSize;
     };
-    } // namespace Model
+} // namespace Model
 
-} // namespace TUS
 
 #endif  // INCLUDE_CHUNK_TUSCHUNK_H_

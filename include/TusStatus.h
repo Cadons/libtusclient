@@ -8,11 +8,9 @@
 #define INCLUDE_TUSSTATUS_H_
 
 #include "libtusclient.h"
-namespace TUS
-{
 
-    enum class EXPORT_LIBTUSCLIENT TusStatus
-    {
+namespace TUS {
+    enum class EXPORT_LIBTUSCLIENT TusStatus {
         READY,
         UPLOADING,
         FAILED,
@@ -20,6 +18,5 @@ namespace TUS
         PAUSED,
         CANCELED
     };
-
 }
 #endif // INCLUDE_TUSSTATUS_H_

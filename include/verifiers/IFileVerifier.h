@@ -11,33 +11,31 @@
 
 using std::string;
 using std::filesystem::path;
-namespace TUS
-{
-    namespace FileVerifier
-    {
-        /**
-         * @brief The IFileVerifier class provides an interface for verifying files.
-         */
-        class EXPORT_LIBTUSCLIENT IFileVerifier
-        {
-        public:
-            virtual ~IFileVerifier() = default;
 
-            /**
-             * @brief Computes the hash of a file.
-             * @param path The path of the file.
-             * @return The hash of the file.
-             */
-            virtual string hash(const std::vector<uint8_t> &buffer) const = 0;
-            /**
-             * @brief Verifies the hash of a file using a byte buffer.
-             * @param buffer The byte buffer of the file.
-             * @param hash The hash of the file.
-             * @return True if the hash is valid, false otherwise.
-             */
-            virtual bool verify(const std::vector<uint8_t> &buffer, const string &hash) const = 0;
-        };
-    } // namespace Repository
-} // namespace TUS
+namespace TUS::FileVerifier {
+    /**
+     * @brief The IFileVerifier class provides an interface for verifying files.
+     */
+    class EXPORT_LIBTUSCLIENT IFileVerifier {
+    public:
+        virtual ~IFileVerifier() = default;
+
+        /**
+         * @brief Computes the hash of a file.
+         * @param path The path of the file.
+         * @return The hash of the file.
+         */
+        virtual string hash(const std::vector<uint8_t> &buffer) const = 0;
+
+        /**
+         * @brief Verifies the hash of a file using a byte buffer.
+         * @param buffer The byte buffer of the file.
+         * @param hash The hash of the file.
+         * @return True if the hash is valid, false otherwise.
+         */
+        virtual bool verify(const std::vector<uint8_t> &buffer, const string &hash) const = 0;
+    };
+} // namespace Repository
+
 
 #endif // INCLUDE_REPOSITORY_IFILEVERIFIER_H_

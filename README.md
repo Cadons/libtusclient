@@ -1,5 +1,5 @@
 # TusClient: C++ Implementation
-![](https://tus.io/_astro/banner.6876e69d.png)
+![](tus-logo.png)
 
 [![libtusclient CI Linux](https://github.com/Cadons/libtusclient/actions/workflows/linux-workflow.yml/badge.svg)](https://github.com/Cadons/libtusclient/actions/workflows/linux-workflow.yml)
 [![libtusclient CI MacOS](https://github.com/Cadons/libtusclient/actions/workflows/mac-workflow.yml/badge.svg)](https://github.com/Cadons/libtusclient/actions/workflows/mac-workflow.yml)
@@ -22,9 +22,11 @@ The client supports various features to ensure a smooth upload process, includin
 ### Prerequisites
 
 Before you begin, ensure that the following tools are installed on your system:
-•	CMake: This project uses CMake as the build system. Install it if you don’t have it.
-•	Vcpkg: We use Vcpkg to manage dependencies like curl. If you don’t have it, install it by following Vcpkg’s installation guide.
-•	libcurl: The C++ client relies on libcurl for HTTP requests. Make sure it’s available on your system.
+- **CMake**: This project uses CMake as the build system. Install it if you don’t have it.
+- **Vcpkg**: We use Vcpkg to manage dependencies like curl. If you don’t have it, install it by following Vcpkg’s installation guide.
+- **Python**: Python is required for Vcpkg to work correctly. Make sure you have Python installed on your system.
+- **Pip**: Ensure you have pip installed on your system to install the required Python packages.
+- **Git**: Git is required to clone the repository and manage the source code.
 
 ### Steps to Install
 1.	Clone the repository:
@@ -34,7 +36,9 @@ cd libtusclient
 ```
 
 2.	Initialize Vcpkg and install dependencies:
-#### Run the appropriate script for your platform:
+
+Run the appropriate script for your platform:
+
 •	Linux/macOS:
 ```
 ./vpm.sh
@@ -46,7 +50,7 @@ cd libtusclient
 ```
 
 3.	Build the project with CMake:
-#### Create a build directory, configure the project, and build it:
+Create a build directory, configure the project, and build it:
 ```
 mkdir build
 cd build
@@ -84,22 +88,57 @@ git push origin feature/my-new-feature
 ## Library Components
 
 ### **TusClient**
-The main class responsible for managing the upload process. You need to instantiate this class, passing in the required parameters to initiate the upload.
+The `TusClient` class is the main class responsible for managing the upload process using the TUS protocol. It provides methods for uploading, canceling, resuming, stopping, and retrying file uploads. It also provides methods for retrieving the upload progress and status. You need to instantiate this class, passing in the required parameters to initiate the upload.
+
+#### Class Inheritance and Interfaces
+- **Inheritance**: Inherits from `ITusClient`.
+- **Interfaces Used**:
+    - `Http::IHttpClient` for handling HTTP requests.
+    - `Repository::IRepository<Cache::TUSFile>` for managing cached files.
+    - `Chunk::IFileChunker<Chunk::TUSChunk>` for chunking files.
+    - `Logging::ILogger` for logging.
 
 ### **HttpClient**
-The `HttpClient` class handles all HTTP requests. It is built using `curl` to manage network communication, ensuring efficient and reliable file uploads.
+The `HttpClient` class handles all HTTP requests. It is built using `curl` to manage network communication, ensuring efficient and reliable file uploads. This class provides methods for performing various HTTP methods such as GET, POST, PUT, PATCH, DELETE, HEAD, and OPTIONS. It also provides a method for aborting a request.
+
+#### Class Inheritance and Interfaces
+- **Inheritance**: Inherits from `IHttpClient`.
+- **Interfaces Used**:
+    - `Logging::ILogger` for logging.
 
 ### **FileChunker**
-This class is responsible for splitting the file into smaller chunks to facilitate resumable uploads. It ensures that large files are uploaded in manageable segments.
+The `FileChunker` class is responsible for splitting the file into smaller chunks to facilitate resumable uploads. It ensures that large files are uploaded in manageable segments. The chunks are stored in a temporary directory and can be loaded from there. The class also provides methods to remove the chunk files and to get the temporary directory.
+
+#### Class Inheritance and Interfaces
+- **Inheritance**: Inherits from `IFileChunker<TUSChunk>` and `FileVerifier::IFileVerifier`.
+- **Interfaces Used**:
+    - `FileVerifier::IFileVerifier` for verifying file chunks.
 
 ### **CacheRepository**
-The `CacheRepository` class manages the caching of files, helping you avoid re-uploading parts of a file that have already been successfully uploaded.
+The `CacheRepository` class manages the caching of files, helping you avoid re-uploading parts of a file that have already been successfully uploaded. It stores `TUSFile` objects in a cache file and provides methods to add, remove, and find files in the cache.
+
+#### Class Inheritance and Interfaces
+- **Inheritance**: Inherits from `Repository::IRepository<TUSFile>`.
+- **Interfaces Used**:
+    - `Repository::IRepository<TUSFile>` for managing cached files.
 
 ### **Verifiers**
-These classes are used to verify the integrity of uploaded files using hashing algorithms like MD5. They ensure that the data uploaded is valid and consistent.
+The `Verifiers` classes are used to verify the integrity of uploaded files using hashing algorithms like MD5. They ensure that the data uploaded is valid and consistent. The `IFileVerifier` interface provides methods to compute and verify the hash of a file.
+
+#### Class Inheritance and Interfaces
+- **Md5Verifier**
+    - **Inheritance**: Inherits from `IFileVerifier`.
+    - **Interfaces Used**:
+        - `IFileVerifier` for verifying file integrity.
 
 ### **Loggers**
-The `ILogger` interface allows you to implement custom logging. The default logger is built using EasyLogger, but you can replace it with your own implementation to suit your needs.
+The `ILogger` interface allows you to implement custom logging. The default logger is built using EasyLogger, but you can replace it with your own implementation to suit your needs. The `EasyLoggingService` class provides methods to log messages at different levels such as debug, info, warning, error, and critical.
+
+#### Class Inheritance and Interfaces
+- **EasyLoggingService**
+    - **Inheritance**: Inherits from `ILogger`.
+    - **Interfaces Used**:
+        - `ILogger` for logging.
 
 ---
 
