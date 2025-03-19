@@ -15,28 +15,24 @@
 using TUS::FileVerifier::Md5Verifier;
 
 Md5Verifier::Md5Verifier()
-{
-}
+= default;
 
 Md5Verifier::~Md5Verifier()
-{
-}
+= default;
 
-string Md5Verifier::hash(const std::vector<uint8_t> &buffer) const
-{
+string Md5Verifier::hash(const std::vector<uint8_t> &buffer) const {
     boost::uuids::detail::md5 hash;
     hash.process_bytes(buffer.data(), buffer.size());
     boost::uuids::detail::md5::digest_type digest;
     hash.get_digest(digest);
 
     std::ostringstream result;
-    for (int i = 0; i < 16; ++i) {
-        result << std::hex << std::setw(2) << std::setfill('0') << (int)digest[i];
+    for (unsigned char i: digest) {
+        result << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(i);
     }
     return result.str();
 }
 
-bool Md5Verifier::verify(const std::vector<uint8_t> &buffer, const string &hash) const
-{
+bool Md5Verifier::verify(const std::vector<uint8_t> &buffer, const string &hash) const {
     return this->hash(buffer) == hash;
 }

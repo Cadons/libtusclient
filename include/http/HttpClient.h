@@ -18,78 +18,88 @@
 #include "logging/ILogger.h"
 #include "Request.h"
 
-namespace TUS
-{
-    namespace Http
-    {
 
-        struct EXPORT_LIBTUSCLIENT Progress
-        {
-            char * data;
-            size_t size;
-        };
+namespace TUS::Http {
+    struct EXPORT_LIBTUSCLIENT Progress {
+        char *data;
+        size_t size;
+    };
+
+    /**
+     * @brief Represents a HTTP client
+     */
+    class EXPORT_LIBTUSCLIENT HttpClient : public IHttpClient {
+    public:
+        HttpClient();
+
+        explicit HttpClient(std::unique_ptr<TUS::Logging::ILogger> logger);
+
+        ~HttpClient() override;
+
+        IHttpClient *get(Request request) override;
+
+        IHttpClient *post(Request request) override;
+
+        IHttpClient *put(Request request) override;
+
+        IHttpClient *patch(Request request) override;
+
+        IHttpClient *del(Request request) override;
+
+        IHttpClient *head(Request request) override;
+
+        IHttpClient *options(Request request) override;
+
+        IHttpClient *abortAll() override;
 
         /**
-         * @brief Represents a HTTP client
+         * @brief Execute the requests in the queue
+         * it start a new thread that will execute the requests, if the thread is already running it will do nothing
          */
-        class EXPORT_LIBTUSCLIENT HttpClient : public IHttpClient
-        {
+        IHttpClient *execute() override;
 
-        public:
-            HttpClient();
-            HttpClient(std::unique_ptr<TUS::Logging::ILogger> logger);
-            virtual ~HttpClient();
-            IHttpClient *get(Request request) override;
-            IHttpClient *post(Request request) override;
-            IHttpClient *put(Request request) override;
-            IHttpClient *patch(Request request) override;
-            IHttpClient *del(Request request) override;
-            IHttpClient *head(Request request) override;
-            IHttpClient *options(Request request) override;
-          
-            IHttpClient* abortAll() override;
-            /**
-             * @brief Execute the requests in the queue
-             * it start a new thread that will execute the requests, if the thread is already running it will do nothing
-             */
-            IHttpClient* execute()override;
+        void setAuthorization(const std::string &token) override;
 
-            void setAuthorization(const std::string& token) override;
-            bool isAuthenticated() override;
-            
-            static string convertHttpMethodToString(HttpMethod method);
-            static int getHttpReturnCode(const std::string& header);
+        bool isAuthenticated() override;
 
-        private:
-            void setupCURLRequest(CURL *curl, HttpMethod method, Request request);
-            IHttpClient *sendRequest(HttpMethod method, Request request);
-            std::queue<RequestTask> m_requestsQueue;
-            bool m_abort = false;
-            std::mutex m_queueMutex;  // Mutex to protect shared resources
-            std::shared_ptr<TUS::Logging::ILogger> m_logger;
-            std::string m_token="";
+        static string convertHttpMethodToString(HttpMethod method);
 
-            /**
-             * @brief Callback function for the write data of the request
-             * @param ptr is the pointer to the data
-             * @param size is the size of the data
-             * @param nmemb  the size of the data
-             * @param data is the data
-             * @return size_t
-             */
-            static size_t writeDataCallback(void *ptr, size_t size, size_t nmemb, std::string *data);
-            /**
-             * @brief Callback function for the progress of the request
-             * @param clientp is a pointer to the client
-             * @param dltotal is the total size of the download
-             * @param dlnow is the current size of the download
-             * @param ultotal is the total size of the upload
-             * @param ulnow is the current size of the upload
-             * @return int (0=ok, 1=abort)
-             */
-            static int progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
-            std::shared_ptr<string> m_buffer;
-        };
-    }
+        static int getHttpReturnCode(const std::string &header);
+
+    private:
+        void setupCURLRequest(CURL *curl, HttpMethod method, const Request &request) const;
+
+        IHttpClient *sendRequest(HttpMethod method, const Request &request);
+
+        std::queue<RequestTask> m_requestsQueue;
+        bool m_abort = false;
+        std::mutex m_queueMutex; // Mutex to protect shared resources
+        std::shared_ptr<TUS::Logging::ILogger> m_logger;
+        std::string m_token = "";
+
+        /**
+         * @brief Callback function for the write data of the request
+         * @param ptr is the pointer to the data
+         * @param size is the size of the data
+         * @param nmemb  the size of the data
+         * @param data is the data
+         * @return size_t
+         */
+        static size_t writeDataCallback(void *ptr, size_t size, size_t nmemb, std::string *data);
+
+        /**
+         * @brief Callback function for the progress of the request
+         * @param clientp is a pointer to the client
+         * @param dltotal is the total size of the download
+         * @param dlnow is the current size of the download
+         * @param ultotal is the total size of the upload
+         * @param ulnow is the current size of the upload
+         * @return int (0=ok, 1=abort)
+         */
+        static int progressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+
+        std::shared_ptr<string> m_buffer;
+    };
 }
+
 #endif // INCLUDE_HTTP_HTTPCLIENT_H_

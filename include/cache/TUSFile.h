@@ -13,9 +13,8 @@
 #include <boost/uuid/uuid.hpp>
 
 #include "libtusclient.h"
-namespace TUS
-{
-namespace Cache{
+
+namespace TUS::Cache {
     /**
      * @brief The TUSFile class represents a file upload record in the cache.
      * When a file is uploaded, a record is created and stored in the cache, this
@@ -24,8 +23,7 @@ namespace Cache{
      * the size of the full file and the application name that created the record.
      * This class provides methods for storing and retrieving data from the cache.
      */
-    class EXPORT_LIBTUSCLIENT TUSFile
-    {
+    class EXPORT_LIBTUSCLIENT TUSFile {
     public:
         /**
          * @brief Construct a new TUSFile object.
@@ -33,49 +31,64 @@ namespace Cache{
          * @param uploadUrl The URL to which the file will be uploaded.
          * @param appName The name of the application that created the record.
          */
-        TUSFile(std::filesystem::path filePath, std::string uploadUrl, std::string appName,boost::uuids::uuid uuid,std::string tusID="");
-        TUSFile(std::shared_ptr<TUSFile> file);
-        ~TUSFile();
-        std::filesystem::path getFilePath() const;
-        std::string getUploadUrl() const;
-        std::string getAppName() const;
-        std::string getIdentificationHash() const;
-        int64_t getFileSize() const;
-        int64_t getLastEdit() const;
-        int64_t getUploadOffset() const;
-        int getResumeFrom() const;
+        TUSFile(const std::filesystem::path &filePath, const std::string &uploadUrl, const std::string &appName,
+                boost::uuids::uuid uuid, std::string tusID = "");
 
-        std::string getTusIdentifier() const;
-        boost::uuids::uuid getUuid() const;
+        TUSFile(const std::shared_ptr<TUSFile> &file);
+
+        ~TUSFile();
+
+        [[nodiscard]] std::filesystem::path getFilePath() const;
+
+        [[nodiscard]] std::string getUploadUrl() const;
+
+        [[nodiscard]] std::string getAppName() const;
+
+        [[nodiscard]] std::string getIdentificationHash() const;
+
+        [[nodiscard]] int64_t getFileSize() const;
+
+        [[nodiscard]] int64_t getLastEdit() const;
+
+        [[nodiscard]] int64_t getUploadOffset() const;
+
+        [[nodiscard]] int getResumeFrom() const;
+
+        [[nodiscard]] std::string getTusIdentifier() const;
+
+        [[nodiscard]] boost::uuids::uuid getUuid() const;
+
         int getChunkNumber() const;
-        
-        void setLastEdit(int64_t lastEdit);        
+
+        void setLastEdit(int64_t lastEdit);
+
         void setUploadOffset(int64_t uploadOffset);
+
         void setTusIdentifier(std::string tusIdentifier);
+
         void setResumeFrom(int resumeFrom);
+
         void setChunkNumber(int chunkNumber);
 
-        bool select(std::string filePath, std::string appName, std::string uploadUrl);
-
+        [[nodiscard]] bool select(const std::string &filePath, const std::string &appName, const std::string &uploadUrl) const;
 
     protected:
-        int64_t m_lastEdit;/* last time the record was edited in unix time */
+        int64_t m_lastEdit; /* last time the record was edited in unix time */
         const std::filesystem::path m_filePath;
         const std::string m_uploadUrl;
         const std::string m_appName;
-        int64_t m_uploadOffset;/* the offset of the file that has been uploaded */
-        int m_resumeFrom;/* the offset from which the upload should resume */
+        int64_t m_uploadOffset; /* the offset of the file that has been uploaded */
+        int m_resumeFrom{}; /* the offset from which the upload should resume */
         const int64_t m_fileSize;
-        std::string m_tusIdentifier;/* the identifier of the file */
-        const boost::uuids::uuid m_uuid;/* the uuid of the file */
-        int m_chunkNumber;/* the number of the chunk that is being uploaded */
+        std::string m_tusIdentifier; /* the identifier of the file */
+        const boost::uuids::uuid m_uuid; /* the uuid of the file */
+        int m_chunkNumber{}; /* the number of the chunk that is being uploaded */
 
-        const std::string m_identifcationHash;/* the hash of the file path and the upload url and app name*/
+        const std::string m_identifcationHash; /* the hash of the file path and the upload url and app name*/
 
         void updateFile();
     };
-
 } // namespace Model
 
-} // namespace TUS
+
 #endif // INCLUDE_CACHE_TUSFILE_H_

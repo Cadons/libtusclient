@@ -10,39 +10,39 @@
 #include "repository/IRepository.h"
 #include "cache/TUSFile.h"
 
-namespace TUS
-{
 
-    namespace Cache
-    {
-        /**
-         * @brief The CacheRepository class is a repository for TUSFile objects.
-         * The repository stores TUSFile objects in a cache file.
-         */
+namespace TUS::Cache {
+    /**
+     * @brief The CacheRepository class is a repository for TUSFile objects.
+     * The repository stores TUSFile objects in a cache file.
+     */
 
-        class EXPORT_LIBTUSCLIENT CacheRepository : public Repository::IRepository<TUSFile>
-        {
+    class EXPORT_LIBTUSCLIENT CacheRepository : public Repository::IRepository<TUSFile> {
+    public:
+        explicit CacheRepository(std::string appName, bool clearCache = false);
 
-        public:
-            CacheRepository(std::string appName, bool clearCache = false);
-            ~CacheRepository() override;
+        ~CacheRepository() override;
 
-            void add(std::shared_ptr<TUSFile>) override;
-            void remove(std::shared_ptr<TUSFile>) override;
-            std::shared_ptr<TUSFile> findByHash(const std::string &id) const override;
-            std::vector<std::shared_ptr<TUSFile>> findAll() const override;
+        void add(std::shared_ptr<TUSFile>) override;
 
-            bool open() override;
-            bool save() override;
-            void clearCache();
+        void remove(std::shared_ptr<TUSFile>) override;
 
-        private:
-            std::vector<std::shared_ptr<TUSFile>> m_cache;
-            const std::string m_appName;
-            const std::filesystem::path m_path;
-        };
-    } // namespace Cache
+        [[nodiscard]] std::shared_ptr<TUSFile> findByHash(const std::string &id) const override;
 
-} // namespace TUS
+        [[nodiscard]] std::vector<std::shared_ptr<TUSFile> > findAll() const override;
+
+        bool open() override;
+
+        bool save() override;
+
+        void clearCache();
+
+    private:
+        std::vector<std::shared_ptr<TUSFile> > m_cache;
+        const std::string m_appName;
+        const std::filesystem::path m_path;
+    };
+} // namespace TUS::Cache
+
 
 #endif  // INCLUDE_CACHE_CACHEREPOSITORY_H_

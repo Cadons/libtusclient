@@ -9,17 +9,14 @@
 
 using TUS::Chunk::Utility::ChunkUtility;
 
-std::int64_t ChunkUtility::getChunkSizeFromGB(int size)
-{
-      return static_cast<std::int64_t>( size * KB * KB * KB);
+std::int64_t ChunkUtility::getChunkSizeFromGB(int size) {
+      return static_cast<std::int64_t>(size * KB * KB * KB);
 }
 
-std::int64_t ChunkUtility::getChunkSizeFromMB(int size)
-{
-      return static_cast<std::int64_t>( size * KB * KB);
+std::int64_t ChunkUtility::getChunkSizeFromMB(int size) {
+      return static_cast<std::int64_t>(size * KB * KB);
 }
 
-std::int64_t ChunkUtility::getChunkSizeFromKB(int size)
-{
-      return static_cast<std::int64_t>( size * KB);
+std::int64_t ChunkUtility::getChunkSizeFromKB(int size) {
+      return static_cast<std::int64_t>(size * KB);
 }
