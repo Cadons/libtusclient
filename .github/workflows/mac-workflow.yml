@@ -143,24 +143,4 @@ jobs:
         with:
           name: test-results
           path: build/${{ steps.strings.outputs.test-folder }}/test-results.xml
-
-  release-mac:
-    needs: test-mac
-    if: github.event_name == 'release'
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts-mac
-          path: build/${{ steps.strings.outputs.test-folder }}
-
-      - name: Upload Release Artifact
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: build/${{ steps.strings.outputs.test-folder }}
-          asset_name: libtusclient-${{ steps.strings.outputs.build-type }}.zip
           asset_content_type: application/zip
