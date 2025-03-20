@@ -144,7 +144,7 @@ The `ILogger` interface allows you to implement custom logging. The default logg
 
 ## **Example**
 
-This example demonstrates how to upload a file using the **TusClient** class, without relying on Google Test.
+This example demonstrates how to upload a file using the **TusClient**
 
 ```cpp
 #include <iostream>
