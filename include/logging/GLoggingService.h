@@ -8,6 +8,8 @@
 #include "ILogger.h"
 #include <glog/logging.h>
 #include <atomic>
+#include <mutex>
+
 
 
 namespace TUS::Logging {

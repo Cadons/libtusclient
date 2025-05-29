@@ -1,5 +1,4 @@
 #include "logging/GLoggingService.h"
-
 namespace TUS::Logging {
     GLoggingService::GLoggingService(LogLevel level) {
         std::scoped_lock<std::mutex> lock(initMutex);
