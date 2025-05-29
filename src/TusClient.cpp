@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <format>
 
 #include "TusClient.h"
 #include "cache/CacheRepository.h"
@@ -17,12 +18,12 @@
 #include "chunk/FileChunker.h"
 #include "chunk/TUSChunk.h"
 #include "http/HttpClient.h"
-#include "logging/EasyLoggingService.h"
+#include "logging/GLoggingService.h"
 #include "exceptions/TUSException.h"
 using boost::uuids::random_generator;
 using TUS::TusClient;
 using TUS::TusStatus;
-using TUS::Logging::EasyLoggingService;
+using TUS::Logging::GLoggingService;
 using TUS::Logging::LogLevel;
 
 void TusClient::initialize(int chunkSize) {
@@ -47,8 +48,8 @@ TusClient::TusClient(std::string appName, std::string url, path filePath,
                      const int chunkSize, Logging::LogLevel logLevel)
     : m_url(std::move(url)), m_filePath(std::move(filePath)),
       m_status(TusStatus::READY), m_httpClient(std::make_unique<TUS::Http::HttpClient>(
-          std::make_unique<TUS::Logging::EasyLoggingService>(logLevel))),
-      m_logger(std::make_unique<Logging::EasyLoggingService>(logLevel)),
+          std::make_unique<TUS::Logging::GLoggingService>(logLevel))),
+      m_logger(std::make_unique<Logging::GLoggingService>(logLevel)),
       m_appName(std::move(appName)) {
     initialize(chunkSize);
 }
@@ -57,8 +58,8 @@ TusClient::TusClient(std::string appName, std::string url, path filePath,
                      TUS::Logging::LogLevel logLevel)
     : m_url(std::move(url)), m_filePath(std::move(filePath)),
       m_status(TusStatus::READY), m_httpClient(std::make_unique<TUS::Http::HttpClient>(
-          std::make_unique<TUS::Logging::EasyLoggingService>(logLevel))),
-      m_logger(std::make_unique<TUS::Logging::EasyLoggingService>(logLevel)),
+          std::make_unique<TUS::Logging::GLoggingService>(logLevel))),
+      m_logger(std::make_unique<TUS::Logging::GLoggingService>(logLevel)),
       m_appName(std::move(appName)) {
     initialize(0);
 }
@@ -77,18 +78,46 @@ void TusClient::createTusFile() {
 
 std::string extractHeaderValue(const std::string &header,
                                const std::string &key) {
-    size_t record = header.find(key + ": ");
-    if (record != std::string::npos) {
-        size_t valueStart = record + key.length() + 2; // +2 for " :"
-        size_t valueEnd = header.find("\r\n", valueStart);
+    const auto toLower = [](const std::string &s) {
+        std::string result = s;
+        std::transform(result.begin(), result.end(), result.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+        return result;
+    };
 
-        if (valueEnd != std::string::npos && valueStart < header.length()) {
-            return header.substr(valueStart, valueEnd - valueStart);
-        } else if (valueStart <
-                   header.length()) // Handle case where valueEnd is not found
-        {
-            return header.substr(valueStart);
+    std::string keyLower = toLower(key);
+    size_t pos = 0;
+
+    while (pos < header.size()) {
+        size_t lineEnd = header.find("\r\n", pos);
+        if (lineEnd == std::string::npos)
+            lineEnd = header.size();
+
+        size_t colonPos = header.find(':', pos);
+        if (colonPos != std::string::npos && colonPos < lineEnd) {
+            std::string lineKey = header.substr(pos, colonPos - pos);
+            std::string lineValue = header.substr(colonPos + 1, lineEnd - colonPos - 1);
+
+            // Trim spaces helper
+            auto trim = [](std::string &str) {
+                const char* whitespace = " \t";
+                size_t start = str.find_first_not_of(whitespace);
+                size_t end = str.find_last_not_of(whitespace);
+                if (start == std::string::npos) {
+                    str.clear();
+                    return;
+                }
+                str = str.substr(start, end - start + 1);
+            };
+
+            trim(lineKey);
+            trim(lineValue);
+
+            if (toLower(lineKey) == keyLower)
+                return lineValue;
         }
+
+        pos = lineEnd + 2;
     }
 
     return "";
@@ -117,7 +146,7 @@ bool TusClient::upload() {
     headers["Upload-Metadata"] =
             "filename " + getFilePath().filename().string();
     OnSuccessCallback onPostSuccess = [this](const std::string &header,
-                                             const std::string &data) {
+                                             [[maybe_unused]] const std::string &data) {
         m_tusLocation = extractHeaderValue(header, "Location");
         size_t lastSlashPosition = m_tusLocation.find_last_of('/');
         if (lastSlashPosition != std::string::npos) {
@@ -129,7 +158,7 @@ bool TusClient::upload() {
             std::cerr << "Error: '/' not found in m_tusLocation" << std::endl;
         }
     };
-    OnErrorCallback onError = [this](const std::string &header, const std::string &data) {
+    OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {
         m_logger->error(data);
         m_status.store(TusStatus::FAILED);
         throw TUS::Exceptions::TUSException(data);
@@ -155,11 +184,9 @@ bool TusClient::upload() {
 bool TusClient::uploadChunks() {
     int i = m_uploadedChunks;
     m_status.store(TusStatus::UPLOADING);
-    if (m_fileChunker->getChunkNumber() == 0) {
-        if (!m_fileChunker->loadChunks()) {
-            m_status.store(TusStatus::FAILED);
-            throw TUS::Exceptions::TUSException("Error: Unable to load chunks");
-        }
+    if (m_fileChunker->getChunkNumber() == 0 && !m_fileChunker->loadChunks()) {
+        m_status.store(TusStatus::FAILED);
+        throw TUS::Exceptions::TUSException("Error: Unable to load chunks");
     }
 
     if (m_uploadLength == 0) {
@@ -182,6 +209,38 @@ bool TusClient::uploadChunks() {
     return true;
 }
 
+void TusClient::handleSuccessfulUpload(const string &header) {
+    m_uploadedChunks++;
+    m_nextChunk = true;
+    m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
+
+    float progress = static_cast<float>(m_uploadOffset) /
+                     static_cast<float>(std::filesystem::file_size(m_filePath)) * 100;
+    m_progress.store(progress);
+}
+
+void TusClient::handleUploadConflict(const string &header) {
+    if ( m_retry < 3) {
+        m_retry++;
+        m_logger->warning("Conflict detected, retrying the upload");
+        getUploadInfo();
+    } else {
+        m_logger->error(std::format("Error: Too many conflicts {}", m_uploadedChunks));
+        m_logger->error(header);
+        m_status.store(TusStatus::FAILED);
+        throw TUS::Exceptions::TUSException("Error: Too many conflicts");
+    }
+    std::this_thread::sleep_for(m_requestTimeout);
+}
+
+void TusClient::handleUploadError(const string &header) {
+    m_logger->error(std::format("Error: Unable to upload chunk {}", m_uploadedChunks));
+    m_logger->error(header);
+    m_status.store(TusStatus::FAILED);
+    throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
+}
+
+
 void TusClient::uploadChunk(int chunkNumber) {
     if (m_status.load() != TusStatus::UPLOADING) {
         return;
@@ -196,43 +255,19 @@ void TusClient::uploadChunk(int chunkNumber) {
     patchHeaders["Content-Type"] = "application/offset+octet-stream";
     patchHeaders["Content-Length"] = std::to_string(chunk.getChunkSize());
     patchHeaders["Upload-Offset"] = std::to_string(m_uploadOffset);
-
-    OnSuccessCallback onPatchSuccess = [this](const std::string &header,
-                                              const std::string &data) {
+    OnSuccessCallback onPatchSuccess = [this](const std::string &header, [[maybe_unused]] const std::string &data) {
         if (header.find("204 No Content") != std::string::npos) {
-            m_uploadedChunks++;
-            m_nextChunk = true;
-            m_uploadOffset =
-                    std::stoi(extractHeaderValue(header, "Upload-Offset"));
-
-            m_progress.store(static_cast<float>(m_uploadOffset) /
-                             static_cast<float>(std::filesystem::file_size(m_filePath)) * 100);
+            handleSuccessfulUpload(header);
         } else if (header.find("409 Conflict") != std::string::npos) {
-            static int retry = 0;
-            if (retry < 3) {
-                retry++;
-                m_logger->warning("Conflict detected, retrying the upload");
-                getUploadInfo();
-            } else {
-                m_logger->error("Error: Too many conflicts " + std::to_string(
-                                    m_uploadedChunks));
-                m_logger->error(header);
-                m_status.store(TusStatus::FAILED);
-                throw TUS::Exceptions::TUSException(
-                    "Error: Too many conflicts");
-            }
-            std::this_thread::sleep_for(
-                m_requestTimeout); // wait a bit before the other request
+            handleUploadConflict(header);
         } else {
-            m_logger->error("Error: Unable to upload chunk " + std::to_string(m_uploadedChunks));
-            m_logger->error(header);
-            m_status.store(TusStatus::FAILED);
-            throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
+            handleUploadError(header);
         }
     };
 
-    OnErrorCallback onPatchError = [this](const std::string &header,
-                                          const std::string &data) {
+
+    OnErrorCallback onPatchError = [this]([[maybe_unused]] const std::string &header,
+                                          [[maybe_unused]] const std::string &data) {
         m_logger->error("Error: Unable to upload chunk");
         if (m_status.load() != TusStatus::CANCELED &&
             m_status.load() != TusStatus::PAUSED) // in this case is not a
@@ -242,8 +277,7 @@ void TusClient::uploadChunk(int chunkNumber) {
             throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
         }
     };
-    m_logger->debug("Uploading chunk " + std::to_string(chunkNumber));
-
+    m_logger->debug(std::format("Uploading chunk {}", chunkNumber));
     m_httpClient->patch(Http::Request(
         m_url + m_tusLocation,
         std::string(reinterpret_cast<char *>(chunk.getData().data()),
@@ -259,8 +293,8 @@ void TusClient::cancel() {
         return;
     }
     m_status.store(TusStatus::CANCELED);
-    function<void(string, string)> onSuccess = [this](const string &header,
-                                                      const string &data) {
+    function<void(string, string)> onSuccess = [this]([[maybe_unused]] const string &header,
+                                                      [[maybe_unused]] const string &data) {
         m_cacheManager->remove(m_tusFile);
         m_cacheManager->save();
         m_logger->info("Upload canceled");
@@ -279,12 +313,12 @@ void TusClient::getUploadInfo() {
     std::map<std::string, std::string> headers;
 
     OnSuccessCallback headSuccess = [this](const std::string &header,
-                                           const std::string &data) {
+                                           [[maybe_unused]] const std::string &data) {
         m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
         m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
     };
 
-    OnErrorCallback onError = [this](const std::string &header, const std::string &data) {
+    OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {
         m_logger->error(data);
         m_status.store(TusStatus::FAILED);
         throw TUS::Exceptions::TUSException("Error: Unable to get upload information");
@@ -302,13 +336,13 @@ void TusClient::getUploadInfo() {
     }
 }
 
-std::map<std::string, std::string> TusClient::getTusServerInformation() const {
-    std::map<std::string, std::string> serverInfo;
+std::map<std::string, std::string, std::less<> > TusClient::getTusServerInformation() const {
+    std::map<string, string, std::less<> > serverInfo;
     std::map<std::string, std::string> headers;
     headers["accept"] = "*/*";
 
     function<void(string, string)> onSuccess = [&serverInfo](const string &header,
-                                                             const string &data) {
+                                                             [[maybe_unused]] const string &data) {
         serverInfo["Upload-Offset"] =
                 extractHeaderValue(header, "Upload-Offset");
         serverInfo["Upload-Length"] =

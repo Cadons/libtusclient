@@ -13,6 +13,7 @@
 #include "chunk/TUSChunk.h"
 #include "chunk/utility/ChunkUtility.h"
 #include "verifiers/Md5Verifier.h"
+#include <format>
 
 using TUS::Chunk::FileChunker;
 using TUS::Chunk::TUSChunk;
@@ -66,7 +67,7 @@ std::filesystem::path FileChunker::getTemporaryDir() const {
 }
 
 std::string FileChunker::getChunkFilename(int chunkNumber) const {
-    return m_uuid + CHUNK_FILE_NAME_PREFIX + std::to_string(chunkNumber) + CHUNK_FILE_EXTENSION;
+    return std::format("{}{}{}{}", m_uuid, CHUNK_FILE_NAME_PREFIX, chunkNumber, CHUNK_FILE_EXTENSION);
 }
 
 std::filesystem::path FileChunker::getChunkFilePath(int chunkNumber) const {
@@ -135,8 +136,7 @@ int FileChunker::chunkFile() {
 }
 
 bool FileChunker::removeChunkFiles() {
-    std::filesystem::path filesTempDir = getTemporaryDir();
-    if (std::filesystem::exists(filesTempDir)) {
+    if (path filesTempDir = getTemporaryDir(); std::filesystem::exists(filesTempDir)) {
         for (const auto &entry: std::filesystem::directory_iterator(filesTempDir)) {
             std::filesystem::remove(entry.path());
         }
@@ -167,8 +167,6 @@ size_t FileChunker::getChunkSize() const {
     return m_chunkSize;
 }
 
-FileChunker::~FileChunker()
-= default;
 
 std::string FileChunker::hash(const std::vector<uint8_t> &buffer) const {
     return m_verifier->hash(buffer);

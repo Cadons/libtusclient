@@ -34,7 +34,7 @@ namespace TUS::Cache {
         TUSFile(const std::filesystem::path &filePath, const std::string &uploadUrl, const std::string &appName,
                 boost::uuids::uuid uuid, std::string tusID = "");
 
-        TUSFile(const std::shared_ptr<TUSFile> &file);
+        explicit TUSFile(const std::shared_ptr<TUSFile> &file);
 
         ~TUSFile();
 
@@ -72,7 +72,7 @@ namespace TUS::Cache {
 
         [[nodiscard]] bool select(const std::string &filePath, const std::string &appName, const std::string &uploadUrl) const;
 
-    protected:
+    private:
         int64_t m_lastEdit; /* last time the record was edited in unix time */
         const std::filesystem::path m_filePath;
         const std::string m_uploadUrl;
