@@ -220,8 +220,8 @@ void TusClient::handleSuccessfulUpload(const string &header) {
 }
 
 void TusClient::handleUploadConflict(const string &header) {
-    if (static int retry = 0; retry < 3) {
-        retry++;
+    if ( m_retry < 3) {
+        m_retry++;
         m_logger->warning("Conflict detected, retrying the upload");
         getUploadInfo();
     } else {

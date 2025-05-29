@@ -35,10 +35,12 @@ namespace TUS::Test {
             std::filesystem::remove("test.txt");
             std::filesystem::remove("test.zip");
 
-            for (int i = 0; i < 1000; ++i) {
+            for (int i = 0; i < MAX_CLEANUP_FILES; ++i) {
                 std::filesystem::remove(std::to_string(i) + ".dat");
             }
         }
+    private:
+        const int MAX_CLEANUP_FILES = 1000; // Maximum number of files to clean up
     };
 
     void waitUpload(const TusClient &client, float perc) {

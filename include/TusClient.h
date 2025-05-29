@@ -120,6 +120,7 @@ namespace TUS {
         std::unique_ptr<Repository::IRepository<Cache::TUSFile> > m_cacheManager;
         std::unique_ptr<Chunk::IFileChunker<Chunk::TUSChunk> > m_fileChunker;
         std::unique_ptr<Logging::ILogger> m_logger;
+        int m_retry; // Number of retries for the upload
 
         std::string m_appName;
 
@@ -227,19 +228,20 @@ namespace TUS {
         /**
          * @brief Handles the process that occurs after a successful file upload.
          * This function may include actions such as cleanup, reporting progress, or triggering post-upload workflows.
+         * @ param header Details regarding the successful upload, such as the response header.
          */
     private:
         void handleSuccessfulUpload(const string &header);
 
         /**
          * @brief Handles conflicts that occur during an upload process in the TUS library.
-         * @param conflictDetails Details regarding the conflict to be resolved.
+         * @param header Details regarding the conflict to be resolved.
          */
         void handleUploadConflict(const string &header);
 
         /**
          * @brief Handle errors encountered during the upload process.
-         * @param errorCode An integer representing the specific error encountered.
+         * @param header An integer representing the specific error encountered.
          */
         void handleUploadError(const string &header);
     };
