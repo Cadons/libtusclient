@@ -1,10 +1,13 @@
-# Config.cmake.in
-
 @PACKAGE_INIT@
 
 include("${CMAKE_CURRENT_LIST_DIR}/libtusclientTargets.cmake")
 
-check_required_components(libtusclient)
-
 include(CMakeFindDependencyMacro)
 
+find_dependency(CURL REQUIRED)
+find_dependency(boost_lexical_cast REQUIRED)
+find_dependency(boost_uuid REQUIRED)
+find_dependency(nlohmann_json REQUIRED)
+find_dependency(glog REQUIRED)
+
+check_required_components(libtusclient)
