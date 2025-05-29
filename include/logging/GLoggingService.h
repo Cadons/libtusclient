@@ -1,19 +1,20 @@
-#ifndef INCLUDE_EASYLOGGINGSERVICE_
-#define INCLUDE_EASYLOGGINGSERVICE_
+#ifndef INCLUDE_GLOGGINGSERVICE_
+#define INCLUDE_GLOGGINGSERVICE_
 /*
  * Copyright (c) 2024 Matteo Cadoni
  * This file is part of libtusclient, licensed under the MIT License.
  * See the LICENSE file in the project root for more information.
  */
 #include "ILogger.h"
-#include <easylogging++.h>
+#include <glog/logging.h>
+#include <atomic>
 
 
 namespace TUS::Logging {
-class EXPORT_LIBTUSCLIENT EasyLoggingService : public ILogger {
+class EXPORT_LIBTUSCLIENT GLoggingService : public ILogger {
   public:
-    explicit EasyLoggingService(LogLevel level);
-    ~EasyLoggingService() override;
+    explicit GLoggingService(LogLevel level);
+    ~GLoggingService() override;
     void setLevel(LogLevel level) override;
     void log(const std::string &message, LogLevel level) override;
     void debug(const std::string &message) override;
@@ -25,8 +26,13 @@ class EXPORT_LIBTUSCLIENT EasyLoggingService : public ILogger {
 
   private:
     LogLevel m_level=LogLevel::_INFO_;
+  static inline bool isInitialized = false;
+
+  static inline  std::atomic<int> instanceCount{0};
+  static inline  std::mutex initMutex;
+
 };
 
 } // namespace TUS::Logging
 
-#endif // INCLUDE_EASYLOGGINGSERVICE_
+#endif // INCLUDE_GLOGGINGSERVICE_

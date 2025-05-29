@@ -78,8 +78,7 @@ namespace TUS::Http {
 
         virtual IHttpClient *execute() = 0;
 
-        virtual ~IHttpClient() {
-        };
+        virtual ~IHttpClient()=default;
         /**
          * @brief set the token for the authentication
          */

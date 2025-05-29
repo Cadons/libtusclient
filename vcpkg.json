@@ -33,7 +33,7 @@
             "name": "nlohmann-json"
         },
         {
-            "name": "easyloggingpp"
+            "name": "glog"
         },
         "vcpkg-cmake",
         {

@@ -17,8 +17,7 @@ namespace TUS::Exceptions {
 
     class EXPORT_LIBTUSCLIENT TUSException : public std::runtime_error {
     public:
-        explicit TUSException(const std::string &message) : std::runtime_error(message) {
-        }
+        using std::runtime_error::runtime_error;
     };
 } // namespace TUS::Exceptions
 

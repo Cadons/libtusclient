@@ -202,7 +202,7 @@ namespace TUS {
          * @return The server information.
          */
 
-        std::map<string, string> getTusServerInformation() const;
+        std::map<std::string, std::string, std::less<> > getTusServerInformation() const;
 
         path getFilePath() const override;
 
@@ -223,6 +223,25 @@ namespace TUS {
          * if token is set
          */
         bool isTokenSet() const;
+
+        /**
+         * @brief Handles the process that occurs after a successful file upload.
+         * This function may include actions such as cleanup, reporting progress, or triggering post-upload workflows.
+         */
+    private:
+        void handleSuccessfulUpload(const string &header);
+
+        /**
+         * @brief Handles conflicts that occur during an upload process in the TUS library.
+         * @param conflictDetails Details regarding the conflict to be resolved.
+         */
+        void handleUploadConflict(const string &header);
+
+        /**
+         * @brief Handle errors encountered during the upload process.
+         * @param errorCode An integer representing the specific error encountered.
+         */
+        void handleUploadError(const string &header);
     };
 } // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

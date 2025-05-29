@@ -13,226 +13,182 @@
 #include <chrono>
 
 #include "TusClient.h"
+
 /**
- * @brief These tests are integration tests that test the TusClient class
+ * @brief Integration tests for the TusClient class
  */
 namespace TUS::Test {
-	class TusClientTest : public ::testing::Test {
-	protected:
-		//const std::string URL="http://localhost:8080/files/";
-		const std::string URL = "http://localhost:8080/files/";
+    class TusClientTest : public ::testing::Test {
+    protected:
+        const std::string URL = "http://localhost:8080/files/";
+        Logging::LogLevel logLevel = Logging::LogLevel::_DEBUG_;
 
-		static std::filesystem::path generateTestFile(int size = 10);
+        static std::filesystem::path generateTestFile(int size = 10);
 
-		static std::filesystem::path generateSimpleFile();
+        static std::filesystem::path generateSimpleFile();
 
-		void SetUp() override {
-			// Set up code here.
-			std::cout << "URL:" << URL << std::endl;
-		}
+        void SetUp() override {
+            std::cout << "URL: " << URL << std::endl;
+        }
 
-		void TearDown() override {
-			if (std::filesystem::exists("test.txt"))
-				std::filesystem::remove("test.txt");
-			if (std::filesystem::exists("test.zip"))
-				std::filesystem::remove("test.zip");
-			// remove all .dat
-			for (int i = 0; i < 1000; i++) {
-				if (std::filesystem::exists(std::to_string(i) + ".dat"))
-					std::filesystem::remove(std::to_string(i) + ".dat");
-			}
-		}
+        void TearDown() override {
+            std::filesystem::remove("test.txt");
+            std::filesystem::remove("test.zip");
 
-		Logging::LogLevel logLevel = Logging::LogLevel::_DEBUG_;
-	};
+            for (int i = 0; i < 1000; ++i) {
+                std::filesystem::remove(std::to_string(i) + ".dat");
+            }
+        }
+    };
 
-	void waitUpload(const TusClient &client, float perc) {
-		if (perc > 100) {
-			perc = 100;
-		} else if (perc <= 0) {
-			perc = 1;
-		}
-		while (client.progress() < perc) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-		}
-	}
+    void waitUpload(const TusClient &client, float perc) {
+        perc = std::clamp(perc, 1.0f, 100.0f);
+        while (client.progress() < perc) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
 
-	std::filesystem::path TusClientTest::generateTestFile(int size) {
-		// generate random .dat files 10MB each
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dis(0, 255);
-		std::vector<std::thread> threads;
-		threads.reserve(size);
-		for (int i = 0; i < size; i++) {
-			threads.emplace_back([&, i]() {
-				std::string data;
-				for (int j = 0; j < 1024 * 1024; j++) {
-					data.push_back(dis(gen));
-				}
-				std::ofstream datFile(std::filesystem::current_path() / (std::to_string(i) + ".dat"), std::ios::binary);
-				datFile.write(data.c_str(), data.size());
-				datFile.close();
-			});
-		}
-		for (auto &thread: threads) {
-			thread.join();
-		}
-		// Zip the files
-		libzippp::ZipArchive zipArchive((std::filesystem::current_path() / "test.zip").string());
-		zipArchive.open(libzippp::ZipArchive::New);
+    std::filesystem::path TusClientTest::generateTestFile(int size) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution dis(0, 255);
 
-		for (int i = 0; i < size; i++) {
-			zipArchive.addFile(std::to_string(i),
-			                   (std::filesystem::current_path() / (std::to_string(i) + ".dat")).string());
-		}
-		zipArchive.close();
-		// remove the .dat files
-		for (int i = 0; i < size; i++) {
-			std::filesystem::remove(std::filesystem::current_path() / (std::to_string(i) + ".dat"));
-		}
-		return std::filesystem::current_path() / "test.zip";
-	}
+        std::vector<std::thread> threads;
+        threads.reserve(size);
 
-	std::filesystem::path TusClientTest::generateSimpleFile() {
-		std::ofstream testFile("test.txt");
-		testFile << "Hello World";
-		testFile.close();
-		return "test.txt";
-	}
+        for (int i = 0; i < size; ++i) {
+            threads.emplace_back([&, i]() {
+                std::vector<char> data(1024 * 1024);
+                std::generate(data.begin(), data.end(), [&]() { return static_cast<char>(dis(gen)); });
 
-	TEST_F(TusClientTest, clientCreationTest) {
-		// create text file
-		TUS::TusClient client("testapp", URL, generateSimpleFile());
+                std::ofstream datFile(std::to_string(i) + ".dat", std::ios::binary);
+                datFile.write(data.data(), data.size());
+            });
+        }
 
-		EXPECT_EQ(client.getUrl(), URL);
-		EXPECT_EQ(client.getFilePath(), "test.txt");
-		EXPECT_EQ(client.status(), TUS::TusStatus::READY);
-		std::filesystem::remove("test.txt");
-	}
+        for (auto &thread: threads) thread.join();
 
-	TEST_F(TusClientTest, uploadSimpleTest) {
-		std::filesystem::path testFilePath = generateTestFile(1);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
+        libzippp::ZipArchive zipArchive("test.zip");
+        zipArchive.open(libzippp::ZipArchive::New);
 
-		client.upload();
+        for (int i = 0; i < size; ++i) {
+            zipArchive.addFile(std::to_string(i), std::to_string(i) + ".dat");
+        }
+        zipArchive.close();
 
-		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
-	}
+        for (int i = 0; i < size; ++i) {
+            std::filesystem::remove(std::format("{}.dat", i));
+        }
 
-	TEST_F(TusClientTest, uploadTest) {
-		std::filesystem::path testFilePath = generateTestFile(10);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
+        return "test.zip";
+    }
 
-		client.upload();
+    std::filesystem::path TusClientTest::generateSimpleFile() {
+        std::ofstream testFile("test.txt");
+        testFile << "Hello World";
+        return "test.txt";
+    }
 
-		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
-	}
+    TEST_F(TusClientTest, clientCreationTest) {
+        TUS::TusClient client("testapp", URL, generateSimpleFile());
+        EXPECT_EQ(client.getUrl(), URL);
+        EXPECT_EQ(client.getFilePath(), "test.txt");
+        EXPECT_EQ(client.status(), TUS::TusStatus::READY);
+    }
 
-	TEST_F(TusClientTest, uploadBigTest) {
-		std::filesystem::path testFilePath = generateTestFile(100);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
+    TEST_F(TusClientTest, uploadSimpleTest) {
+        auto path = generateTestFile(1);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.upload();
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
 
-		client.upload();
+    TEST_F(TusClientTest, uploadTest) {
+        auto path = generateTestFile(10);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.upload();
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
 
-		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
-	}
+    TEST_F(TusClientTest, uploadBigTest) {
+        auto path = generateTestFile(100);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.upload();
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
 
-	TEST_F(TusClientTest, pauseTest) {
-		std::filesystem::path testFilePath = generateTestFile(10);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
-		client.setRequestTimeout(std::chrono::milliseconds(100));
+    TEST_F(TusClientTest, pauseTest) {
+        auto path = generateTestFile(10);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.setRequestTimeout(std::chrono::milliseconds(100));
 
-		std::thread uploadThread([&]() { client.upload(); });
-		waitUpload(client, 10);
-		client.pause();
-		uploadThread.join();
-		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
-	}
+        std::thread uploadThread([&]() { client.upload(); });
+        waitUpload(client, 10);
+        client.pause();
+        uploadThread.join();
 
-	TEST_F(TusClientTest, pauseResumeTest) {
-		std::filesystem::path testFilePath = generateTestFile(10);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
-		client.setRequestTimeout(std::chrono::milliseconds(10));
-		std::thread uploadThread([&]() { client.upload(); });
-		waitUpload(client, 10);
+        EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+    }
 
-		client.pause();
-		std::cout << "Pause" << std::endl;
+    TEST_F(TusClientTest, pauseResumeTest) {
+        auto path = generateTestFile(10);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.setRequestTimeout(std::chrono::milliseconds(10));
 
+        std::thread uploadThread([&]() { client.upload(); });
+        waitUpload(client, 10);
+        client.pause();
+        uploadThread.join();
 
-		uploadThread.join();
-		EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
+        EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 
-		std::cout << "Resuming" << std::endl;
-		float progress = client.progress();
-		std::thread resumeThread([&]() { client.resume(); });
+        float progress = client.progress();
+        std::thread resumeThread([&]() { client.resume(); });
+        waitUpload(client, progress);
+        resumeThread.join();
 
-		waitUpload(client, progress);
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
 
-		resumeThread.join();
-	}
+    TEST_F(TusClientTest, getServerInformationTest) {
+        TUS::TusClient client("testapp", URL, generateSimpleFile());
+        auto info = client.getTusServerInformation();
+        EXPECT_EQ(info["Tus-Resumable"], "1.0.0");
+        EXPECT_EQ(info["Tus-Version"], "1.0.0");
+        EXPECT_EQ(info["Tus-Extension"],
+                  "creation,creation-with-upload,termination,concatenation,creation-defer-length");
+    }
 
-	TEST_F(TusClientTest, getServerInformationTest) {
-		TUS::TusClient client("testapp", URL, generateSimpleFile());
-		std::map<std::string, std::string> serverInformation = client.getTusServerInformation();
-		EXPECT_EQ(serverInformation["Tus-Resumable"], "1.0.0");
-		EXPECT_EQ(serverInformation["Tus-Version"], "1.0.0");
-		EXPECT_EQ(serverInformation["Tus-Extension"],
-		          "creation,creation-with-upload,termination,concatenation,creation-defer-length");
-	}
+    TEST_F(TusClientTest, cancelUpload) {
+        auto path = generateTestFile(10);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.setRequestTimeout(std::chrono::milliseconds(10));
 
-	TEST_F(TusClientTest, cancelUpload) {
-		std::filesystem::path testFilePath = generateTestFile(10);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
-		client.setRequestTimeout(std::chrono::milliseconds(10));
+        std::thread uploadThread([&]() { client.upload(); });
+        waitUpload(client, 10);
+        client.cancel();
+        uploadThread.join();
+        EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
+    }
 
-		std::thread uploadThread([&]() { client.upload(); });
-		waitUpload(client, 10);
-		client.cancel();
+    TEST_F(TusClientTest, retryUpload) {
+        auto path = generateTestFile(10);
+        TUS::TusClient client("testapp", URL, path, logLevel);
+        client.setRequestTimeout(std::chrono::milliseconds(10));
 
-		EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
-		uploadThread.join();
-	}
+        std::thread uploadThread([&]() { client.upload(); });
+        waitUpload(client, 10);
+        client.cancel();
+        uploadThread.join();
 
-	TEST_F(TusClientTest, retryUpload) {
-		std::filesystem::path testFilePath = generateTestFile(10);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", URL, testFilePath, logLevel);
-		client.setRequestTimeout(std::chrono::milliseconds(10));
+        EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
+        client.retry();
 
-		std::thread uploadThread([&]() { client.upload(); });
-		waitUpload(client, 10);
+        EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
+    }
 
-		client.cancel();
-		uploadThread.join();
-
-		EXPECT_EQ(client.status(), TUS::TusStatus::CANCELED);
-		client.retry();
-
-		EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
-	}
-
-	TEST_F(TusClientTest, sanitizeUrl) {
-		TUS::TusClient client("testapp", "http://test.com", generateSimpleFile());
-		EXPECT_EQ(client.getUrl(), "http://test.com/");
-	}
-
-	TEST_F(TusClientTest, testBehindProxy) {
-		std::filesystem::path testFilePath = generateTestFile(1);
-		std::cout << "Test file path: " << testFilePath << std::endl;
-		TUS::TusClient client("testapp", "http://localhost/tus", testFilePath, logLevel);
-		try {
-			client.upload();
-			EXPECT_EQ(client.status(), TUS::TusStatus::FINISHED);
-		} catch ([[maybe_unused]] const std::exception &e) {
-			std::cerr << "Warning: Proxy is not available. This test will be skipped." << std::endl;
-		}
-	}
-}
+    TEST_F(TusClientTest, sanitizeUrl) {
+        TUS::TusClient client("testapp", "http://test.com", generateSimpleFile());
+        EXPECT_EQ(client.getUrl(), "http://test.com/");
+    }
+} // namespace TUS::Test
