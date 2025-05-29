@@ -56,6 +56,7 @@ mkdir build
 cd build
 cmake .. --preset {YOUR-SELECTED-PRESET}
 cmake --build .
+cmake --install .
 ```
 After completing these steps, you should have the TusClient library built and ready to use.
 
