@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <format>
 
 #include "TusClient.h"
 #include "cache/CacheRepository.h"

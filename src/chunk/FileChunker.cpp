@@ -13,6 +13,7 @@
 #include "chunk/TUSChunk.h"
 #include "chunk/utility/ChunkUtility.h"
 #include "verifiers/Md5Verifier.h"
+#include <format>
 
 using TUS::Chunk::FileChunker;
 using TUS::Chunk::TUSChunk;
