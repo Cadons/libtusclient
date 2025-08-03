@@ -1,0 +1,118 @@
+# Doxyfile for {{ project_name }}
+# Generated for VPM Project
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "{{ project_name }}"
+PROJECT_NUMBER         = "0.1.0"
+PROJECT_BRIEF          = "{{ project_name }} documentation"
+OUTPUT_DIRECTORY       = docs
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = YES
+EXTRACT_ANON_NSPACES  = YES
+
+#---------------------------------------------------------------------------
+# Input files
+#---------------------------------------------------------------------------
+INPUT                  = app/{{ project_name }}/src \
+                        app/{{ project_name }}/include \
+                        lib/*/include \
+                        lib/*/src
+
+FILE_PATTERNS          = *.cpp \
+                        *.h \
+                        *.hpp \
+                        *.md
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */build/* \
+                        */test/* \
+                        */.cmake/*
+USE_MDFILE_AS_MAINPAGE = README.md
+
+#---------------------------------------------------------------------------
+# Source browsing options
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES        = NO
+STRIP_CODE_COMMENTS   = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+USE_HTAGS             = NO
+VERBATIM_HEADERS      = YES
+
+#---------------------------------------------------------------------------
+# HTML output options
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT           = html
+HTML_FILE_EXTENSION    = .html
+HTML_COLORSTYLE_HUE   = 220
+HTML_COLORSTYLE_SAT   = 100
+HTML_COLORSTYLE_GAMMA = 80
+HTML_TIMESTAMP        = YES
+HTML_DYNAMIC_SECTIONS = NO
+GENERATE_TREEVIEW     = YES
+ENUM_VALUES_PER_LINE  = 4
+TREEVIEW_WIDTH        = 250
+
+#---------------------------------------------------------------------------
+# Preprocessing options
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF    = NO
+SEARCH_INCLUDES       = YES
+INCLUDE_PATH          = include
+INCLUDE_FILE_PATTERNS = *.h \
+                       *.hpp
+
+#---------------------------------------------------------------------------
+# Dot tool options
+#---------------------------------------------------------------------------
+HAVE_DOT             = YES
+DOT_NUM_THREADS      = 0
+CLASS_DIAGRAMS       = YES
+CLASS_GRAPH          = YES
+COLLABORATION_GRAPH  = YES
+GROUP_GRAPHS         = YES
+UML_LOOK             = YES
+UML_LIMIT_NUM_FIELDS = 50
+TEMPLATE_RELATIONS   = YES
+INCLUDE_GRAPH        = YES
+INCLUDED_BY_GRAPH    = YES
+CALL_GRAPH          = NO
+CALLER_GRAPH        = NO
+GRAPHICAL_HIERARCHY  = YES
+DIRECTORY_GRAPH     = YES
+
+#---------------------------------------------------------------------------
+# Output formats
+#---------------------------------------------------------------------------
+GENERATE_LATEX        = NO
+GENERATE_RTF         = NO
+GENERATE_MAN         = NO
+GENERATE_XML         = NO
+
+#---------------------------------------------------------------------------
+# Extra settings
+#---------------------------------------------------------------------------
+QUIET                = NO
+WARNINGS             = YES
+WARN_IF_UNDOCUMENTED = YES
+WARN_IF_DOC_ERROR    = YES
+WARN_NO_PARAMDOC     = YES
+WARN_FORMAT          = "$file:$line: $text"
+WARN_LOGFILE         = doxygen_warnings.log

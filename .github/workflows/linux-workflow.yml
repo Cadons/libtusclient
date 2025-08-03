@@ -1,7 +1,6 @@
 name: libtusclient CI Linux
 
 on:
-  push:
   pull_request:
   release:
     types: [created]

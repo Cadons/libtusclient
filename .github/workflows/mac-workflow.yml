@@ -1,7 +1,6 @@
 name: libtusclient CI MacOS
 
 on:
-  push:
   pull_request:
   release:
     types: [created]

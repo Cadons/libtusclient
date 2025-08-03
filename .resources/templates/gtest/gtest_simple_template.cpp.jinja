@@ -1,0 +1,15 @@
+#include <gtest/gtest.h>
+#include "{{ header_filename }}"
+
+{% if namespace %}
+using namespace {{ namespace }};
+{% endif %}
+
+// Test suite: {{ test_suite_name }}
+TEST({{ test_suite_name }}, DefaultConstructor) {
+    {{ class_name }} instance;
+    // Add your assertions here
+    SUCCEED();
+}
+
+// Add more tests here

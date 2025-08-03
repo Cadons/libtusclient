@@ -1,0 +1,29 @@
+#pragma once
+
+{% if namespace -%}
+namespace {{ namespace }} {
+
+{% set indent = "    " %}
+{%- else -%}
+{% set indent = "" %}
+{%- endif %}
+{{indent}}class {{ class_name }} {
+{{indent}}public:
+{{indent}}    {{ class_name }}();
+{{indent}}    ~{{ class_name }}();
+
+{{indent}}    // Copy and move
+{{indent}}    {{ class_name }}(const {{ class_name }}&) = default;
+{{indent}}    {{ class_name }}& operator=(const {{ class_name }}&) = default;
+{{indent}}    {{ class_name }}({{ class_name }}&&) = default;
+{{indent}}    {{ class_name }}& operator=({{ class_name }}&&) = default;
+
+{{indent}}    // TODO: Add public methods
+
+{{indent}}private:
+{{indent}}    // TODO: Add member variables
+{{indent}}};
+
+{% if namespace %}
+} // namespace {{ namespace }}
+{%- endif %}

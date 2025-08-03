@@ -1,33 +1,26 @@
 include(cmake/common.cmake)
-message(STATUS "tusclient by Cadons")
-cmake_minimum_required(VERSION 3.23)
+message(STATUS "{{ project_name}} by {{ org_name | default('UnknownOrg') }} - {{ project_version | default('1.0.0') }}")
+cmake_minimum_required(VERSION {{ cmake_min_version | default("3.23") }})
 
-project(tusclient
-    VERSION 1.0.1
-    DESCRIPTION "A monorepo project"
+project({{ project_name }}
+    VERSION {{ project_version | default("1.0.0") }}
+    DESCRIPTION "{{ project_description | default('Monorepo project') }}"
     LANGUAGES CXX
 )
 
-#import dependencies
-find_package(CURL REQUIRED)
-find_package(boost_lexical_cast CONFIG REQUIRED)
-find_package(boost_uuid CONFIG REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(glog REQUIRED)
-
 # Organization info
-set(PROJECT_ORG_NAME "Cadons")
-set(PROJECT_ORG_URL "https://example.com")
+set(PROJECT_ORG_NAME "{{ org_name | default('UnknownOrg') }}")
+set(PROJECT_ORG_URL "{{ org_url | default('https://example.com') }}")
 
 # Prefer Ninja if not explicitly specified
-
+{% if prefer_ninja %}
 if(NOT CMAKE_GENERATOR)
     message(STATUS "No generator specified. Consider using Ninja for faster builds.")
 endif()
-
+{% endif %}
 
 # Set C++ standard
-configure_compiler(20)
+configure_compiler({{ cpp_standard | default("23") }})
 
 # Default build type
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -54,4 +47,6 @@ configure_file(
 )
 
 # === Add subdirectories ===
-add_subdirectory(lib)
+{% for dir in subdirs %}
+add_subdirectory({{ dir }})
+{% endfor %}

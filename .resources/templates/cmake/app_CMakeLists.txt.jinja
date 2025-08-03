@@ -1,0 +1,23 @@
+# Include common cmake scripts
+include(${CMAKE_CURRENT_SOURCE_DIR}/.cmake/sources.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+
+# Configure build output directories for the target
+configure_build({{ target_name }})
+
+# Create executable target
+add_executable({{ target_name }}  {{"${" + sources + "}"}} {{"${" + headers + "}"}} {{"${" + resources + "}"}})
+
+# Include headers directory
+target_include_directories({{ target_name }} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/{{ target_name }})
+
+# Link libraries
+#target_link_libraries({{ target_name }} PRIVATE)
+
+# Enable testing if tests exist
+include(CTest)
+if(BUILD_TESTING)
+    add_subdirectory(test)
+endif()
+# Install target
+configure_install({{ target_name }})

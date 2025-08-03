@@ -1,0 +1,15 @@
+{% if app %}
+#include <iostream>
+int main() {
+    // Your code goes here
+    std::cout << "Hello, {{ target_name }}!" << std::endl;
+    return 0;
+}
+{% else %}
+#include <iostream>
+#include "module.h"
+    void {{ target_name }}() {
+    // Your code goes here
+    std::cout << "Hello, {{ target_name }}!" << std::endl;
+}
+{% endif %}

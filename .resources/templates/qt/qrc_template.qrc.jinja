@@ -1,0 +1,13 @@
+
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/{{ prefix | lower }}">
+
+        {%- if create_examples %}
+        <!-- Example resources -->
+        <file>resources/images/icon.png</file>
+        <file>resources/styles/style.qss</file>
+        {%- endif %}
+
+    </qresource>
+</RCC>
