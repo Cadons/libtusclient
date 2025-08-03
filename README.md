@@ -41,12 +41,12 @@ Run the appropriate script for your platform:
 
 •	Linux/macOS:
 ```
-./vpm.sh
+./configure.sh
 ```
 
 •	Windows:
 ```
-./vpm.bat
+./configure.bat
 ```
 
 3.	Build the project with CMake:
