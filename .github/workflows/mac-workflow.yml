@@ -66,24 +66,24 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       - name: Build Library
-        run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
       - name: Build Tests
-        run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-mac
-          path: build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.dylib
+          path: build/${{ steps.strings.outputs.test-folder }}/lib/libtusclient.dylib
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test-mac
           path: |
-            build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.dylib
-            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
+            build/${{ steps.strings.outputs.test-folder }}/lib/libtusclient.dylib
+            build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test
 
   test-mac:
     needs: build-mac
@@ -133,9 +133,9 @@ jobs:
 
       - name: Test Project
         run: |
-          chmod +x build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
+          chmod +x build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test
           export DYLD_LIBRARY_PATH=build/${{ steps.strings.outputs.test-folder }}:$DYLD_LIBRARY_PATH
-          build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

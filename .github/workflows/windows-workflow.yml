@@ -64,10 +64,10 @@ jobs:
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE="vcpkg\scripts\buildsystems\vcpkg.cmake" -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
       - name: Build Library
-        run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
       - name: Build Tests
-        run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -81,7 +81,7 @@ jobs:
           name: build-artifacts-for-test
           path: |
             build/${{ steps.strings.outputs.test-folder }}/bin/*.dll
-            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test.exe
+            build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test.exe
 
   test-windows:
     needs: build-windows
@@ -113,4 +113,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          build/${{ steps.strings.outputs.test-folder }}/libtusclient_test.exe --gtest_output=xml:test-results.xml
+          build/${{ steps.strings.outputs.test-folder }}/tusclient_test.exe --gtest_output=xml:test-results.xml

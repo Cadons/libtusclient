@@ -68,24 +68,24 @@ jobs:
       
    
       - name: Build Library
-        run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
       - name: Build Tests
-        run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-linux
-          path: build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
+          path: build/${{ steps.strings.outputs.test-folder }}/lib/libtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
-            build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
-            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
+            build/${{ steps.strings.outputs.test-folder }}/lib/libtusclient.so
+            build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test
 
   test-linux:
     needs: build-linux
@@ -133,7 +133,7 @@ jobs:
         run: |
           chmod +x build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
           export LD_LIBRARY_PATH=build/${{ steps.strings.outputs.test-folder }}:$LD_LIBRARY_PATH
-          build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          build/${{ steps.strings.outputs.test-folder }}/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
