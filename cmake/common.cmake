@@ -40,7 +40,6 @@ endfunction()
 function (configure_compiler cpp_standard)
     if(MSVC)
         # Add MSVC-specific compile options.
-        add_compile_options(/W4 /WX)
         if (POLICY CMP0141)
             # Set policy for MSVC debug information format.
             cmake_policy(SET CMP0141 NEW)
