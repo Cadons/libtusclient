@@ -47,7 +47,7 @@ namespace TUS::Chunk {
         FileChunker(string appName, string uuid, path filepath, int chunkSize = 0,
                     std::unique_ptr<FileVerifier::IFileVerifier> verifier = nullptr);
 
-        ~FileChunker() = default;
+        ~FileChunker() override = default;
 
         bool loadChunks() override;
 

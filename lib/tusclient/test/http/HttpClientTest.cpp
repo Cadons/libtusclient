@@ -32,16 +32,15 @@ namespace TUS::Test::Http {
     };
 
     class HttpClientParameterizedTest : public testing::TestWithParam<TestParams> {
-    protected:
+    public:
         void SetUp() override {
-            m_httpClient = new HttpClient();
+            m_httpClient = std::make_unique<HttpClient>();
         }
 
         void TearDown() override {
-            delete m_httpClient;
         }
 
-        HttpClient *m_httpClient{};
+        std::unique_ptr<HttpClient> m_httpClient= nullptr;
         const int m_timeout = 2; //seconds
     };
 
@@ -49,7 +48,7 @@ namespace TUS::Test::Http {
         const TestParams &testCase = GetParam();
         std::string finalResult;
 
-        std::function<void(std::string, std::string)> onDataReceivedCallback = [&
+        std::function<void(std::string, std::string)> onDataReceivedCallback = [&finalResult
                 ](const std::string &header, const std::string &data) {
             std::cout << data << std::endl;
             std::cout << header << std::endl;
@@ -104,7 +103,7 @@ namespace TUS::Test::Http {
                              });
 
     TEST_F(HttpClientParameterizedTest, CheckWrongMethod) {
-        Request request("http://localhost:3000/files", "", HttpMethod::_GET);
+        const Request request("http://localhost:3000/files", "", HttpMethod::_GET);
         EXPECT_THROW(m_httpClient->put(request), std::runtime_error);
     }
 
@@ -119,15 +118,15 @@ namespace TUS::Test::Http {
 
     TEST_F(HttpClientParameterizedTest, HttpsRequest) {
         Request request("https://www.google.com", "", HttpMethod::_GET);
-        request.setOnSuccessCallback([this](const std::string &header,
+        request.setOnSuccessCallback([](const std::string &header,
                                             const std::string &data) {
             std::cout << data << std::endl;
             std::cout << header << std::endl;
 
             ASSERT_TRUE(!data.empty());
         });
-        request.setOnErrorCallback([this](const std::string &header,
-                                          const std::string &data) {
+        request.setOnErrorCallback([](const std::string &,
+                                          const std::string &) {
             ASSERT_TRUE(false);
         });
         m_httpClient->get(request);
@@ -136,12 +135,12 @@ namespace TUS::Test::Http {
 
     TEST_F(HttpClientParameterizedTest, AuthorizedRequestSuccess) {
         Request request("http://localhost:3000/auth/files", "", HttpMethod::_POST);
-        request.setOnSuccessCallback([this](const std::string &header,
-                                            const std::string &data) {
+        request.setOnSuccessCallback([](const std::string &header,
+                                            const std::string &) {
             ASSERT_EQ(HttpClient::getHttpReturnCode(header), 200);
         });
-        request.setOnErrorCallback([this](const std::string &header,
-                                          const std::string &data) {
+        request.setOnErrorCallback([](const std::string &,
+                                          const std::string &) {
             FAIL();
         });
         m_httpClient->setAuthorization(
@@ -152,12 +151,12 @@ namespace TUS::Test::Http {
 
     TEST_F(HttpClientParameterizedTest, AuthorizedRequestFail) {
         Request request("http://localhost:3000/auth/files", "", HttpMethod::_POST);
-        request.setOnSuccessCallback([this](const std::string &header,
-                                            const std::string &data) {
+        request.setOnSuccessCallback([](const std::string &,
+                                            const std::string &) {
             FAIL();
         });
-        request.setOnErrorCallback([this](const std::string &header,
-                                          const std::string &data) {
+        request.setOnErrorCallback([](const std::string &header,
+                                          const std::string &) {
             ASSERT_EQ(HttpClient::getHttpReturnCode(header), 401);
         });
         m_httpClient->setAuthorization("wrongToken");

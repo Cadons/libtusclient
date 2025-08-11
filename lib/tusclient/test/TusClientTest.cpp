@@ -19,7 +19,7 @@
  */
 namespace TUS::Test {
     class TusClientTest : public ::testing::Test {
-    protected:
+    public:
         const std::string URL = "http://localhost:8080/files/";
         Logging::LogLevel logLevel = Logging::LogLevel::_DEBUG_;
 
@@ -36,7 +36,7 @@ namespace TUS::Test {
             std::filesystem::remove("test.zip");
 
             for (int i = 0; i < MAX_CLEANUP_FILES; ++i) {
-                std::filesystem::remove(std::to_string(i) + ".dat");
+                std::filesystem::remove(std::format("{}.dat", i));
             }
         }
     private:
@@ -59,11 +59,11 @@ namespace TUS::Test {
         threads.reserve(size);
 
         for (int i = 0; i < size; ++i) {
-            threads.emplace_back([&, i]() {
+            threads.emplace_back([&dis,&gen,i]() {
                 std::vector<char> data(1024 * 1024);
-                std::generate(data.begin(), data.end(), [&]() { return static_cast<char>(dis(gen)); });
+                std::ranges::generate(data,[&]() { return static_cast<char>(dis(gen)); });
 
-                std::ofstream datFile(std::to_string(i) + ".dat", std::ios::binary);
+                std::ofstream datFile(std::format("{}.dat", i), std::ios::binary);
                 datFile.write(data.data(), data.size());
             });
         }
@@ -74,7 +74,7 @@ namespace TUS::Test {
         zipArchive.open(libzippp::ZipArchive::New);
 
         for (int i = 0; i < size; ++i) {
-            zipArchive.addFile(std::to_string(i), std::to_string(i) + ".dat");
+            zipArchive.addFile(std::to_string(i), std::format("{}.dat", i));
         }
         zipArchive.close();
 
@@ -124,7 +124,7 @@ namespace TUS::Test {
         TUS::TusClient client("testapp", URL, path, logLevel);
         client.setRequestTimeout(std::chrono::milliseconds(100));
 
-        std::thread uploadThread([&]() { client.upload(); });
+        std::thread uploadThread([&client]() { client.upload(); });
         waitUpload(client, 10);
         client.pause();
         uploadThread.join();
@@ -137,7 +137,7 @@ namespace TUS::Test {
         TUS::TusClient client("testapp", URL, path, logLevel);
         client.setRequestTimeout(std::chrono::milliseconds(10));
 
-        std::thread uploadThread([&]() { client.upload(); });
+        std::thread uploadThread([&client]() { client.upload(); });
         waitUpload(client, 10);
         client.pause();
         uploadThread.join();
@@ -145,7 +145,7 @@ namespace TUS::Test {
         EXPECT_EQ(client.status(), TUS::TusStatus::PAUSED);
 
         float progress = client.progress();
-        std::thread resumeThread([&]() { client.resume(); });
+        std::thread resumeThread([&client]() { client.resume(); });
         waitUpload(client, progress);
         resumeThread.join();
 
@@ -166,7 +166,7 @@ namespace TUS::Test {
         TUS::TusClient client("testapp", URL, path, logLevel);
         client.setRequestTimeout(std::chrono::milliseconds(10));
 
-        std::thread uploadThread([&]() { client.upload(); });
+        std::thread uploadThread([&client]() { client.upload(); });
         waitUpload(client, 10);
         client.cancel();
         uploadThread.join();
@@ -178,7 +178,7 @@ namespace TUS::Test {
         TUS::TusClient client("testapp", URL, path, logLevel);
         client.setRequestTimeout(std::chrono::milliseconds(10));
 
-        std::thread uploadThread([&]() { client.upload(); });
+        std::thread uploadThread([&client]() { client.upload(); });
         waitUpload(client, 10);
         client.cancel();
         uploadThread.join();

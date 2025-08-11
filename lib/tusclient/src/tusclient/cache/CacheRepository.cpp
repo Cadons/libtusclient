@@ -12,6 +12,8 @@
 
 #include "cache/CacheRepository.h"
 
+#include <iostream>
+
 using json = nlohmann::json;
 
 using TUS::Cache::CacheRepository;
@@ -22,13 +24,17 @@ CacheRepository::CacheRepository(std::string appName, bool clear)
     if (!std::filesystem::exists(m_path.parent_path())) {
         std::filesystem::create_directories(m_path.parent_path());
     }
-    if (clear) {
-        clearCache();
-    } else {
-        CacheRepository::open();
-    }
-}
 
+}
+std::shared_ptr<CacheRepository> CacheRepository::create(std::string appName, bool clear) {
+    auto repository = std::make_shared<CacheRepository>(std::move(appName), clear);
+    if (clear) {
+        repository->clearCache();
+    } else {
+        repository->open();
+    }
+    return repository;
+}
 CacheRepository::~CacheRepository() {
     CacheRepository::save();
 }
@@ -50,11 +56,9 @@ void CacheRepository::remove(std::shared_ptr<TUSFile> item) {
 }
 
 std::shared_ptr<TUSFile> CacheRepository::findByHash(const std::string &id) const {
-    auto it = std::ranges::find_if(m_cache, [&id](const std::shared_ptr<TUSFile> &file) {
+    if (auto it = std::ranges::find_if(m_cache, [&id](const std::shared_ptr<TUSFile> &file) {
         return file->getIdentificationHash() == id;
-    });
-
-    if (it != m_cache.end()) {
+    }); it != m_cache.end()) {
         return *it;
     }
 
@@ -120,7 +124,7 @@ bool CacheRepository::open() {
         boost::uuids::string_generator gen;
         std::string uuidString = item["uuid"];
         boost::uuids::uuid uuid = gen(uuidString);
-        std::shared_ptr<TUSFile> tusFile = std::make_shared<TUSFile>(filePath, uploadUrl, appName, uuid);
+        auto tusFile = std::make_shared<TUSFile>(filePath, uploadUrl, appName, uuid);
         tusFile->setUploadOffset(item["uploadOffset"]);
         tusFile->setResumeFrom(item["resumeFrom"]);
         tusFile->setLastEdit(item["lastEdit"]);
@@ -138,35 +142,40 @@ void CacheRepository::clearCache() {
     open();
 }
 
-bool CacheRepository::save() {
-    json j;
-    if (!m_cache.empty()) {
-        for (const auto &file: m_cache) {
-            json item;
-            item["uuid"] = boost::uuids::to_string(file->getUuid());
-            item["lastEdit"] = file->getLastEdit();
-            item["hash"] = file->getIdentificationHash();
-            item["filePath"] = file->getFilePath();
-            item["appName"] = file->getAppName();
-            item["uploadUrl"] = file->getUploadUrl();
-            item["uploadOffset"] = file->getUploadOffset();
-            item["resumeFrom"] = file->getResumeFrom();
-            item["tusId"] = file->getTusIdentifier();
-            item["chunkNumber"] = file->getChunkNumber();
-            j.push_back(item);
+bool CacheRepository::save() noexcept {
+    try {
+        json j;
+        if (!m_cache.empty()) {
+            for (const auto &file: m_cache) {
+                json item;
+                item["uuid"] = boost::uuids::to_string(file->getUuid());
+                item["lastEdit"] = file->getLastEdit();
+                item["hash"] = file->getIdentificationHash();
+                item["filePath"] = file->getFilePath();
+                item["appName"] = file->getAppName();
+                item["uploadUrl"] = file->getUploadUrl();
+                item["uploadOffset"] = file->getUploadOffset();
+                item["resumeFrom"] = file->getResumeFrom();
+                item["tusId"] = file->getTusIdentifier();
+                item["chunkNumber"] = file->getChunkNumber();
+                j.push_back(item);
+            }
+        } else {
+            j = json::array();
         }
-    } else {
-        j = json::array();
-    }
 
-    std::ofstream file(m_path);
+        std::ofstream file(m_path);
 
-    if (!file.is_open()) {
+        if (!file.is_open()) {
+            return false;
+        }
+
+        file << j.dump();
+
+        file.close();
+        return true;
+    } catch (const std::exception &e) {
+        std::cerr << "Error saving cache: " << e.what() << std::endl;
         return false;
     }
-
-    file << j.dump();
-
-    file.close();
-    return true;
 }

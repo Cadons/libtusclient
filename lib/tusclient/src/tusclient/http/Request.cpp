@@ -21,10 +21,7 @@ Request::Request() {
     setOnErrorCallback(defaultErrorCallback());
 }
 
-Request::Request(const Request &request): url(request.url), body(request.body), method(request.method),
-                                          headers(request.headers), m_onSuccessCallback(request.m_onSuccessCallback),
-                                          m_onErrorCallback(request.m_onErrorCallback) {
-}
+Request::Request(const Request &request)=default;
 
 Request::Request(string url) {
     this->url = std::move(url);
@@ -154,7 +151,7 @@ Request::SuccessCallback Request::defaultSuccessCallback() {
 }
 
 Request::ErrorCallback Request::defaultErrorCallback() {
-    return [](const string &header, const string &data) {
+    return [](const string &, const string &) {
         std::cout << "Failed callback not implemented" << std::endl;
     };
 }

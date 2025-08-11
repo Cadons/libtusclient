@@ -26,11 +26,11 @@ string Md5Verifier::hash(const std::vector<uint8_t> &buffer) const {
     boost::uuids::detail::md5::digest_type digest;
     hash.get_digest(digest);
 
-    std::ostringstream result;
-    for (unsigned char i: digest) {
-        result << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(i);
+    std::string result;
+    for (const unsigned char i : digest) {
+        result += std::format("{:02x}", static_cast<int>(i));
     }
-    return result.str();
+    return result;
 }
 
 bool Md5Verifier::verify(const std::vector<uint8_t> &buffer, const string &hash) const {

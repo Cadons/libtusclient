@@ -31,7 +31,7 @@ namespace TUS {
          *
          * @param file A shared pointer to the TUSFile to be stored.
          */
-        virtual void store(std::shared_ptr<TUSFile> file) = 0;
+        virtual void store(auto file) = 0;
 
         /**
          * @brief Retrieve a TUS file from the cache.

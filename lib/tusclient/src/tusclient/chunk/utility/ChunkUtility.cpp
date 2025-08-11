@@ -5,7 +5,7 @@
  */
 
 #include "chunk/utility/ChunkUtility.h"
-#define KB 1000
+constexpr int KB = 1000;
 
 using TUS::Chunk::Utility::ChunkUtility;
 

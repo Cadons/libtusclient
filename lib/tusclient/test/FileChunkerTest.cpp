@@ -13,7 +13,7 @@
 #include "chunk/TUSChunk.h"
 
 class FileChunkerTest : public ::testing::Test {
-protected:
+public:
     void SetUp() override {
         // Create a temporary file for testing
         testFilePath = std::filesystem::temp_directory_path() / "testfile.bin";

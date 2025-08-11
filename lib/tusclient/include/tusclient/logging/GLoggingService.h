@@ -30,7 +30,7 @@ class EXPORT_LIBTUSCLIENT GLoggingService : public ILogger {
     LogLevel m_level=LogLevel::_INFO_;
   static inline bool isInitialized = false;
 
-  static inline  std::atomic<int> instanceCount{0};
+  static inline  std::atomic instanceCount{0};
   static inline  std::mutex initMutex;
 
 };

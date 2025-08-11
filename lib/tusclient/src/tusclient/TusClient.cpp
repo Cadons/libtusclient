@@ -80,8 +80,8 @@ std::string extractHeaderValue(const std::string &header,
                                const std::string &key) {
     const auto toLower = [](const std::string &s) {
         std::string result = s;
-        std::transform(result.begin(), result.end(), result.begin(),
-                       [](unsigned char c) { return std::tolower(c); });
+        std::ranges::transform(result, result.begin(),
+            [](unsigned char c) { return std::tolower(c); });
         return result;
     };
 
@@ -93,14 +93,14 @@ std::string extractHeaderValue(const std::string &header,
         if (lineEnd == std::string::npos)
             lineEnd = header.size();
 
-        size_t colonPos = header.find(':', pos);
-        if (colonPos != std::string::npos && colonPos < lineEnd) {
+
+        if (const size_t colonPos = header.find(':', pos); colonPos != std::string::npos && colonPos < lineEnd) {
             std::string lineKey = header.substr(pos, colonPos - pos);
             std::string lineValue = header.substr(colonPos + 1, lineEnd - colonPos - 1);
 
             // Trim spaces helper
             auto trim = [](std::string &str) {
-                const char* whitespace = " \t";
+                const char *whitespace = " \t";
                 size_t start = str.find_first_not_of(whitespace);
                 size_t end = str.find_last_not_of(whitespace);
                 if (start == std::string::npos) {
@@ -220,7 +220,7 @@ void TusClient::handleSuccessfulUpload(const string &header) {
 }
 
 void TusClient::handleUploadConflict(const string &header) {
-    if ( m_retry < 3) {
+    if (m_retry < 3) {
         m_retry++;
         m_logger->warning("Conflict detected, retrying the upload");
         getUploadInfo();
@@ -233,7 +233,7 @@ void TusClient::handleUploadConflict(const string &header) {
     std::this_thread::sleep_for(m_requestTimeout);
 }
 
-void TusClient::handleUploadError(const string &header) {
+__attribute__((noreturn)) void TusClient::handleUploadError(const string &header) {
     m_logger->error(std::format("Error: Unable to upload chunk {}", m_uploadedChunks));
     m_logger->error(header);
     m_status.store(TusStatus::FAILED);

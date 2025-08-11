@@ -17,11 +17,8 @@ class FileVerifierTest : public ::testing::TestWithParam<
 };
 
 TEST_P(FileVerifierTest, VerifyHash) {
-    auto param = GetParam();
-    auto verifier = std::get<0>(param);
-    std::vector<uint8_t> buffer = std::get<1>(param);
-    std::string expected_hash = std::get<2>(param);
-    std::string hash = verifier->hash(buffer);
+    const auto& [verifier, buffer, expected_hash] = GetParam();
+    const std::string hash = verifier->hash(buffer);
     ASSERT_EQ(hash, expected_hash);
     ASSERT_TRUE(verifier->verify(buffer, hash));
 }

@@ -18,7 +18,7 @@ using TUS::Cache::CacheRepository;
 using TUS::Cache::TUSFile;
 
 class CacheRepositoryTest : public ::testing::Test {
-protected:
+public:
     void SetUp() override {
         // Set up code here.
         //create test.txt file
@@ -26,7 +26,7 @@ protected:
         file << "test-app";
         file.close();
 
-        cacheRepository = std::make_unique<CacheRepository>("test-app", true);
+        cacheRepository = CacheRepository::create("test-app", true);
         cacheRepository->clearCache();
     }
 
@@ -36,12 +36,12 @@ protected:
     }
 
     const std::filesystem::path m_filePath = std::filesystem::current_path() / "test.txt";
-    std::unique_ptr<CacheRepository> cacheRepository;
+    std::shared_ptr<CacheRepository> cacheRepository;
     const boost::uuids::uuid m_uuid = boost::uuids::random_generator()();
 };
 
 TEST_F(CacheRepositoryTest, add) {
-    std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
+    auto file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
                                                               m_uuid, "1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findByHash(file->getIdentificationHash());
@@ -49,7 +49,7 @@ TEST_F(CacheRepositoryTest, add) {
 }
 
 TEST_F(CacheRepositoryTest, remove) {
-    std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
+    auto file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
                                                               m_uuid, "1234567890e39484");
     cacheRepository->add(file);
     cacheRepository->remove(file);
@@ -58,7 +58,7 @@ TEST_F(CacheRepositoryTest, remove) {
 }
 
 TEST_F(CacheRepositoryTest, findByHash) {
-    std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
+    auto file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
                                                               m_uuid, "1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findByHash(file->getIdentificationHash());
@@ -66,7 +66,7 @@ TEST_F(CacheRepositoryTest, findByHash) {
 }
 
 TEST_F(CacheRepositoryTest, findAll) {
-    std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
+    auto file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
                                                               m_uuid, "1234567890e39484");
     cacheRepository->add(file);
     auto result = cacheRepository->findAll();
@@ -75,7 +75,7 @@ TEST_F(CacheRepositoryTest, findAll) {
 }
 
 TEST_F(CacheRepositoryTest, saveAndOpen) {
-    std::shared_ptr<TUSFile> file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
+    auto file = std::make_shared<TUSFile>(m_filePath, "http://localhost:1080/upload", "test-app",
                                                               m_uuid, "1234567890e39484");
     EXPECT_EQ(file->getAppName(), "test-app");
     EXPECT_EQ(file->getFilePath(), m_filePath);
