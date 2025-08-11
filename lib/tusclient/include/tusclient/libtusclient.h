@@ -1,29 +1,20 @@
-/*
- * Copyright (c) 2024 Matteo Cadoni
- * This file is part of libtusclient, licensed under the MIT License.
- * See the LICENSE file in the project root for more information.
- */
-
 #ifndef INCLUDE_LIBTUSCLIENT_H_
 #define INCLUDE_LIBTUSCLIENT_H_
-#define TUS_PROTOCOL_VERSION "1.0.0"
-#ifdef _WINDOWS
-#include <windows.h>
-#ifndef EXPORT_ALL
-#        if defined(BUILD_SHARED)
 
-            // Building the DLL (exporting)
-#            define EXPORT_LIBTUSCLIENT __declspec(dllexport)
+#define TUS_PROTOCOL_VERSION "1.0.0"
+
+#if defined(_WIN32) || defined(__CYGWIN__)
+  #ifdef LIBTUSCLIENT_EXPORTS
+    #define EXPORT_LIBTUSCLIENT __declspec(dllexport)
+  #else
+    #define EXPORT_LIBTUSCLIENT __declspec(dllimport)
+  #endif
 #else
-            // Using the DLL (importing)
-#            define EXPORT_LIBTUSCLIENT __declspec(dllimport)
-#endif
-#else
-        #define EXPORT_LIBTUSCLIENT
-#endif
-#else
-// Non-Windows platforms (optional, but typically use empty macro or other logic)
-#define EXPORT_LIBTUSCLIENT
+  #ifdef LIBTUSCLIENT_EXPORTS
+    #define EXPORT_LIBTUSCLIENT __attribute__((visibility("default")))
+  #else
+    #define EXPORT_LIBTUSCLIENT
+  #endif
 #endif
 
 #endif // INCLUDE_LIBTUSCLIENT_H_
