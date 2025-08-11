@@ -243,7 +243,7 @@ namespace TUS {
          * @brief Handle errors encountered during the upload process.
          * @param header An integer representing the specific error encountered.
          */
-        void handleUploadError(const string &header);
+       [[noreturn]] void handleUploadError(const string &header);
     };
 } // namespace TUS
 #endif // INCLUDE_TUSCLIENT_H_

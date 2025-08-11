@@ -233,7 +233,7 @@ void TusClient::handleUploadConflict(const string &header) {
     std::this_thread::sleep_for(m_requestTimeout);
 }
 
-__attribute__((noreturn)) void TusClient::handleUploadError(const string &header) {
+ void TusClient::handleUploadError(const string &header) {
     m_logger->error(std::format("Error: Unable to upload chunk {}", m_uploadedChunks));
     m_logger->error(header);
     m_status.store(TusStatus::FAILED);
