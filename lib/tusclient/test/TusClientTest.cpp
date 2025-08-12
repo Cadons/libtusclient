@@ -61,7 +61,9 @@ namespace TUS::Test {
         for (int i = 0; i < size; ++i) {
             threads.emplace_back([&dis,&gen,i]() {
                 std::vector<char> data(1024 * 1024);
-                std::ranges::generate(data,[&]() { return static_cast<char>(dis(gen)); });
+                std::generate(data.begin(), data.end(), [&dis, &gen]() {
+                    return static_cast<char>(dis(gen));
+                });
 
                 std::ofstream datFile(std::format("{}.dat", i), std::ios::binary);
                 datFile.write(data.data(), data.size());

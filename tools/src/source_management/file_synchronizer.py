@@ -40,6 +40,8 @@ class FileSynchronizer:
                                              relative_to_module=True)
         self.source_files = self.scan_folder(self.source_file_extensions, 'src/',
                                              relative_to_module=True)
+        if "src/main.cpp" in self.source_files: # remove main.cpp from source files
+            self.source_files.remove("src/main.cpp")
         self.test_source_files = self.scan_folder(self.test_source_files, 'test/',
                                                   relative_to_module=False)
         self.resource_files = self.scan_folder(self.resource_file_extensions, 'resources/',
