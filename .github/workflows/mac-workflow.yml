@@ -83,7 +83,7 @@ jobs:
           name: build-artifacts-for-test-mac
           path: |
             build/Ninja/build/tusclient/lib/libtusclient.dylib
-            build/Ninja/build/tusclient_test/lib/bin/tusclient_test
+            build/Ninja/build/tusclient_test/bin/tusclient_test
 
   test-mac:
     needs: build-mac
@@ -135,7 +135,7 @@ jobs:
         run: |
           chmod +x build/Ninja/build/tusclient_test/bin/tusclient_test
           export DYLD_LIBRARY_PATH=build/Ninja/build/tusclient/lib:$DYLD_LIBRARY_PATH
-          build/Ninja/build/tusclient/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          build/Ninja/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
