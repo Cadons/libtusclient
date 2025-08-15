@@ -75,14 +75,12 @@ jobs:
       - name: Build Library
         run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
-      - name: Copy dll to test build folder
+      - name: Copy library folder content to test build folder
         run: |
-          if [ -d "build/build/tusclient/bin" ]; then
-            mkdir -p build/build/tusclient_test/bin
-            cp build/build/tusclient/bin/libtusclient.dll build/build/tusclient_test/bin/
-          else
-            echo "Directory build/build/tusclient/lib does not exist."
-          fi
+            if (!(Test-Path -Path "build/build/tusclient_test")) {
+                New-Item -ItemType Directory -Path "build/build/tusclient_test"
+            }
+            Copy-Item -Path "build/build/tusclient/bin/*" -Destination "build/build/tusclient_test/bin" -Recurse -Force
 
       - name: Build Tests
         run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
