@@ -130,6 +130,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          ls
-          tree
-          .\build\build\tusclient_test\bin\Debug\tusclient_test.exe --gtest_output=xml:test-results.xml
+          .\build\build\Debug\tusclient_test.exe --gtest_output=xml:test-results.xml
