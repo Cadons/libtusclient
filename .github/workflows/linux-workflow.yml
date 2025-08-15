@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-linux
-          path: build/Ninja/build/tusclient/lib/libtusclient.so
+          path: build/tusclient/lib/libtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
