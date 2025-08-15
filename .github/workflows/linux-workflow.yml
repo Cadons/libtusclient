@@ -80,6 +80,9 @@ jobs:
 
       - name: Build Library
         run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
+      - name: return folder tree
+        run: |
+          tree
 
       - name: Build Tests
         run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
