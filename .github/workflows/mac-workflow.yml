@@ -84,15 +84,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-mac
-          path: build/Ninja/build/tusclient/lib/libtusclient.dylib
+          path: build/build/tusclient/lib/libtusclient.dylib
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test-mac
           path: |
-            build/Ninja/build/tusclient/lib/libtusclient.dylib
-            build/Ninja/build/tusclient_test/bin/tusclient_test
+            build/build/tusclient/lib/libtusclient.dylib
+            build/build/tusclient_test/bin/tusclient_test
 
   test-mac:
     needs: build-mac
@@ -122,7 +122,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test-mac
-          path: build/Ninja/build/
+          path: build/build/
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -142,9 +142,9 @@ jobs:
 
       - name: Test Project
         run: |
-          chmod +x build/Ninja/build/tusclient_test/bin/tusclient_test
-          export DYLD_LIBRARY_PATH=build/Ninja/build/tusclient/lib:$DYLD_LIBRARY_PATH
-          build/Ninja/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          chmod +x build/build/tusclient_test/bin/tusclient_test
+          export DYLD_LIBRARY_PATH=build/build/tusclient/lib:$DYLD_LIBRARY_PATH
+          build/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

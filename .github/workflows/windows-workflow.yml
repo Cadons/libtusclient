@@ -82,15 +82,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-windows
-          path: build/Ninja/build/tusclient/bin/*.dll
+          path: build/build/tusclient/bin/*.dll
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
-            build/Ninja/build/tusclient/bin/*.dll
-            build/Ninja/build/tusclient_test/tusclient_test.exe
+            build/build/tusclient/bin/*.dll
+            build/build/tusclient_test/tusclient_test.exe
 
   test-windows:
     needs: build-windows
@@ -122,4 +122,4 @@ jobs:
 
       - name: Run Tests
         run: |
-          build/Ninja/build/tusclient_test/bin/tusclient_test.exe --gtest_output=xml:test-results.xml
+          build/build/tusclient_test/bin/tusclient_test.exe --gtest_output=xml:test-results.xml
