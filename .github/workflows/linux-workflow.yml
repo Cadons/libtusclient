@@ -132,7 +132,7 @@ jobs:
         uses: mockoon/cli-action@v2
         with:
           version: "latest"
-          data-file: "./mockoon-data.json"
+          data-file: "./configuration/mockoon-data.json"
           port: 3000
 
       - name: Docker TUSD
