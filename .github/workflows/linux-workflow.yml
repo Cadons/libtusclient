@@ -91,15 +91,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-linux
-          path: build/tusclient/lib/libtusclient.so
+          path: build/build/tusclient/lib/libtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
-            build/tusclient/lib/libtusclient.so
-            build/tusclient_test/bin/tusclient_test
+            build/build/tusclient/lib/libtusclient.so
+            build/build/tusclient_test/bin/tusclient_test
 
   test-linux:
     needs: build-linux
@@ -129,7 +129,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
-          path: build/
+          path: build/build
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -146,8 +146,8 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           chmod +x build/Ninja/build/tusclient_test/bin/tusclient_test
-          export LD_LIBRARY_PATH=build/Ninja/build/tusclient/lib:$LD_LIBRARY_PATH
-          build/Ninja/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          export LD_LIBRARY_PATH=build/build/tusclient/lib:$LD_LIBRARY_PATH
+          build/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
