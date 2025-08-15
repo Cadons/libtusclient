@@ -97,7 +97,7 @@ jobs:
           name: build-artifacts-for-test
           path: |
             build/build/tusclient/bin/
-            build/build/tusclient_test/tusclient_test.exe
+            build/build/tusclient_test/bin/tusclient_test.exe
 
   test-windows:
     needs: build-windows
