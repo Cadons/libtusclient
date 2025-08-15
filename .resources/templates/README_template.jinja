@@ -1,0 +1,21 @@
+# {{ module_name }}
+
+**Type:** {{ module_type }}
+
+This module is part of a larger monolithic repository.
+It is designed to be modular, reusable, and easy to integrate.
+
+## Overview
+
+{{ module_name }} provides core functionalities required by other parts of the project.
+Its implementation follows modern C++ standards and best practices.
+
+## Usage
+
+To use this module, simply include it as a dependency in your `CMakeLists.txt`:
+
+```cmake
+add_subdirectory({{ module_name }})
+target_link_libraries(your_target PRIVATE {{ module_name }})
+
+

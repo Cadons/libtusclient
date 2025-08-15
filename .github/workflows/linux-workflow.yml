@@ -1,7 +1,6 @@
 name: libtusclient CI Linux
 
 on:
-  push:
   pull_request:
   release:
     types: [created]
@@ -63,30 +62,41 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
             vcpkg-${{ runner.os }}
+
+      - name: Cache build folder
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+          key: ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt', 'vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-
+            ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-
+
+
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
-      
-   
+
       - name: Build Library
-        run: cmake --build build --target libtusclient --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
       - name: Build Tests
-        run: cmake --build build --target libtusclient_test --config ${{ steps.strings.outputs.build-type }}
+        run: cmake --build build --target tusclient_test --config ${{ steps.strings.outputs.build-type }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-linux
-          path: build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
+          path: build/build/tusclient/lib/libtusclient.so
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
-            build/${{ steps.strings.outputs.test-folder }}/lib/liblibtusclient.so
-            build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
+            build/build/tusclient/lib/libtusclient.so
+            build/build/tusclient_test/bin/tusclient_test
 
   test-linux:
     needs: build-linux
@@ -116,7 +126,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
-          path: build/${{ steps.strings.outputs.test-folder }}
+          path: build/build
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
@@ -132,9 +142,9 @@ jobs:
       - name: Test Project
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          chmod +x build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test
-          export LD_LIBRARY_PATH=build/${{ steps.strings.outputs.test-folder }}:$LD_LIBRARY_PATH
-          build/${{ steps.strings.outputs.test-folder }}/bin/libtusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
+          chmod +x build/build/tusclient_test/bin/tusclient_test
+          export LD_LIBRARY_PATH=build/build/tusclient/lib:$LD_LIBRARY_PATH
+          build/build/tusclient_test/bin/tusclient_test --gtest_output=xml:build/${{ steps.strings.outputs.test-folder }}/test-results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v4

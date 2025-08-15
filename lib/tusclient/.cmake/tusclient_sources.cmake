@@ -1,0 +1,50 @@
+set(TUSCLIENT_HEADERS
+    include/tusclient/TusClient.h
+    include/tusclient/TusStatus.h
+    include/tusclient/cache/CacheRepository.h
+    include/tusclient/cache/ICacheManager.h
+    include/tusclient/cache/TUSFile.h
+    include/tusclient/chunk/FileChunker.h
+    include/tusclient/chunk/IFileChunker.h
+    include/tusclient/chunk/TUSChunk.h
+    include/tusclient/chunk/utility/ChunkUtility.h
+    include/tusclient/config.h
+    include/tusclient/exceptions/TUSException.h
+    include/tusclient/http/HttpClient.h
+    include/tusclient/http/IHttpClient.h
+    include/tusclient/http/Request.h
+    include/tusclient/http/RequestTask.h
+    include/tusclient/libtusclient.h
+    include/tusclient/logging/GLoggingService.h
+    include/tusclient/logging/ILogger.h
+    include/tusclient/repository/IRepository.h
+    include/tusclient/verifiers/IFileVerifier.h
+    include/tusclient/verifiers/Md5Verifier.h
+)
+
+set(TUSCLIENT_SOURCES
+    src/tusclient/TusClient.cpp
+    src/tusclient/cache/CacheRepository.cpp
+    src/tusclient/cache/TUSFile.cpp
+    src/tusclient/chunk/FileChunker.cpp
+    src/tusclient/chunk/TUSChunk.cpp
+    src/tusclient/chunk/utility/ChunkUtility.cpp
+    src/tusclient/http/HttpClient.cpp
+    src/tusclient/http/Request.cpp
+    src/tusclient/http/RequestTask.cpp
+    src/tusclient/libtusclient.cpp
+    src/tusclient/logging/GLoggingService.cpp
+    src/tusclient/verifiers/Md5Verifier.cpp
+)
+
+set(TUSCLIENT_TEST_SOURCES
+    FileChunkerTest.cpp
+    TusClientTest.cpp
+    http/HttpClientTest.cpp
+    main.cpp
+    repository/CacheRepositoryTest.cpp
+    verifiers/FileVerifiersTest.cpp
+)
+
+set(TUSCLIENT_RESOURCES
+)

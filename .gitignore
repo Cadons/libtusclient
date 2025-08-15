@@ -1,61 +1,22 @@
-# Prerequisites
-*.d
+.idea
+.vs
+.vscode
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+.DS_Store
+# Ignore all log files
+*.log
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
-.vscode/
-.vs/
-.vsconan/
-.idea/
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.vcxproj.user
-
-# CMake
-CMakeFiles/
-CMakeCache.txt
-CMakeScripts/
-CMakeSettings.json
-CMakeUserPresets.json
-
-# Build directory
-build/
-out/
-
-*.lock
-graph_info.json
-conanbuildinfo.txt
-conaninfo.txt
-.env
+# Ignore Python cache files
 .venv
+__pycache__/
+*.pyc
+*.pyo
+#Ignore build and distribution directories
+build/
+dist/
+# Ignore Python bytecode files
 
-vcpkg_installed/
+# Ignore CMakeUserPresets
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json

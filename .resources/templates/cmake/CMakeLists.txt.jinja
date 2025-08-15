@@ -1,0 +1,51 @@
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(Common OPTIONAL)
+get_version(${CMAKE_CURRENT_SOURCE_DIR}/project.json ${PROJECT_VERSION})
+message(STATUS "{{ project_name}} by {{ org_name | default('UnknownOrg') }} - ${PROJECT_VERSION}")
+cmake_minimum_required(VERSION {{ cmake_min_version | default("3.23") }})
+
+project({{ project_name }}
+    VERSION ${PROJECT_VERSION}
+    DESCRIPTION "{{ project_description | default('My Project') }}"
+    LANGUAGES CXX
+)
+
+# Organization info
+set(PROJECT_ORG_NAME "{{ org_name | default('UnknownOrg') }}")
+set(PROJECT_ORG_URL "{{ org_url | default('https://example.com') }}")
+
+# Prefer Ninja if not explicitly specified
+{% if prefer_ninja %}
+if(NOT CMAKE_GENERATOR)
+    message(STATUS "No generator specified. Consider using Ninja for faster builds.")
+endif()
+{% endif %}
+
+# Set C++ standard
+configure_compiler({{ cpp_standard | default("23") }})
+
+# Default build type
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the build type." FORCE)
+endif()
+
+# Enable IDE folder grouping
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+# Add extra cmake modules (optional)
+include(QtUtils OPTIONAL)
+
+# Testing
+include(CTest)
+enable_testing()
+
+# Version header generation
+configure_file(
+    ${CMAKE_SOURCE_DIR}/cmake/version.h.in
+    ${CMAKE_BINARY_DIR}/generated/version.h
+    @ONLY
+)
+
+# === Add subdirectories ===
+{% for dir in subdirs %}
+add_subdirectory({{ dir }})
+{% endfor %}

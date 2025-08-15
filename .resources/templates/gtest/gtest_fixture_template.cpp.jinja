@@ -1,0 +1,23 @@
+#include <gtest/gtest.h>
+#include "{{ header_filename }}"
+
+{% if namespace %}
+using namespace {{ namespace }};
+{% endif %}
+
+class {{ param_test_fixture_name }} : public ::testing::TestWithParam<{{ param_type }}> {
+protected:
+    {{ class_name }} instance;
+};
+
+TEST_P({{ param_test_fixture_name }}, HandlesParam) {
+    auto param = GetParam();
+    // TODO: Test using param and instance
+    SUCCEED();
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    {{ param_suite_name }},
+    {{ param_test_fixture_name }},
+    ::testing::Values({{ param_values|join(', ') }})
+);

@@ -1,0 +1,15 @@
+#include "{{ header_filename }}"
+
+{% if namespace -%}
+using namespace {{ namespace }};
+{% endif %}
+
+{{ class_name }}::{{ class_name }}() {
+    // Constructor implementation
+}
+
+{{ class_name }}::~{{ class_name }}() {
+    // Destructor implementation
+}
+
+// TODO: Implement other methods

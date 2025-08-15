@@ -5,7 +5,7 @@ services:
     image: mockoon/cli
     container_name: mockoon
     volumes:
-      - ./mockoon-data.json:/data/mockoon-data.json
+      - ./configuration/mockoon-data.json:/data/mockoon-data.json
     environment:
       - MOCKOON_DATA=/data/mockoon-data.json
     command: --data /data/mockoon-data.json
@@ -30,4 +30,4 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./configuration/nginx.conf:/etc/nginx/nginx.conf

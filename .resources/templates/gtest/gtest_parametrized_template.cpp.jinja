@@ -1,0 +1,36 @@
+#include <gtest/gtest.h>
+#include "{{ header_filename }}"
+
+{% if namespace %}
+using namespace {{ namespace }};
+{% endif %}
+
+class {{ test_suite_name }} : public ::testing::TestWithParam<std::tuple<int, int>> {
+protected:
+    {{ class_name }} instance;
+};
+
+TEST_P({{ test_suite_name }}, ParameterizedTest) {
+    auto [input, expected] = GetParam();
+    // TODO: Add your parameterized test logic here
+    // Example:
+    // EXPECT_EQ(instance.someMethod(input), expected);
+    SUCCEED();
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    {{ test_suite_name }}Values,
+    {{ test_suite_name }},
+    ::testing::Values(
+        std::make_tuple(1, 2),
+        std::make_tuple(2, 4),
+        std::make_tuple(3, 6),
+        std::make_tuple(4, 8)
+    ),
+    [](const testing::TestParamInfo<std::tuple<int, int>>& info) {
+        return "Input" + std::to_string(std::get<0>(info.param)) +
+               "_Expects" + std::to_string(std::get<1>(info.param));
+    }
+);
+
+// You can add more test cases here

@@ -1,5 +1,5 @@
 # TusClient: C++ Implementation
-![](tus-logo.png)
+![](doc/tus-logo.png)
 
 [![libtusclient CI Linux](https://github.com/Cadons/libtusclient/actions/workflows/linux-workflow.yml/badge.svg)](https://github.com/Cadons/libtusclient/actions/workflows/linux-workflow.yml)
 [![libtusclient CI MacOS](https://github.com/Cadons/libtusclient/actions/workflows/mac-workflow.yml/badge.svg)](https://github.com/Cadons/libtusclient/actions/workflows/mac-workflow.yml)
@@ -41,12 +41,12 @@ Run the appropriate script for your platform:
 
 •	Linux/macOS:
 ```
-./vpm.sh
+./configure.sh
 ```
 
 •	Windows:
 ```
-./vpm.bat
+./configure.bat
 ```
 
 3.	Build the project with CMake:

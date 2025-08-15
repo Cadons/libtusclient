@@ -1,0 +1,100 @@
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "tusclient"
+PROJECT_NUMBER         = "1.0.2"
+PROJECT_BRIEF          = "tusclient documentation"
+OUTPUT_DIRECTORY       = out
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = YES
+EXTRACT_ANON_NSPACES  = YES
+
+#---------------------------------------------------------------------------
+# Input files
+#---------------------------------------------------------------------------
+INPUT                  = . \
+                        .. \
+                        ../src \
+                        ../include \
+                        ../README.md
+
+FILE_PATTERNS          = *.cpp \
+                        *.h \
+                        *.hpp \
+                        *.md
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */build/* \
+                        */test/* \
+                        */.cmake/* \
+                        */docs/*
+USE_MDFILE_AS_MAINPAGE = README.md
+
+#---------------------------------------------------------------------------
+# Source browsing options
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES        = NO
+STRIP_CODE_COMMENTS   = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+REFERENCES_LINK_SOURCE = YES
+USE_HTAGS             = NO
+VERBATIM_HEADERS      = YES
+
+#---------------------------------------------------------------------------
+# HTML output options
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT           = html
+HTML_FILE_EXTENSION    = .html
+HTML_COLORSTYLE_HUE   = 220
+HTML_COLORSTYLE_SAT   = 100
+HTML_COLORSTYLE_GAMMA = 80
+HTML_DYNAMIC_SECTIONS = NO
+GENERATE_TREEVIEW     = YES
+ENUM_VALUES_PER_LINE  = 4
+TREEVIEW_WIDTH        = 250
+
+#---------------------------------------------------------------------------
+# Preprocessing options
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF    = NO
+SEARCH_INCLUDES       = YES
+INCLUDE_PATH          = include
+INCLUDE_FILE_PATTERNS = *.h \
+                       *.hpp
+
+#---------------------------------------------------------------------------
+# Dot tool options
+#---------------------------------------------------------------------------
+HAVE_DOT             = YES
+DOT_NUM_THREADS      = 0
+CLASS_GRAPH          = YES
+COLLABORATION_GRAPH  = YES
+GROUP_GRAPHS         = YES
+UML_LOOK             = YES
+UML_LIMIT_NUM_FIELDS = 50
+TEMPLATE_RELATIONS   = YES
+INCLUDE_GRAPH        = YES
+INCLUDED_BY_GRAPH    = YES
+CALL_GRAPH           = YES
+CALLER_GRAPH         = YES
+GRAPHICAL_HIERARCHY  = YES
+DIRECTORY_GRAPH      = YES
+DOT_IMAGE_FORMAT     = SVG
+INTERACTIVE_SVG      = YES
+MAX_DOT_GRAPH_DEPTH = 0

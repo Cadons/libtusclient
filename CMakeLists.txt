@@ -1,41 +1,59 @@
-# ------------------------CMake Project Creator------------------------
-#                     
-#                   Make C++ Faster with VCPKG and CMake
-#                   -------------------------------------
-# ---------------------------------------------------------------------
-# 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(Common OPTIONAL)
+get_version(${CMAKE_CURRENT_LIST_DIR}/project.json PROJECT_VERSION)
+message(STATUS "tusclient by Cadons: ${PROJECT_VERSION}")
+cmake_minimum_required(VERSION 3.23)
 
-cmake_minimum_required(VERSION 3.12)
-project(libtusclient CXX)
+project(tusclient
+        VERSION ${PROJECT_VERSION}
+        DESCRIPTION "A monorepo project"
+        LANGUAGES CXX
+)
 
-include(${CMAKE_CURRENT_LIST_DIR}/cmake_tools_for_vcpkg/tools/cmake/cmakeProject.cmake)
-
-message(STATUS "${PROJECT_NAME} Build")
-
-# Find required packages
-
-# Configure file for headers
-configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_CURRENT_LIST_DIR}/include/config.h)
+#import dependencies
 find_package(CURL REQUIRED)
 find_package(boost_lexical_cast CONFIG REQUIRED)
 find_package(boost_uuid CONFIG REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(glog REQUIRED)
 
-set(PROJECT_LIBRARIES  CURL::libcurl Boost::uuid Boost::lexical_cast nlohmann_json::nlohmann_json glog::glog)
-set(EXPORT_ALL 1)
-create_shared_library("libtusclient" false)
+# Organization info
+set(PROJECT_ORG_NAME "Cadons")
+set(PROJECT_ORG_URL "https://example.com")
 
-setup_install(${CMAKE_PROJECT_NAME})
-setup_package(${CMAKE_PROJECT_NAME})
-# Option to build tests
-option(BUILD_TEST "Build the test suite" ON)
+# Prefer Ninja if not explicitly specified
 
-if(BUILD_TEST)
-    # Enable testing
-    enable_testing()
+if (NOT CMAKE_GENERATOR)
+    message(STATUS "No generator specified. Consider using Ninja for faster builds.")
+endif ()
 
 
-    set(PROJECT_LIB "libtusclient")
-    add_subdirectory(test)
-endif()
+# Set C++ standard
+configure_compiler(20)
+
+# Default build type
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the build type." FORCE)
+endif ()
+
+# Enable IDE folder grouping
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# Add extra cmake modules (optional)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+include(Common OPTIONAL)
+include(QUtils OPTIONAL)
+
+# Testing
+include(CTest)
+enable_testing()
+
+# Version header generation
+configure_file(
+        ${CMAKE_SOURCE_DIR}/cmake/version.h.in
+        ${CMAKE_BINARY_DIR}/generated/version.h
+        @ONLY
+)
+
+# === Add subdirectories ===
+add_subdirectory(lib)

@@ -1,0 +1,33 @@
+include(${CMAKE_CURRENT_SOURCE_DIR}/../.cmake/sources.cmake)
+{%if use_gtest%}
+#Find GoogleTest package
+find_package(GTest REQUIRED)
+
+configure_build({{test_target}})
+
+# Include directories
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include/{{target_name}}
+)
+
+# Add test executable
+add_executable({{test_target}} {{"${"+sources+"}"}})
+
+# Link libraries
+target_link_libraries({{test_target}} PRIVATE GTest::gtest)
+
+#auto discover tests
+gtest_discover_tests({{test_target}}
+    DISCOVERY_TIMEOUT 60
+    PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
+{%else%}
+# No GoogleTest support
+
+add_executable({{test_target}} {{sources|join(" ")}})
+# Link libraries
+target_link_libraries({{test_target}} PRIVATE pthread)
+
+# Add tests
+add_test(NAME {{test_target}} COMMAND {{test_target}})
+{%endif%}

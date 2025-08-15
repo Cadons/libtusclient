@@ -1,7 +1,0 @@
-venv/
-.venv
-.idea
-.vs
-.vscode
-cmake/config.cmake
-__pycache__
