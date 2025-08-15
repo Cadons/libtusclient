@@ -89,14 +89,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-windows
-          path: build/build/tusclient/bin/*.dll
+          path: build/build/tusclient/bin/
 
       - name: Upload artifacts for test
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts-for-test
           path: |
-            build/build/tusclient/bin/*.dll
+            build/build/tusclient/bin/
             build/build/tusclient_test/tusclient_test.exe
 
   test-windows:
@@ -109,7 +109,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
-          path: build/
+          path: build/build
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
