@@ -1,20 +1,5 @@
-# 
+# TusClient
 
-**Type:** lib
+This is the module of the TusClient library, which is a C++ client for the TUS protocol. It provides an easy way to upload large files to a TUS server.
 
-This module is part of a larger monolithic repository.
-It is designed to be modular, reusable, and easy to integrate.
-
-## Overview
-
- provides core functionalities required by other parts of the project.
-Its implementation follows modern C++ standards and best practices.
-
-## Usage
-
-To use this module, simply include it as a dependency in your `CMakeLists.txt`:
-
-```cmake
-add_subdirectory()
-target_link_libraries(your_target PRIVATE )
-
+You have to build the library before using it. The library is built using CMake, and it requires C++17 or later.
