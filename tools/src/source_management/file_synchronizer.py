@@ -15,7 +15,7 @@ class FileSynchronizer:
         self.header_file_extensions = ['.h', '.hpp']
         self.source_file_extensions = ['.cpp', '.c', '.cc', '.cxx', '.mm']
         self.test_source_files = ['.cpp', '.h', '.hpp']
-        self.resource_file_extensions = ['.qrc', '.rc', '.ui', '.json', '.xml', '.txt', '.md', '.yaml', '.yml', '.ini', '.conf', '.cfg', '.properties', '.csv', '.svg', '.png', '.jpg', '.jpeg', '.gif',',vtk','stl','.qml']
+        self.resource_file_extensions = ['.qrc']
 
     def scan_folder(self, extensions, folder, relative_to_module=True):
         output = []
@@ -40,8 +40,9 @@ class FileSynchronizer:
                                              relative_to_module=True)
         self.source_files = self.scan_folder(self.source_file_extensions, 'src/',
                                              relative_to_module=True)
-        if "src/main.cpp" in self.source_files: # remove main.cpp from source files
-            self.source_files.remove("src/main.cpp")
+        #remove main.cpp from source files if it exists
+        if 'src/main.cpp' in self.source_files:
+            self.source_files.remove('src/main.cpp')
         self.test_source_files = self.scan_folder(self.test_source_files, 'test/',
                                                   relative_to_module=False)
         self.resource_files = self.scan_folder(self.resource_file_extensions, 'resources/',

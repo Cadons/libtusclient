@@ -50,16 +50,29 @@ endfunction()
 # Example usage: auto_deploy_qt(my_target)
 function(auto_deploy_qt target_name)
     if(WIN32)
-        # Set deployment tool and QML directory for Windows.
+        # Set deployment tool for Windows
         set(DEPLOYMENT_TOOL "$<$<CONFIG:Debug>:windeployqt.debug.bat>$<$<CONFIG:Release>:windeployqt.exe>")
-        set(QML_DIR "${Qt6_DIR}/../../$<$<CONFIG:Debug>:debug/Qt6/qml>$<$<CONFIG:Release>:Qt6/qml>")
 
-        # Check if QML directory exists.
-        if(NOT EXISTS "${QML_DIR}")
-            set (QML_DIR "None") # Fallback if the directory does not exist, no qml needs to be deployed
+        # Set QML directory with proper path handling
+        if(Qt6_DIR)
+            # Construct potential QML directories based on configuration
+            set(QML_DIR_DEBUG "${Qt6_DIR}/../../debug/Qt6/qml")
+            set(QML_DIR_RELEASE "${Qt6_DIR}/../../Qt6/qml")
+
+            # Use generator expressions to select the right path based on build configuration
+            set(QML_DIR "$<$<CONFIG:Debug>:${QML_DIR_DEBUG}>$<$<CONFIG:Release>:${QML_DIR_RELEASE}>")
+
+            # Check if QML directory exists and set fallback if needed
+            if(NOT (EXISTS "${QML_DIR_DEBUG}" OR EXISTS "${QML_DIR_RELEASE}"))
+                set(QML_DIR "None") # Fallback if the directory does not exist
+                message(STATUS "QML directories not found, setting to 'None' for ${target_name}")
+            endif()
+        else()
+            set(QML_DIR "None") # Qt6_DIR not defined
+            message(WARNING "Qt6_DIR not defined, setting QML_DIR to 'None' for ${target_name}")
         endif()
 
-        # Set variables for build path and target file.
+        # Set variables for build path and target file
         set(BUILD_ROOT "${CMAKE_BINARY_DIR}")
         set(TARGET_FILE_PATH $<TARGET_FILE:${target_name}>)
 
@@ -69,10 +82,10 @@ function(auto_deploy_qt target_name)
         file(TO_NATIVE_PATH "${QML_DIR}" QML_DIR)
         file(TO_NATIVE_PATH "${DEPLOYMENT_TOOL}" DEPLOYMENT_TOOL)
 
-        # Add custom command to deploy Qt after the target is built.
+        # Add custom command to deploy Qt after the target is built
         add_custom_command(TARGET ${target_name} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E echo "Deploying Qt for ${target_name}"
-                COMMAND cmd /c call "${CMAKE_SOURCE_DIR}/cmake/scripts/DeployWindowsQtForVcpkg.bat" "${BUILD_ROOT}" "${DEPLOYMENT_TOOL}" "${QML_DIR}" "${TARGET_FILE_PATH}"
+                COMMAND cmd /c call "${CMAKE_SOURCE_DIR}/cmake/scripts/DeployWindowsQtForVcpkg.bat" "${BUILD_ROOT}" "${DEPLOYMENT_TOOL}" "${target_name}" "${QML_DIR}" "${TARGET_FILE_PATH}"
                 VERBATIM
         )
     endif()

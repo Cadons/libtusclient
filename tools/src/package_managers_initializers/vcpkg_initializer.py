@@ -91,7 +91,7 @@ class VCPKGInitializer(PackageManager):
             ]
         }
 
-        cmake_presets_path = os.path.join(os.path.dirname(__file__),"..","..","..", self.CMAKE_PRESETS_FILE)
+        cmake_presets_path = os.path.join(__file__,"..","..","..","..", self.CMAKE_PRESETS_FILE)
         if not os.path.exists(cmake_presets_path):
             with open(cmake_presets_path, 'w') as f:
                 json.dump(cmake_presets, f, indent=2)

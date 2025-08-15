@@ -39,6 +39,16 @@ jobs:
             git clone https://github.com/microsoft/vcpkg.git "${{ matrix.vcpkg_root }}"
             "${{ matrix.vcpkg_root }}/bootstrap-vcpkg.sh"
           fi
+      - name: Cache build folder
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+          key: macos-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt', 'vcpkg.json') }}
+          restore-keys: |
+            macos-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-
+            macos-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-
+
       - name: Export GitHub Actions cache environment variables
         uses: actions/github-script@v7
         with:

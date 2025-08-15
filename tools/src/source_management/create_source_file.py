@@ -168,7 +168,7 @@ def create_qrc_file(name: str, output_dir: str, creator: ModuleCreator):
     if not os.path.exists(os.path.join(output_dir,"resources")):
         os.makedirs(os.path.join(output_dir, "resources"), exist_ok=True)
 
-    qrc_path = os.path.join(output_dir,"resources", f"{to_pascal_case(name)}.qrc")
+    qrc_path = os.path.join(output_dir,"resources", f"{name.lower()}.qrc")
     creator.create_file_from_template(
        "qt/qrc_template.qrc.jinja",
         qrc_path,

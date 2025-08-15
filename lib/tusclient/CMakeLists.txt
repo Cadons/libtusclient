@@ -1,6 +1,6 @@
 # Include common cmake scripts
 include(${CMAKE_CURRENT_SOURCE_DIR}/.cmake/sources.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
+show_module_info(${CMAKE_CURRENT_LIST_DIR}/package.json)
 
 # Configure build output directories for the target
 configure_build(tusclient)

@@ -1,10 +1,8 @@
 # Include common cmake scripts
 include(${CMAKE_CURRENT_SOURCE_DIR}/.cmake/sources.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/common.cmake)
-
 # Configure build output directories for the target
 configure_build({{ target_name }})
-
+show_module_info(${CMAKE_CURRENT_LIST_DIR}/package.json)
 # Create executable target
 add_executable({{ target_name }}  {{"${" + sources + "}"}} {{"${" + headers + "}"}} {{"${" + resources + "}"}})
 

@@ -48,8 +48,12 @@ if "%template_number%"=="1" (
 )
 
 :: Request remaining inputs
+if "%template_type%" NEQ "qrc" (
 set /p name="Enter name for the new file/class: "
 set /p namespace="Enter namespace (press Enter for none): "
+) else (
+set /p name="Enter name for the new Qt Resource File: "
+)
 set /p output_dir="Enter output directory (press Enter for 'src'): "
 
 :: Set default output directory if empty

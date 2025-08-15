@@ -43,16 +43,16 @@ function(deploy_vcpkg_shared_lib TARGET_NAME FILENAME)
     message(STATUS "Triplet: ${ARCH}-${OS_NAME}${TRIPLET_POSTFIX}")
 
     # Define the source file path for the shared library.
-    set(SOURCE_FILE_PATH "$<IF:$<CONFIG:Debug>,${PROJECT_VCPKG_INSTALLED_ROOT}/${ARCH}-${OS_NAME}${TRIPLET_POSTFIX}/debug/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION},${PROJECT_VCPKG_INSTALLED_ROOT}/${ARCH}-${OS_NAME}${TRIPLET_POSTFIX}/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}>")
+    set(SOURCE_FILE_PATH "$<IF:$<CONFIG:Debug>,${CMAKE_BINARY_DIR}/vcpkg_installed/${ARCH}-${OS_NAME}${TRIPLET_POSTFIX}/debug/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION},${PROJECT_VCPKG_INSTALLED_ROOT}/${ARCH}-${OS_NAME}${TRIPLET_POSTFIX}/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}>")
 
     # Get the target type (e.g., executable, library).
     get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
 
     # Define the destination path for the shared library.
     if(WIN32)
-        set(DESTINATION_PATH "${CMAKE_BINARY_DIR}/$<IF:$<CONFIG:Debug>,Debug,Release>/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}")
+        set(DESTINATION_PATH "${CMAKE_BINARY_DIR}/build/${TARGET_NAME}/${SHARED_LIB_FOLDER}/$<IF:$<CONFIG:Debug>,Debug,Release>/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}")
     else()
-        set(DESTINATION_PATH "${CMAKE_BINARY_DIR}/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}")
+        set(DESTINATION_PATH "${CMAKE_BINARY_DIR}/build/${TARGET_NAME}/${SHARED_LIB_FOLDER}/${LIB_PREFIX}${FILENAME}.${LIB_EXTENSION}")
     endif()
 
     # Add a custom command to copy the shared library after the target is built.

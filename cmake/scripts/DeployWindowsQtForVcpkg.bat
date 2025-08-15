@@ -2,14 +2,14 @@
 setlocal EnableDelayedExpansion
 
 if "%~1"=="" (
-    echo Usage: %~nx0 ^<build_directory^> ^<windeployqt_exe^> ^<target_file_path^> ^<qml_dir^>
+    echo Usage: %~nx0 ^<build_directory^> ^<windeployqt_exe^> ^<target_name^>  ^<qml_dir^> ^<target_file_path^>
     exit /b 1
 )
 set "BUILD_DIR=%~1"
-set "LOCK_FILE=%BUILD_DIR%\QtDeploy.lock"
+set "LOCK_FILE=%BUILD_DIR%\%~3_QtDeploy.lock"
 set "WINDEPLOY_EXE=%~2"
-set "QML_DIR=%~3"
-set "TARGET_FILE_PATH=%~4"
+set "QML_DIR=%~4"
+set "TARGET_FILE_PATH=%~5"
 set "ARCH=x64"
 
 if not exist "%LOCK_FILE%" (
@@ -32,7 +32,7 @@ if not exist "%LOCK_FILE%" (
                   "%TARGET_FILE_PATH%"
     call "%BUILD_DIR%\vcpkg_installed\%ARCH%-windows\tools\Qt6\bin\%WINDEPLOY_EXE%" ^
          --force-openssl ^
-         --qmldir "%BUILD_DIR%\vcpkg_installed\%ARCH%-windows\%QML_DIR%" ^
+         --qmldir "%QML_DIR%" ^
          "%TARGET_FILE_PATH%"
     if $? == False (
         echo Deploy failed with error code %errorlevel%.

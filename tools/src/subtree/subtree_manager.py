@@ -21,7 +21,8 @@ class SubtreeManager:
         else:
             parent_dir = current_dir
 
-        config_path = os.path.join(parent_dir, 'project.json')
+
+        config_path = os.path.join(parent_dir,"..","..","..", 'project.json')
 
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"Cannot find project.json in {parent_dir}")
@@ -56,9 +57,6 @@ class SubtreeManager:
             if not self._handle_existing_path(subtree):
                 return False
 
-            if not self._setup_remote(subtree):
-                return False
-
             if not self._add_or_update_subtree(subtree):
                 return False
 
@@ -82,33 +80,7 @@ class SubtreeManager:
         self._run_git_command(["commit", "-m", f"Remove existing {subtree.path} before re-adding as subtree"])
         return True
 
-    def _setup_remote(self, subtree: SubtreeConfig) -> bool:
-        """Setup or update git remote for the subtree."""
-        remotes = self._run_git_command(["remote"], check=False).stdout.split()
 
-        if subtree.name not in remotes:
-            self._run_git_command(["remote", "add", "-f", subtree.name, subtree.git_url])
-            return True
-
-        return self._update_existing_remote(subtree)
-
-    def _update_existing_remote(self, subtree: SubtreeConfig) -> bool:
-        """Update URL for existing remote if needed."""
-        current_url = self._run_git_command(
-            ["remote", "get-url", subtree.name],
-            check=False
-        ).stdout.strip()
-
-        if current_url != subtree.git_url:
-            if not click.confirm(
-                    f"Remote '{subtree.name}' exists with different URL. Update it?",
-                    default=False
-            ):
-                return False
-            self._run_git_command(["remote", "set-url", subtree.name, subtree.git_url])
-
-        self._run_git_command(["fetch", subtree.name])
-        return True
 
     def _add_or_update_subtree(self, subtree: SubtreeConfig) -> bool:
         """Add new subtree or update existing one."""
@@ -208,6 +180,7 @@ class SubtreeManager:
     def push_subtree(self, name: str, branch: Optional[str] = None) -> bool:
         """Push local changes to a subtree's remote repository."""
         subtree = self.config.get_subtree(name)
+        url = self.config.get_subtree(name).git_url
         if not subtree:
             console.print(f"[yellow]No subtree found with name: {name}[/yellow]")
             return False
@@ -217,7 +190,7 @@ class SubtreeManager:
             self._run_git_command([
                 "subtree", "push",
                 "--prefix", subtree.path,
-                name, target_branch
+                url, target_branch
             ])
 
             console.print(f"[green]Successfully pushed changes for subtree {name}[/green]")
@@ -270,11 +243,6 @@ def add(name: str, git_url: str, path: str, main_branch: str, staging_branch: st
         console.print("[bold red]Error:[/bold red] Invalid path: directory traversal not allowed")
         return
 
-    normalized_path = os.path.normpath(path)
-    if not normalized_path.startswith('lib/'):
-        console.print("[bold red]Error:[/bold red] The subtree path must be inside the 'lib/' directory")
-        return
-
     manager = SubtreeManager()
     subtree = SubtreeConfig(name, git_url, main_branch, staging_branch, path)
     manager.add_subtree(subtree)
@@ -314,20 +282,3 @@ def list_cmd():
 
 if __name__ == '__main__':
     cli()
-
-"""
-# Aggiungi un subtree
-python subtree_manager.py add mylib github.com/org/mylib.git libs/mylib
-
-# Rimuovi un subtree
-python subtree_manager.py remove mylib
-
-# Pull updates
-python subtree_manager.py pull mylib --branch develop
-
-# Push changes
-python subtree_manager.py push mylib --branch feature
-
-# Lista subtree
-python subtree_manager.py list
-"""

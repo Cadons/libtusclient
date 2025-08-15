@@ -62,11 +62,22 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: |
             vcpkg-${{ runner.os }}
+
+      - name: Cache build folder
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+          key: ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-${{ hashFiles('CMakeLists.txt', '**/CMakeLists.txt', 'vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-${{ github.ref_name }}-
+            ${{ runner.os }}-build-${{ matrix.c_compiler }}-${{ steps.strings.outputs.build-type }}-
+
+
       - name: Configure CMake
         run: |
           cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=${{ matrix.vcpkg_root }}/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ steps.strings.outputs.build-type }}
-      
-   
+
       - name: Build Library
         run: cmake --build build --target tusclient --config ${{ steps.strings.outputs.build-type }}
 
