@@ -33,10 +33,10 @@ class ProjectConfig:
     @classmethod
     def load(cls, file_path: str) -> 'ProjectConfig':
         """Load configuration from a JSON file."""
-        if not os.path.exists(file_path):
+        if not os.path.exists(os.path.abspath(file_path)):
             raise FileNotFoundError(f"Configuration file not found: {file_path}")
 
-        with open(file_path, 'r') as f:
+        with open(os.path.abspath(file_path), 'r') as f:
             data = json.load(f)
 
         return cls(
