@@ -95,8 +95,8 @@ jobs:
         with:
           name: build-artifacts-for-test
           path: |
-            build/Ninja/build/tusclient/lib/libtusclient.so
-            build/Ninja/build/tusclient_test/bin/tusclient_test
+            build/tusclient/lib/libtusclient.so
+            build/tusclient_test/bin/tusclient_test
 
   test-linux:
     needs: build-linux
@@ -126,7 +126,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-artifacts-for-test
-          path: build/Ninja/build
+          path: build/
 
       - name: Run Mockoon CLI
         uses: mockoon/cli-action@v2
