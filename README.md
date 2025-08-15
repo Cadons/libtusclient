@@ -48,6 +48,13 @@ Run the appropriate script for your platform:
 ```
 ./configure.bat
 ```
+Run
+```
+python tools/dev_tools.py configure configure
+```
+Select your build system (e.g. Visual Studio, XCode, Ninja, Make,...) and press return.
+
+This will create the CMakeUserPresets.json
 
 3.	Build the project with CMake:
 Create a build directory, configure the project, and build it:
