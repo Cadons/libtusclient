@@ -85,13 +85,6 @@ function(configure_install target_name)
             FILE ${target_name}Targets.cmake
             NAMESPACE ${target_name}::
             DESTINATION lib/cmake/${target_name})
-    # Install the package configuration file for the target.
-    configure_package_config_file(
-            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${target_name}Config.cmake.in
-            ${CMAKE_CURRENT_BINARY_DIR}/${target_name}Config.cmake
-            INSTALL_DESTINATION lib/cmake/${target_name}
-            NO_CHECK_REQUIRED_COMPONENTS_MACRO
-    )
 endfunction()
 
 # Function to configure compiler settings.
