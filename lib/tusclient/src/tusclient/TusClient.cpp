@@ -152,10 +152,9 @@ bool TusClient::upload() {
         if (lastSlashPosition != std::string::npos) {
             // remove the url from the location
             m_tusLocation.replace(0, lastSlashPosition + 1, "");
-            std::cout << "slash position:" << lastSlashPosition << std::endl;
         } else {
             // Handle the case where '/' is not found in m_tusLocation
-            std::cerr << "Error: '/' not found in m_tusLocation" << std::endl;
+            std::cerr << "Error: '/' not found in m_tusLocation, check if the upload url point to a TUS route" << std::endl;
         }
     };
     OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {

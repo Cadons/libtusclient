@@ -1,7 +1,7 @@
 {
   "name": "tusclient",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Library implementing the tus protocol for resumable uploads",
   "homepage": "https://github.com/Cadons/libtusclient",
   "dependencies": [

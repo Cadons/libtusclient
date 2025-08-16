@@ -19,7 +19,10 @@ target_include_directories(tusclient PUBLIC
 
 # Link libraries
 target_link_libraries(tusclient PUBLIC CURL::libcurl Boost::uuid Boost::lexical_cast nlohmann_json::nlohmann_json glog::glog)
-target_compile_definitions(tusclient PRIVATE TUSCLIENT_EXPORTS)
+if(BUILD_SHARED_LIBS)
+    target_compile_definitions(tusclient PRIVATE TUSCLIENT_EXPORTS)
+    target_compile_definitions(tusclient PRIVATE TUSCLIENT_SHARED)
+endif ()
 # Enable testing if tests exist
 include(CTest)
 if(BUILD_TESTING)
