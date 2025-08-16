@@ -154,8 +154,9 @@ bool TusClient::upload() {
             m_tusLocation.replace(0, lastSlashPosition + 1, "");
         } else {
             // Handle the case where '/' is not found in m_tusLocation
-            std::cerr << "Error: '/' not found in m_tusLocation, check if the upload url point to a TUS route" <<
-                    std::endl;
+            std::cerr << std::format("Invalid upload URL: The URL is empty or invalid.\n"
+                            "Please ensure the URL is a complete TUS server endpoint (e.g., 'http://localhost:8080/files/')\n"
+                            "Current URL: '{}'\n", m_url) << std::endl;
         }
     };
     OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {
