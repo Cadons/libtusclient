@@ -160,7 +160,7 @@ class PackageManager(ABC):
             "jobs": cpus,
         })
 
-        cmake_user_presets_path = os.path.join(__file__,"..","..","..","..", "CMakeUserPresets.json")
+        cmake_user_presets_path = os.path.abspath(os.path.join(__file__,"..","..","..","..", "CMakeUserPresets.json"))
         import json
         with open(cmake_user_presets_path, 'w') as f:
             json.dump(cmake_presets_json, f, indent=2)
