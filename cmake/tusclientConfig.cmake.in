@@ -1,0 +1,11 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(CURL REQUIRED)
+find_dependency(glog REQUIRED)
+find_dependency(Boost REQUIRED COMPONENTS uuid lexical_cast)
+find_dependency(nlohmann_json REQUIRED)
+find_dependency(libzippp REQUIRED)
+
+include("${CMAKE_CURRENT_LIST_DIR}/tusclientTargets.cmake")
