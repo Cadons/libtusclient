@@ -157,7 +157,8 @@ This example demonstrates how to upload a file using the **TusClient**
 ```cpp
 #include <iostream>
 #include <filesystem>
-#include <libtusclient/TusClient.h>
+#include <tusclient/TusClient.h>
+#include <fstream>
 
 // Function to generate a test file (example)
 std::filesystem::path generateTestFile(int sizeMB) {
@@ -176,10 +177,11 @@ int main() {
     // Generate a test file of size 1MB
     std::filesystem::path testFilePath = generateTestFile(1);
     std::cout << "Test file path: " << testFilePath << std::endl;
-    
+
     // Create a TusClient instance with the necessary parameters: app name, server URL, file path, and log level
-    std::string url = "http://your-tus-server-url"; // Replace with your server URL
-    TUS::TusClient client("testapp", url, testFilePath, TUS::LogLevel::INFO);
+    std::string url = "http://localhost:8080/files/"; // Replace with your server URL
+
+    TUS::TusClient client("testapp", url, testFilePath, TUS::Logging::LogLevel::_INFO_);
 
     // Perform the upload
     std::cout << "Starting upload..." << std::endl;

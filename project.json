@@ -2,6 +2,6 @@
   "name": "tusclient",
   "organization": "Cadons",
   "package_manager": "vcpkg",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "subtrees": []
 }

@@ -108,7 +108,6 @@ namespace TUS {
         int m_uploadedChunks = 0;
         string m_tusLocation;
         int m_uploadOffset = 0;
-        bool m_nextChunk = false;
         size_t m_uploadLength = 0;
         std::chrono::milliseconds m_requestTimeout = std::chrono::milliseconds(
             0); /*This timeout is the time waited between one requests, it is in ms,
