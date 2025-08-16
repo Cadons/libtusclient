@@ -6,7 +6,11 @@ show_module_info(${CMAKE_CURRENT_LIST_DIR}/package.json)
 configure_build(tusclient)
 
 # Create executable target
+if(BUILD_SHARED_LIBS)
 add_library(tusclient SHARED ${TUSCLIENT_SOURCES} ${TUSCLIENT_HEADERS} ${TUSCLIENT_RESOURCES})
+else()
+    add_library(tusclient STATIC ${TUSCLIENT_SOURCES} ${TUSCLIENT_HEADERS} ${TUSCLIENT_RESOURCES})
+endif()
 
 # Include headers directory
 target_include_directories(tusclient PUBLIC

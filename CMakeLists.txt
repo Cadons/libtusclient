@@ -3,7 +3,8 @@ include(Common OPTIONAL)
 get_version(${CMAKE_CURRENT_LIST_DIR}/project.json PROJECT_VERSION)
 message(STATUS "tusclient by Cadons: ${PROJECT_VERSION}")
 cmake_minimum_required(VERSION 3.23)
-
+#shared library option
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 project(tusclient
         VERSION ${PROJECT_VERSION}
         DESCRIPTION "A monorepo project"
