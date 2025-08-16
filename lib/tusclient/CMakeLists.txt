@@ -27,3 +27,14 @@ if(BUILD_TESTING)
 endif()
 # Install target
 configure_install(tusclient)
+#For destribution, we need to create a config file for the package
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+        "${CMAKE_SOURCE_DIR}/cmake/tusclientConfig.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/tusclientConfig.cmake"
+        INSTALL_DESTINATION lib/cmake/tusclient
+        NO_SET_AND_CHECK_MACRO
+        NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/tusclientConfig.cmake"
+        DESTINATION lib/cmake/tusclient)
