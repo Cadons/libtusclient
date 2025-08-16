@@ -71,6 +71,7 @@ endfunction()
 function(configure_install target_name)
     # Install the target's runtime, library, and archive files to their respective destinations.
     install(TARGETS ${target_name}
+            EXPORT ${target_name}Targets
             RUNTIME DESTINATION bin
             LIBRARY DESTINATION lib
             ARCHIVE DESTINATION lib)
@@ -79,6 +80,18 @@ function(configure_install target_name)
     install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
             DESTINATION include
             FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp")
+    # Install CMake configuration files for the target.
+    install(EXPORT ${target_name}Targets
+            FILE ${target_name}Targets.cmake
+            NAMESPACE ${target_name}::
+            DESTINATION lib/cmake/${target_name})
+    # Install the package configuration file for the target.
+    configure_package_config_file(
+            ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${target_name}Config.cmake.in
+            ${CMAKE_CURRENT_BINARY_DIR}/${target_name}Config.cmake
+            INSTALL_DESTINATION lib/cmake/${target_name}
+            NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    )
 endfunction()
 
 # Function to configure compiler settings.
