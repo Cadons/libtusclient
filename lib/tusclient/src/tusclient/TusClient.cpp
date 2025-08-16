@@ -81,7 +81,7 @@ std::string extractHeaderValue(const std::string &header,
     const auto toLower = [](const std::string &s) {
         std::string result = s;
         std::ranges::transform(result, result.begin(),
-            [](unsigned char c) { return std::tolower(c); });
+                               [](unsigned char c) { return std::tolower(c); });
         return result;
     };
 
@@ -154,7 +154,8 @@ bool TusClient::upload() {
             m_tusLocation.replace(0, lastSlashPosition + 1, "");
         } else {
             // Handle the case where '/' is not found in m_tusLocation
-            std::cerr << "Error: '/' not found in m_tusLocation, check if the upload url point to a TUS route" << std::endl;
+            std::cerr << "Error: '/' not found in m_tusLocation, check if the upload url point to a TUS route" <<
+                    std::endl;
         }
     };
     OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {
@@ -209,9 +210,17 @@ bool TusClient::uploadChunks() {
 }
 
 void TusClient::handleSuccessfulUpload(const string &header) {
+    if (m_status.load() == TusStatus::CANCELED) {
+        m_logger->debug("Upload canceled");
+        return;
+    }
     m_uploadedChunks++;
-    m_nextChunk = true;
-    m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
+    try {
+        m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
+    }catch (const std::exception &e) {
+        m_logger->error("Failed to parse header: " + std::string(e.what()));
+        return;
+    }
 
     float progress = static_cast<float>(m_uploadOffset) /
                      static_cast<float>(std::filesystem::file_size(m_filePath)) * 100;
@@ -232,7 +241,7 @@ void TusClient::handleUploadConflict(const string &header) {
     std::this_thread::sleep_for(m_requestTimeout);
 }
 
- void TusClient::handleUploadError(const string &header) {
+void TusClient::handleUploadError(const string &header) {
     m_logger->error(std::format("Error: Unable to upload chunk {}", m_uploadedChunks));
     m_logger->error(header);
     m_status.store(TusStatus::FAILED);
@@ -247,8 +256,6 @@ void TusClient::uploadChunk(int chunkNumber) {
 
     Chunk::TUSChunk chunk = m_fileChunker->getChunks().at(chunkNumber);
     std::map<std::string, std::string> patchHeaders;
-
-    m_nextChunk = false;
 
     patchHeaders["Tus-Resumable"] = TUS_PROTOCOL_VERSION;
     patchHeaders["Content-Type"] = "application/offset+octet-stream";
@@ -313,8 +320,12 @@ void TusClient::getUploadInfo() {
 
     OnSuccessCallback headSuccess = [this](const std::string &header,
                                            [[maybe_unused]] const std::string &data) {
-        m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
-        m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
+        try {
+            m_uploadOffset = std::stoi(extractHeaderValue(header, "Upload-Offset"));
+            m_uploadLength = std::stoi(extractHeaderValue(header, "Upload-Length"));
+        } catch (const std::exception &e) {
+            m_logger->error("Failed to parse header: " + std::string(e.what()));
+        }
     };
 
     OnErrorCallback onError = [this]([[maybe_unused]] const std::string &header, const std::string &data) {
@@ -408,7 +419,6 @@ bool TusClient::retry() {
         m_fileChunker->clearChunks();
         m_uploadedChunks = 0;
         m_uploadOffset = 0;
-        m_nextChunk = false;
         m_progress.store(0);
         return upload();
     } else {
