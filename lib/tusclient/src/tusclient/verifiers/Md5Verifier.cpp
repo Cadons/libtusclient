@@ -8,7 +8,7 @@
 #include <boost/uuid/detail/md5.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <iomanip>
-
+#include <fmt/core.h>
 #include "verifiers/Md5Verifier.h"
 
 
@@ -28,7 +28,7 @@ string Md5Verifier::hash(const std::vector<uint8_t> &buffer) const {
 
     std::string result;
     for (const unsigned char i : digest) {
-        result += std::format("{:02x}", static_cast<int>(i));
+        result += fmt::format("{:02x}", static_cast<int>(i));
     }
     return result;
 }
