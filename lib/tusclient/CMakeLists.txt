@@ -18,7 +18,7 @@ target_include_directories(tusclient PUBLIC
         $<INSTALL_INTERFACE:include/tusclient>)
 
 # Link libraries
-target_link_libraries(tusclient PUBLIC CURL::libcurl Boost::uuid Boost::lexical_cast nlohmann_json::nlohmann_json glog::glog)
+target_link_libraries(tusclient PUBLIC CURL::libcurl Boost::uuid Boost::lexical_cast nlohmann_json::nlohmann_json glog::glog fmt::fmt)
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(tusclient PRIVATE TUSCLIENT_EXPORTS)
     target_compile_definitions(tusclient PRIVATE TUSCLIENT_SHARED)

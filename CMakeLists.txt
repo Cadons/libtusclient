@@ -17,6 +17,7 @@ find_package(boost_lexical_cast CONFIG REQUIRED)
 find_package(boost_uuid CONFIG REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(glog REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 # Organization info
 set(PROJECT_ORG_NAME "Cadons")

@@ -10,7 +10,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
-#include <format>
+#include <fmt/core.h>
 
 #include "TusClient.h"
 #include "cache/CacheRepository.h"
@@ -154,7 +154,7 @@ bool TusClient::upload() {
             m_tusLocation.replace(0, lastSlashPosition + 1, "");
         } else {
             // Handle the case where '/' is not found in m_tusLocation
-            std::cerr << std::format("Invalid upload URL: The URL is empty or invalid.\n"
+            std::cerr << fmt::format("Invalid upload URL: The URL is empty or invalid.\n"
                             "Please ensure the URL is a complete TUS server endpoint (e.g., 'http://localhost:8080/files/')\n"
                             "Current URL: '{}'\n", m_url) << std::endl;
         }
@@ -234,7 +234,7 @@ void TusClient::handleUploadConflict(const string &header) {
         m_logger->warning("Conflict detected, retrying the upload");
         getUploadInfo();
     } else {
-        m_logger->error(std::format("Error: Too many conflicts {}", m_uploadedChunks));
+        m_logger->error(fmt::format("Error: Too many conflicts {}", m_uploadedChunks));
         m_logger->error(header);
         m_status.store(TusStatus::FAILED);
         throw TUS::Exceptions::TUSException("Error: Too many conflicts");
@@ -243,7 +243,7 @@ void TusClient::handleUploadConflict(const string &header) {
 }
 
 void TusClient::handleUploadError(const string &header) {
-    m_logger->error(std::format("Error: Unable to upload chunk {}", m_uploadedChunks));
+    m_logger->error(fmt::format("Error: Unable to upload chunk {}", m_uploadedChunks));
     m_logger->error(header);
     m_status.store(TusStatus::FAILED);
     throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
@@ -284,7 +284,7 @@ void TusClient::uploadChunk(int chunkNumber) {
             throw TUS::Exceptions::TUSException("Error: Unable to upload chunk");
         }
     };
-    m_logger->debug(std::format("Uploading chunk {}", chunkNumber));
+    m_logger->debug(fmt::format("Uploading chunk {}", chunkNumber));
     m_httpClient->patch(Http::Request(
         m_url + m_tusLocation,
         std::string(reinterpret_cast<char *>(chunk.getData().data()),

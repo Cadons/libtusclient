@@ -13,7 +13,7 @@
 #include "chunk/TUSChunk.h"
 #include "chunk/utility/ChunkUtility.h"
 #include "verifiers/Md5Verifier.h"
-#include <format>
+#include <fmt/core.h>
 
 using TUS::Chunk::FileChunker;
 using TUS::Chunk::TUSChunk;
@@ -67,7 +67,7 @@ std::filesystem::path FileChunker::getTemporaryDir() const {
 }
 
 std::string FileChunker::getChunkFilename(int chunkNumber) const {
-    return std::format("{}{}{}{}", m_uuid, CHUNK_FILE_NAME_PREFIX, chunkNumber, CHUNK_FILE_EXTENSION);
+    return fmt::format("{}{}{}{}", m_uuid, CHUNK_FILE_NAME_PREFIX, chunkNumber, CHUNK_FILE_EXTENSION);
 }
 
 std::filesystem::path FileChunker::getChunkFilePath(int chunkNumber) const {

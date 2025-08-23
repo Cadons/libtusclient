@@ -11,7 +11,7 @@
 #include <filesystem>
 #include <thread>
 #include <chrono>
-#include <format>
+#include <fmt/core.h>
 #include "TusClient.h"
 
 /**
@@ -36,7 +36,7 @@ namespace TUS::Test {
             std::filesystem::remove("test.zip");
 
             for (int i = 0; i < MAX_CLEANUP_FILES; ++i) {
-                std::filesystem::remove(std::format("{}.dat", i));
+                std::filesystem::remove(fmt::format("{}.dat", i));
             }
         }
     private:
@@ -65,7 +65,7 @@ namespace TUS::Test {
                     return static_cast<char>(dis(gen));
                 });
 
-                std::ofstream datFile(std::format("{}.dat", i), std::ios::binary);
+                std::ofstream datFile(fmt::format("{}.dat", i), std::ios::binary);
                 datFile.write(data.data(), data.size());
             });
         }
@@ -76,12 +76,12 @@ namespace TUS::Test {
         zipArchive.open(libzippp::ZipArchive::New);
 
         for (int i = 0; i < size; ++i) {
-            zipArchive.addFile(std::to_string(i), std::format("{}.dat", i));
+            zipArchive.addFile(std::to_string(i), fmt::format("{}.dat", i));
         }
         zipArchive.close();
 
         for (int i = 0; i < size; ++i) {
-            std::filesystem::remove(std::format("{}.dat", i));
+            std::filesystem::remove(fmt::format("{}.dat", i));
         }
 
         return "test.zip";

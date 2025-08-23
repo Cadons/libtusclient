@@ -1,5 +1,5 @@
 {
-  "name": "tusclient",
+  "name": "cadons-ctus",
   "license": "MIT",
   "version": "1.0.0",
   "description": "Library implementing the tus protocol for resumable uploads",
@@ -34,16 +34,8 @@
     },
     {
       "name": "glog"
-    },
-    "vcpkg-cmake",
-    {
-      "name": "vcpkg-cmake-config",
-      "host": true
+    },{
+      "name": "fmt"
     }
-  ],
-  "features": {
-    "shared": {
-      "description": "Build shared libraries"
-    }
-  }
+  ]
 }
